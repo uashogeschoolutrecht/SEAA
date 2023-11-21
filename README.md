@@ -1,0 +1,2 @@
+# SEAA
+semi-automatische anonimisering
