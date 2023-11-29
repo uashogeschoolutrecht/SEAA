@@ -4,7 +4,7 @@ import pandas as pd
 
 import nltk
 
-df = pd.read_csv(r'files\nse2023openant.csv', sep = ';')
+df = pd.read_csv(r'nse2023openant.csv', sep = ';')
 
 words = pd.read_csv(r'files\wordlist.txt', sep = ';')
 words['AVG'] = 0
