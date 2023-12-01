@@ -25,7 +25,8 @@ df = df[~df['antwoord_clean'].isnull()]
 
 # For each string, determine whether it is contains privacy-related (AVG) data.
 df['AVG'] = 0
-for i in range(1,100):
+N = len(df)
+for i in range(0,N):
     test = df['antwoord_clean'][i]
     test_df = pd.DataFrame({'WoordenClean':re.findall(r'(\w+)', test)})
     check_df = pd.merge(test_df,words,'left')
@@ -35,7 +36,7 @@ for i in range(1,100):
         df.loc[i,'AVG'] = 1
     else:
         df.loc[i,'AVG'] = 0
-    print(f'{round(i/1000*100,0)}%')
+    print(f'{round(i/N*100,0)}%')
 
 print('done')
 
