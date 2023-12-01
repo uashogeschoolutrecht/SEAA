@@ -15,15 +15,33 @@ nseant_df = df;
 efficiency = (1 - (sum(nseant_df['AVG']) / len(nseant_df)))*100
 
 ## Calculate accuracy
-# Load accuracy testdata
+# Load validation data for accuracy test
 logedin_user = os.getlogin()
 path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
 acctestdata_df = pd.read_csv(f'{path}{"fake data nse open vragen.csv"}', sep =';')
 
+# Clean validation data
+acctestdata_df['antwoord_clean'] = acctestdata_df['antwoord'].str.lower() 
+acctestdata_df = acctestdata_df[~acctestdata_df['antwoord_clean'].isnull()]
+acctestdata_df.reset_index(inplace=True,drop=True)
+
 #Run SEAA on accuracy testdata 
-# Add fake data column 'seaa_avg' (with random value 0 or 1) 
-# --> replace with run of SEAA when ready
-acctestdata_df['AVG'] = np.random.randint(0,2, acctestdata_df.shape[0])
+# Below code is currently code + paste from loaddata.py. Should be replaced with SEAA function
+acctestdata_df['AVG'] = 0
+N = len(acctestdata_df)
+for i in range(0,N):
+    test = acctestdata_df['antwoord_clean'][i]
+    test_df = pd.DataFrame({'WoordenClean':re.findall(r'(\w+)', test)})
+    check_df = pd.merge(test_df,words,'left')
+    check_df['AVG'] = np.where(check_df['AVG'].isnull(),1,0)
+
+    if check_df['AVG'].sum() >= 1:
+        acctestdata_df.loc[i,'AVG'] = 1
+    else:
+        acctestdata_df.loc[i,'AVG'] = 0
+    print(f'{round(i/N*100,0)}%')
+
+print('done')
 
 # Calculate accuracy
 # When seaa_avg is 1, it means that SEAA  determined the string to be containing AVG data. 
@@ -40,6 +58,6 @@ acctestdata_df['AVG'] = np.random.randint(0,2, acctestdata_df.shape[0])
 # False negative = seaa_avg = 0 and AVG = 1
 #
 # Accuracy = (true positives + true negatieve) / total cases
-true_positives = sum((acctestdata_df['AVG?']==1) & (acctestdata_df['seaa_avg'] == 1));
-true_negatives = sum((acctestdata_df['AVG?']==0) & (acctestdata_df['seaa_avg'] == 0));
-accuracy = (true_positives + true_negatives) / len(acctestdata_df)
+true_positives = sum((acctestdata_df['AVG validatie']==1) & (acctestdata_df['AVG'] == 1));
+true_negatives = sum((acctestdata_df['AVG validatie']==0) & (acctestdata_df['AVG'] == 0));
+accuracy = (true_positives + true_negatives) / len(acctestdata_df) * 100
