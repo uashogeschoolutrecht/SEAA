@@ -9,7 +9,7 @@ Pilot was started on November 23rd 2023 with the following dev team:
 ## Results
 
 A first version of the semi-automated anonimisation algorithm (SEAA) was developed. Validation on a 'fake validation dataset' was run to test efficiency and accuracy of the algorithm.
-Efficiency = 73.5%, accuracy = ?%
+Efficiency = 73.5%, accuracy = 64.5%
 
 ## Discussion
 
