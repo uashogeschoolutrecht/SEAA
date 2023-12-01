@@ -22,6 +22,7 @@ words.reset_index(inplace=True,drop=True)
 
 # Remove null values
 df = df[~df['antwoord_clean'].isnull()]
+df.reset_index(inplace=True,drop=True)
 
 # For each string, determine whether it is contains privacy-related (AVG) data.
 df['AVG'] = 0
