@@ -9,27 +9,37 @@ file_name = "nse2023openant.csv"
 nseant_df = pd.read_csv(f'{path}{file_name}', sep =';')
 
 # import Dutch word list
-file_name = "Opentaal_woordenlijst.txt"
+file_name = "wordlist.txt"
 word_list_df = pd.read_csv(f"{path}{file_name}", sep =';')
-
-# Quick data check. What are we working with.
-# print(nseant_df['Antwoord'][50],)
-# print(word_list_df['WoordenLijst'][50])
 
 # Add columns: 1 for AVG sensitivity and 1 for AVG sensitive words.
 ## AVG sensitivity is either 0 or 1. preset 0 is not sensitive.
 nseant_df['AVG_gevoelig'] = 0
-## Column to print words present in answers but not in imported dictionary
-# nseant_df['gevoelige_woorden'] = ''
+## Column to print words present in answers but not in imported dictionary.
+nseant_df['gevoelige_woorden'] = ''
 
+import re
+# Answers in lower case and remove numbers.
+nseant_df['Antwoord_clean'] = nseant_df['Antwoord'].str.lower()
+nseant_df['Antwoord_clean'] = nseant_df['Antwoord_clean'].str.replace(r"([0-9])", "", regex=True)
+
+sample_df = nseant_df.head(100).reset_index(drop=True) 
 # Loop over NSE answers and word list to find AVG sensitivity.
-for i in range(1,5):
-    gevoelige_woorden = 0
-    for word in word_list_df['WoordenLijst']:
-        if nseant_df['Antwoord'][i] not in word_list_df['WoordenLijst']:
-            gevoelige_woorden += 1
-    if gevoelige_woorden >= 1:
-        nseant_df['AVG_gevoelig'][i] = 1
-        print(f"Answer {i} has value {nseant_df['AVG_gevoelig'][i]}") 
-        print(gevoelige_woorden)  
-           
+# Start loop over NSE answers.
+for i in sample_df.index:
+    antwoord = sample_df['Antwoord_clean'][i]
+    gevoelige_woorden_aantal = 0                             
+    gevoelige_woorden_lijst = []                            
+    antwoord_woorden = re.findall(r"(\w+)", antwoord)
+# Loop over individual words in answer i.
+    for woord in antwoord_woorden:
+# If the word is not in our wordlist the word may be AVG sensitive.
+        if woord not in word_list_df['WoordenClean'].tolist():
+            gevoelige_woorden_aantal += 1
+            gevoelige_woorden_lijst += [woord]
+# If AVG sensitive words have been found, keep tally and which words.    
+    if gevoelige_woorden_aantal >= 1:
+        sample_df.loc[i,'AVG_gevoelig'] = 1
+        sample_df.loc[i,'gevoelige_woorden'] = ", ".join(gevoelige_woorden_lijst)
+        print(f"Answer {i} has value {sample_df['AVG_gevoelig'][i]}") 
+        print(gevoelige_woorden_aantal)
