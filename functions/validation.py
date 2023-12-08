@@ -12,31 +12,41 @@ def SEAA_efficiency(df):
 
     return efficiency
 
-    ## Calculate accuracy
-    # Load validation data for accuracy test
+def SEAA_accuracy():
+    '''Calculate accuracy of SEAA algorithm''' # Needs SEAA algorithm/function as input
+    import os
+    import pandas as pd
+    import numpy as np
+    import re
+
+    # Set path to validation data
     logedin_user = os.getlogin()
-    path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-    acctestdata_df = pd.read_csv(f'{path}{"fake data nse open vragen.csv"}', sep =';')
+    if logedin_user == 'pim.lamberts':
+        path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
+    else:
+        path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
+    # Load validation data for accuracy test
+    valdata_df = pd.read_csv(f'{path}{"fake data nse open vragen.csv"}', sep =';')
 
     # Clean validation data
-    acctestdata_df['antwoord_clean'] = acctestdata_df['antwoord'].str.lower() 
-    acctestdata_df = acctestdata_df[~acctestdata_df['antwoord_clean'].isnull()]
-    acctestdata_df.reset_index(inplace=True,drop=True)
+    valdata_df['antwoord_clean'] = valdata_df['antwoord'].str.lower() 
+    valdata_df = valdata_df[~valdata_df['antwoord_clean'].isnull()]
+    valdata_df.reset_index(inplace=True,drop=True)
 
     #Run SEAA on accuracy testdata 
     # Below code is currently code + paste from loaddata.py. Should be replaced with SEAA function
-    acctestdata_df['AVG'] = 0
-    N = len(acctestdata_df)
+    valdata_df['AVG'] = 0
+    N = len(valdata_df)
     for i in range(0,N):
-        test = acctestdata_df['antwoord_clean'][i]
+        test = valdata_df['antwoord_clean'][i]
         test_df = pd.DataFrame({'WoordenClean':re.findall(r'(\w+)', test)})
         check_df = pd.merge(test_df,words,'left')
         check_df['AVG'] = np.where(check_df['AVG'].isnull(),1,0)
 
         if check_df['AVG'].sum() >= 1:
-            acctestdata_df.loc[i,'AVG'] = 1
+            valdata_df.loc[i,'AVG'] = 1
         else:
-            acctestdata_df.loc[i,'AVG'] = 0
+            valdata_df.loc[i,'AVG'] = 0
         print(f'{round(i/N*100,0)}%')
 
     print('done')
@@ -56,6 +66,8 @@ def SEAA_efficiency(df):
     # False negative = seaa_avg = 0 and AVG = 1
     #
     # Accuracy = (true positives + true negatieve) / total cases
-    true_positives = sum((acctestdata_df['AVG validatie']==1) & (acctestdata_df['AVG'] == 1));
-    true_negatives = sum((acctestdata_df['AVG validatie']==0) & (acctestdata_df['AVG'] == 0));
-    accuracy = (true_positives + true_negatives) / len(acctestdata_df) * 100
+    true_positives = sum((valdata_df['AVG validatie']==1) & (valdata_df['AVG'] == 1));
+    true_negatives = sum((valdata_df['AVG validatie']==0) & (valdata_df['AVG'] == 0));
+    accuracy = (true_positives + true_negatives) / len(valdata_df) * 100
+
+    return accuracy
