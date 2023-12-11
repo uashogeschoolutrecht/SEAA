@@ -1,4 +1,3 @@
-# run the main functions
 import pandas as pd
 import os 
 
