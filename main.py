@@ -4,7 +4,10 @@ import os
 
 # import NSE open answers
 logedin_user = os.getlogin()
-path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
+if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
+    path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
+else:
+    path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
 file_name = "nse2023openant.csv"
 nseant_df = pd.read_csv(f'{path}{file_name}', sep =';')
 
@@ -12,9 +15,9 @@ nseant_df = pd.read_csv(f'{path}{file_name}', sep =';')
 file_name = "wordlist.txt"
 word_list_df = pd.read_csv(f"{path}{file_name}", sep =';')
 
-# Add columns: 1 for AVG sensitivity and 1 for AVG sensitive words.
-## AVG sensitivity is either 0 or 1. preset 0 is not sensitive.
-nseant_df['AVG_gevoelig'] = 0
+# Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.
+## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
+nseant_df['AVG_gevoelig'] = 1
 ## Column to print words present in answers but not in imported dictionary.
 nseant_df['gevoelige_woorden'] = ''
 
@@ -27,19 +30,20 @@ sample_df = nseant_df.head(100).reset_index(drop=True)
 # Loop over NSE answers and word list to find AVG sensitivity.
 # Start loop over NSE answers.
 for i in sample_df.index:
-    antwoord = sample_df['Antwoord_clean'][i]
-    gevoelige_woorden_aantal = 0                             
-    gevoelige_woorden_lijst = []                            
-    antwoord_woorden = re.findall(r"(\w+)", antwoord)
+    answer = sample_df['Antwoord_clean'][i]
+    sensitive_words_amount = 0                             
+    sensitive_words_list = []                            
+    words_in_answer = re.findall(r"(\w+)", answer)
 # Loop over individual words in answer i.
-    for woord in antwoord_woorden:
+    for word in words_in_answer:
 # If the word is not in our wordlist the word may be AVG sensitive.
-        if woord not in word_list_df['WoordenClean'].tolist():
-            gevoelige_woorden_aantal += 1
-            gevoelige_woorden_lijst += [woord]
-# If AVG sensitive words have been found, keep tally and which words.    
-    if gevoelige_woorden_aantal >= 1:
-        sample_df.loc[i,'AVG_gevoelig'] = 1
-        sample_df.loc[i,'gevoelige_woorden'] = ", ".join(gevoelige_woorden_lijst)
+        if word not in word_list_df['WoordenClean'].tolist():
+            sensitive_words_amount += 1
+            sensitive_words_list += [word]
+# If no AVG sensitive words found, the answer is safe. Else, keep track which sensitive words were found.    
+    if sensitive_words_amount == 0:
+        sample_df.loc[i,'AVG_gevoelig'] = 0
+    else:
+        sample_df.loc[i,'gevoelige_woorden'] = ", ".join(sensitive_words_list)
         print(f"Answer {i} has value {sample_df['AVG_gevoelig'][i]}") 
-        print(gevoelige_woorden_aantal)
+        print(sensitive_words_amount)
