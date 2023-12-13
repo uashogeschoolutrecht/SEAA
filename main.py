@@ -15,11 +15,10 @@ nseant_df = loaddata(path, file_name)
 dictionary = "wordlist.txt"
 word_list_df = loaddict(path, dictionary)
 
-sample_df = nseant_df.head(100).reset_index(drop=True) 
+from functions.SEAA import SEAA
+result_df = SEAA(nseant_df, word_list_df)
 
-from functions.loadSEAAdata import SEAA
-result_df = SEAA(sample_df, word_list_df)
-
+from functions.validation import SEAA_efficiency
 # Calculate efficiency of SEAA
 SEAA_efficiency(result_df)
 
@@ -27,6 +26,7 @@ SEAA_efficiency(result_df)
 val_data = "fake data nse open vragen.csv"
 validation_df = loaddata(path, val_data)
 
+from functions.validation import SEAA_accuracy
 SEAA_accuracy(validation_df, word_list_df)
 
 
