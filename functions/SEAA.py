@@ -1,6 +1,7 @@
 def SEAA(df, df_dict):
     # Loop over answers and dictionary to find AVG sensitivity.
-    
+    df = validation_df
+df_dict = word_list_df
     import re
     from functions.loadSEAAdata import loaddict
 

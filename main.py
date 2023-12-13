@@ -20,5 +20,13 @@ sample_df = nseant_df.head(100).reset_index(drop=True)
 from functions.loadSEAAdata import SEAA
 result_df = SEAA(sample_df, word_list_df)
 
+# Calculate efficiency of SEAA
+SEAA_efficiency(result_df)
+
+# Calculate accuracy of SEAA
+val_data = "fake data nse open vragen.csv"
+validation_df = loaddata(path, val_data)
+
+SEAA_accuracy(validation_df, word_list_df)
 
 
