@@ -2,7 +2,6 @@
 def loaddata(path, file_name):
     '''Load csv file containing one column of open answers (strings), cleans the data 
     and add columns.'''
-    import os
     import pandas as pd
 
     # Import NSE open answers
@@ -21,3 +20,9 @@ def loaddata(path, file_name):
     return df
 
 ## Load dictionary
+def loaddict(path, file_name):
+    '''Load text file containing dictionary (i.e. words of the Dutch language).'''
+    import pandas as pd
+    df_dict = pd.read_csv(f"{path}{file_name}", sep =';')
+
+    return df_dict
