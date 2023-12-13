@@ -1,6 +1,7 @@
 import pandas as pd
 import os 
 from functions.loadSEAAdata import loaddata
+from functions.loadSEAAdata import loaddict
 
 # import NSE open answers
 logedin_user = os.getlogin()
@@ -10,13 +11,15 @@ else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
 file_name = "nse2023openant.csv"
 nseant_df = loaddata(path, file_name)
-# import Dutch word list
-file_name = "wordlist.txt"
-word_list_df = pd.read_csv(f"{path}{file_name}", sep =';')
+
+# import Dutch word list dictionary
+dictionary = "wordlist.txt"
+word_list_df = loaddict(path, dictionary)
 
 sample_df = nseant_df.head(100).reset_index(drop=True) 
 # Loop over NSE answers and word list to find AVG sensitivity.
 # Start loop over NSE answers.
+import re
 for i in sample_df.index:
     answer = sample_df['Antwoord_clean'][i]
     sensitive_words_amount = 0                             
