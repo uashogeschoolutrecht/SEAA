@@ -1,5 +1,6 @@
 import pandas as pd
 import os 
+from functions.loadSEAAdata import loaddata
 
 # import NSE open answers
 logedin_user = os.getlogin()
@@ -8,22 +9,10 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
 file_name = "nse2023openant.csv"
-nseant_df = pd.read_csv(f'{path}{file_name}', sep =';')
-
+nseant_df = loaddata(path, file_name)
 # import Dutch word list
 file_name = "wordlist.txt"
 word_list_df = pd.read_csv(f"{path}{file_name}", sep =';')
-
-# Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.
-## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
-nseant_df['AVG_gevoelig'] = 1
-## Column to print words present in answers but not in imported dictionary.
-nseant_df['gevoelige_woorden'] = ''
-
-import re
-# Answers in lower case and remove numbers.
-nseant_df['Antwoord_clean'] = nseant_df['Antwoord'].str.lower()
-nseant_df['Antwoord_clean'] = nseant_df['Antwoord_clean'].str.replace(r"([0-9])", "", regex=True)
 
 sample_df = nseant_df.head(100).reset_index(drop=True) 
 # Loop over NSE answers and word list to find AVG sensitivity.
