@@ -1,6 +1,7 @@
 ## Load data
 def loaddata(path, file_name):
-    '''Load csv file containing one column of open answers (strings), clean data and add columns.'''
+    '''Load csv file containing one column of open answers (strings), cleans the data 
+    and add columns.'''
     import os
     import pandas as pd
 
