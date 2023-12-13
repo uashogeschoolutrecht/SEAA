@@ -17,3 +17,8 @@ word_list_df = loaddict(path, dictionary)
 
 sample_df = nseant_df.head(100).reset_index(drop=True) 
 
+from functions.loadSEAAdata import SEAA
+result_df = SEAA(sample_df, word_list_df)
+
+
+

@@ -2,7 +2,7 @@ def SEAA(df, df_dict):
     # Loop over answers and dictionary to find AVG sensitivity.
     
     import re
-    from loadSEAAdata import loaddict
+    from functions.loadSEAAdata import loaddict
 
     # Start loop over  answers.
     for i in df.index:
