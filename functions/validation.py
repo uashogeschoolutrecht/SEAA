@@ -35,9 +35,11 @@ def SEAA_accuracy(df, df_dict):
     # False positive: AVG_gevoelig = 1 and AVG validatie = 0
     # False negative = AVG_gevoelig = 0 and AVG validatie = 1
     #
-    # Accuracy = (true positives + true negatieve) / total cases
+    # We define accuracy as the proporition of correctly classified cases (true positives) 
+    # with respect to the total number of cases that contain privacy-related data (AVG 
+    # validatie = 1, i.e. true posities + false negatives).
     true_positives = sum((result_df['AVG validatie']==1) & (result_df['AVG_gevoelig'] == 1));
-    true_negatives = sum((result_df['AVG validatie']==0) & (result_df['AVG_gevoelig'] == 0));
-    accuracy = (true_positives + true_negatives) / len(result_df) * 100
+    false_negatives = sum((result_df['AVG validatie']==1) & (result_df['AVG_gevoelig'] == 0));
+    accuracy = (true_positives) / (true_positives+false_negatives) * 100
 
     return accuracy
