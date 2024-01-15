@@ -1,11 +1,8 @@
-## Input is DF with at least the following columns:
-# 1. AVG: classification of SEAA algorithm on whether row has AVG data = 1 or 0, 
-# 2. actual__AVG = 1 or 0 (whether column actually has AVG data)
-# efficiency --> number of detected cases without AVG / total cases
-# accuracy   --> number of correctly detected cases / total cases
-
 def SEAA_efficiency(df):
-    '''df = dataframe with column ['AVG_gevoelig'] that contains classification of SEAA 
+    '''Calculate efficiency of SEAA algorithm: the number of detected cases
+    without privacy-related data with respect to the total number of cases. 
+    INPUT:
+    df = dataframe with column ['AVG_gevoelig'] that contains classification of SEAA 
     algorithm whether row has AVG data (1) or not (0). '''
 
     # Calculate efficiency (%)
@@ -14,27 +11,27 @@ def SEAA_efficiency(df):
     return efficiency
 
 def SEAA_accuracy(df, df_dict):
-    '''Calculate accuracy of SEAA algorithm based on validation data''' 
+    '''Calculate accuracy of SEAA algorithm based on annotated data.
+    
+    When AVG_gevoelig is 1, it means that SEAA  determined the string to 
+    be containing privacy-related data. 
+    This is true when the actual string did contain any privacy-related 
+    fields (AVG validatie = 1), i.e. a true positive. When AVG_gevoelig 
+    is 0, SEAA determined that the string is AVG-free, so it will not
+    contain AVG data (AVG validatie = 0).
+    
+    When assessing the algorithm SEAA the output of SEAA for a case falls 
+    into one of the following four categories:
+    - True positive: AVG_gevoelig = 1 and AVG validatie = 1
+    - True negative: AVG_gevoelig = 0 and AVG validatie = 0
+    - False positive: AVG_gevoelig = 1 and AVG validatie = 0
+    - False negative = AVG_gevoelig = 0 and AVG validatie = 1''' 
 
-    #Run SEAA on validation data
+    #Run SEAA on annotated data
     from functions.SEAA import SEAA
     result_df = SEAA(df, df_dict)
     
     # Calculate accuracy
-    # When AVG_gevoelig is 1, it means that SEAA  determined the string to be containing 
-    # AVG data. 
-    # This is true when the actual string did contain any privacy-related 
-    # fields (AVG validatie = 1).
-    # When AVG_gevoelig is 0, SEAA determined that the string is AVG-free, so it will not
-    # contain AVG data (AVG validatie = 0).
-    #
-    # When assessing the algorithm SEAA the output of SEAA for a case falls 
-    # into one of the following four categories:
-    # True positive: AVG_gevoelig = 1 and AVG validatie = 1
-    # True negative: AVG_gevoelig = 0 and AVG validatie = 0
-    # False positive: AVG_gevoelig = 1 and AVG validatie = 0
-    # False negative = AVG_gevoelig = 0 and AVG validatie = 1
-    #
     # We define accuracy as the proporition of correctly classified cases (true positives) 
     # with respect to the total number of cases that contain privacy-related data (AVG 
     # validatie = 1, i.e. true posities + false negatives).
