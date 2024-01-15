@@ -23,8 +23,7 @@ from functions.validation import SEAA_efficiency
 SEAA_efficiency(result_df)
 
 # Calculate accuracy of SEAA
-val_data = "fake data nse open vragen.csv"
-validation_df = loaddata(path, val_data)
+validation_df = loaddata(path, "nse annoteringen.csv")
 
 from functions.validation import SEAA_accuracy
 SEAA_accuracy(validation_df, word_list_df)
