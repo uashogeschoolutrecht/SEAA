@@ -1,5 +1,16 @@
-def SEAA(df, df_dict):
-    # Loop over answers and dictionary to find AVG sensitivity.
+def SEAA(df, df_dict, N=-1):
+    '''Semi-automatic anonimisation algorithm
+    
+    Input is 2 dataframes:
+    - a dataframe df containing text to be checked by SEAA
+    for possible privacy-related data in the column ['Antwoord_clean']
+    - a dataframe df_dict: a list of words that are considered safe,
+    i.e. not privacy-related. 
+    - integer N (optional), number of answers to check (usefull for testing)
+    
+    Output is dataframe df with one extra column ['AVG_gevoelig'] 
+    indicating whether the column might contain privacy-related data (1)
+    or not does not (0). '''
 
     import re
     import pandas as pd
@@ -31,6 +42,8 @@ def SEAA(df, df_dict):
                     print(sensitive_words_amount)
         except Exception as e:
             print(e)
-
+        # Exit the loop early for testing purposes
+        if i == N:
+            break
 
     return df
