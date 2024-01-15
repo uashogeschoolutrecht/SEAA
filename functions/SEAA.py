@@ -38,8 +38,7 @@ def SEAA(df, df_dict, N=-1):
                     df.loc[i,'AVG_gevoelig'] = 0
                 else:
                     df.loc[i,'gevoelige_woorden'] = ", ".join(sensitive_words_list)
-                    print(f"Answer {i} has value {df['AVG_gevoelig'][i]}") 
-                    print(sensitive_words_amount)
+                    print(f"Answer {i} might contain privacy-related data: {sensitive_words_amount} unknown word(s).") 
         except Exception as e:
             print(e)
         # Exit the loop early for testing purposes
