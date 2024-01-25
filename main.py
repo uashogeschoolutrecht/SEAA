@@ -28,4 +28,25 @@ validation_df = loaddata(path, "nse annoteringen.csv")
 from functions.validation import SEAA_accuracy
 SEAA_accuracy(validation_df, word_list_df)
 
+# Create a list of all 'gevoelige woorden'
+col_avg_list = result_df['gevoelige_woorden'].tolist()
+col_avg_list = [i for i in col_avg_list if i]
+avg_list = [sub_item for item in col_avg_list for sub_item in item.split(", ")]
+unique_avg_list = []
+
+# Keep unique 'gevoelige woorden'
+# Improvement: add count per unique value
+for word in avg_list:
+    if word not in unique_avg_list:
+        unique_avg_list.append(word)
+
+# Write list to csv file
+import csv
+csv_file_path = 'unique_avg_words.csv'
+
+with open(csv_file_path, 'w', newline='') as csvfile:
+    csv_writer = csv.writer(csvfile)
+    for item in unique_avg_list:
+        csv_writer.writerow([item])
+
 
