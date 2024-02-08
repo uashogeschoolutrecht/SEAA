@@ -20,12 +20,10 @@ result_df = SEAA(nseant_df, word_list_df)
 
 from functions.validation import SEAA_efficiency
 # Calculate efficiency of SEAA
-SEAA_efficiency(result_df)
+efficiency = SEAA_efficiency(result_df)
 
 # Calculate accuracy of SEAA
 validation_df = loaddata(path, "nse annoteringen.csv")
 
 from functions.validation import SEAA_accuracy
-SEAA_accuracy(validation_df, word_list_df)
-
-
+accuracy = SEAA_accuracy(validation_df, word_list_df)
