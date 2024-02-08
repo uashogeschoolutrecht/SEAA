@@ -5,6 +5,7 @@ def loaddata(path, file_name):
     import pandas as pd
 
     # Import NSE open answers
+    path = f"{path}data\\"
     df = pd.read_csv(f'{path}{file_name}', sep =';')
     
     # Clean data
@@ -23,6 +24,7 @@ def loaddata(path, file_name):
 def loaddict(path, file_name):
     '''Load text file containing dictionary (i.e. words of the Dutch language).'''
     import pandas as pd
+    path = f"{path}dict\\"
     df_dict = pd.read_csv(f"{path}{file_name}", sep =';')
 
     return df_dict
