@@ -21,13 +21,13 @@ result_df = SEAA(nseant_df, word_list_df)
 
 from functions.validation import SEAA_efficiency
 # Calculate efficiency of SEAA
-SEAA_efficiency(result_df)
+efficiency = SEAA_efficiency(result_df)
 
 # Calculate accuracy of SEAA
 validation_df = loaddata(path, "data\\nse annoteringen.csv")
 
 from functions.validation import SEAA_accuracy
-SEAA_accuracy(validation_df, word_list_df)
+accuracy = SEAA_accuracy(validation_df, word_list_df)
 
 #Extract AVG words with count
 from AVG_list import AVG_list
@@ -35,3 +35,4 @@ avg_words_df = AVG_list(result_df)
 
 # Save word count list to file
 avg_words_df.to_csv('avg_words_count.csv', index=False) 
+
