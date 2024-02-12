@@ -31,4 +31,7 @@ SEAA_accuracy(validation_df, word_list_df)
 
 #Extract AVG words with count
 from AVG_list import AVG_list
-AVG_list(result_df)
+avg_words_df = AVG_list(result_df)
+
+# Save word count list to file
+avg_words_df.to_csv('avg_words_count.csv', index=False) 
