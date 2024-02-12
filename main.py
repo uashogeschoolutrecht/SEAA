@@ -29,20 +29,6 @@ validation_df = loaddata(path, "data\\nse annoteringen.csv")
 from functions.validation import SEAA_accuracy
 SEAA_accuracy(validation_df, word_list_df)
 
-
-#Retrieve list of flagged AVG words
-avg_list = result_df['gevoelige_woorden'].tolist()
-while('' in avg_list):
-    avg_list.remove('')
-
-avg_list_def = []
-for item in avg_list:
-    words = item.split(", ")
-    avg_list_def.extend(words)
-
-# Create datframe containing all AVG words with count
-word_count = pd.Series(avg_list_def).value_counts()
-avg_words_df = pd.DataFrame({'AVG_woord': word_count.index, 'Count': word_count.values})
-
-csv_file_path = 'avg_words_count.csv'
-avg_words_df.to_csv(csv_file_path, index=False) 
+#Extract AVG words with count
+from AVG_list import AVG_list
+AVG_list(result_df)
