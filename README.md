@@ -33,6 +33,13 @@ A word and/or sequence of words is defined as “possibly containing privacy-rel
 - Contains any mention of illness(type).
 - Contains a term that identifies a type of educational person (e.g. ‘student’ and ‘professor’)
 
+## Dictionaries
+
+SEAA uses two different dictionaries:
+
+1. Dutch language word list ([OpenTaal](https://www.opentaal.org/))
+2. Dutch illness list ([Wikipedia](https://nl.wikipedia.org/wiki/Lijst_van_aandoeningen))
+
 ## Developer notes
 
 Open antwoorden NSE

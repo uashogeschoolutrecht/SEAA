@@ -17,6 +17,7 @@ def loaddata(path, file_name):
     df['AVG_gevoelig'] = 1
     ## Column to print words present in answers but not in imported dictionary.
     df['gevoelige_woorden'] = ''
+    df['flagged words'] = ''
 
     return df
 
