@@ -19,16 +19,20 @@ slides
 nederlandse
 bijv
 
+**Detect non-Dutch answers**. By looking for answers with a large proportion of unknown words we identified answers that were not written in Dutch. We used a threshold of answers that contained at least 8 words.
+
 ## Results
 
 SEAA was run on the 300 annotated cases:  accuracy = 100%.
 SEAA was run on the full batch of answers: efficiency = 76.0%.
 
+Non-Dutch answers: 88 of total (3.3%).
+
 ## Discussion
 
 Accuracy of SEAA is very good: with the implementation of the illness dictionary we are now confident SEAA can succesfully distinguish between answers that contain no privacy-related data and answers that might contain some form of privacy-related data.
 
-Efficiency is lower than expected (80% or higher). A proportion of answers seems to be written in English (~5 - 20%) which currently all will be flagged as 'might contain privacy-related data' and contribute strongly to a lower efficiency as false positives. By excluding English answers the true efficiency can be calculated.
+Efficiency is lower than expected (80% or higher). A proportion of answers seems to be written in English which currently all will be flagged as 'might contain privacy-related data' and contribute strongly to a lower efficiency as false positives. By excluding English answers the true efficiency can be calculated.
 
 The illness dictionary contained one word that is also a common Dutch word: 'als'. To evade a high number of false positives we opted to exclude the illness smallcaps writing 'als' and only inlude the truecaps writing 'ALS'.
 
