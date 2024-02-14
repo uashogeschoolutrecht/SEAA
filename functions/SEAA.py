@@ -45,7 +45,8 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 if sensitive_words_amount  == 0 & flagged_words_number == 0:
                     df.loc[i,'AVG_gevoelig'] = 0
                 elif flagged_words_number > 0:
-                    df.loc[i,'gevoelige_woorden'] = ", ".join(flagged_words_list)
+                    df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
+                    df.loc[i,'gevoelige_woorden'] = ", ".join(sensitive_words_list)
                     print(f"Answer {i} contains privacy-related data: {flagged_words_number} illness word(s).") 
                 else:
                     df.loc[i,'gevoelige_woorden'] = ", ".join(sensitive_words_list)
