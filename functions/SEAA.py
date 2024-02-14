@@ -1,4 +1,4 @@
-def SEAA(df, df_dict, N=-1):
+def SEAA(df, df_dict, df_flag, N=-1):
     '''Semi-automatic anonimisation algorithm
     
     Input is 2 dataframes:
@@ -6,6 +6,8 @@ def SEAA(df, df_dict, N=-1):
     for possible privacy-related data in the column ['Antwoord_clean']
     - a dataframe df_dict: a list of words that are considered safe,
     i.e. not privacy-related. 
+    - a dataframe df_flag: a list of words that are considered unsafe,
+    i.e. containing privacy-related information. 
     - integer N (optional), number of answers to check (usefull for testing)
     
     Output is dataframe df with one extra column ['AVG_gevoelig'] 
@@ -25,7 +27,9 @@ def SEAA(df, df_dict, N=-1):
                 #skip NaN answer
             else:
                 sensitive_words_amount = 0                             
-                sensitive_words_list = []                            
+                sensitive_words_list = []       
+                flagged_words_number = 0
+                flagged_words_list = []                     
                 words_in_answer = re.findall(r"(\w+)", answer)
             # Loop over individual words in answer i.
                 for word in words_in_answer:
@@ -33,9 +37,16 @@ def SEAA(df, df_dict, N=-1):
                     if word not in df_dict['WoordenClean'].tolist():
                         sensitive_words_amount += 1
                         sensitive_words_list += [word]
+            # If the word is an illness word, flag the word
+                    if word in df_flag['Illness'].tolist():
+                        flagged_words_number += 1
+                        flagged_words_list += [word]
             # If no AVG sensitive words found, the answer is safe. Else, keep track which sensitive words were found.    
-                if sensitive_words_amount == 0:
+                if sensitive_words_amount  == 0 & flagged_words_number == 0:
                     df.loc[i,'AVG_gevoelig'] = 0
+                elif flagged_words_number > 0:
+                    df.loc[i,'gevoelige_woorden'] = ", ".join(flagged_words_list)
+                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} illness word(s).") 
                 else:
                     df.loc[i,'gevoelige_woorden'] = ", ".join(sensitive_words_list)
                     print(f"Answer {i} might contain privacy-related data: {sensitive_words_amount} unknown word(s).") 
