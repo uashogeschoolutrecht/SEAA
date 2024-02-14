@@ -10,7 +10,7 @@ def SEAA_efficiency(df):
 
     return efficiency
 
-def SEAA_accuracy(df, df_dict):
+def SEAA_accuracy(df, df_dict, df_flag):
     '''Calculate accuracy of SEAA algorithm based on annotated data.
     
     When AVG_gevoelig is 1, it means that SEAA  determined the string to 
@@ -29,7 +29,7 @@ def SEAA_accuracy(df, df_dict):
 
     #Run SEAA on annotated data
     from functions.SEAA import SEAA
-    result_df = SEAA(df, df_dict)
+    result_df = SEAA(df, df_dict, df_flag)
     
     # Calculate accuracy
     # We define accuracy as the proporition of correctly classified cases (true positives) 

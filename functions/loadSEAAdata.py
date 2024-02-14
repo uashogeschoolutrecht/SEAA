@@ -22,10 +22,16 @@ def loaddata(path, file_name):
     return df
 
 ## Load dictionary
-def loaddict(path, file_name):
+def loaddict(path, file_name, type = ''):
     '''Load text file containing dictionary (i.e. words of the Dutch language).'''
     import pandas as pd
     path = f"{path}dict\\"
     df_dict = pd.read_csv(f"{path}{file_name}", sep =';')
+
+    # For the illness dictionary convert words to smallcase
+    if type == "illness":
+        df_dict['Illness'] = df_dict['Illness'].str.lower()
+        # Exception for illness ALS, which in small cases is a common Dutch word
+        df_dict = df_dict.replace('als', 'ALS')
 
     return df_dict

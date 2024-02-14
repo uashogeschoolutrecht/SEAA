@@ -19,9 +19,9 @@ word_list_df = loaddict(path, dictionary)
 
 # illnesses dictionary
 dictionary = 'illness.txt'
-illness_df = loaddict(path, dictionary)
-illness_df['Illness'] = illness_df['Illness'].str.lower()
+illness_df = loaddict(path, dictionary, 'illness')
 
+# Run SEAA
 from functions.SEAA import SEAA
 result_df = SEAA(nseant_df, word_list_df,illness_df)
 
@@ -30,10 +30,10 @@ from functions.validation import SEAA_efficiency
 efficiency = SEAA_efficiency(result_df)
 
 # Calculate accuracy of SEAA
-validation_df = loaddata(path, "data\\nse annoteringen.csv")
+validation_df = loaddata(path, "nse annoteringen.csv")
 
 from functions.validation import SEAA_accuracy
-accuracy = SEAA_accuracy(validation_df, word_list_df)
+accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
 
 #Extract AVG words with count
 from AVG_list import AVG_list
