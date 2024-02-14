@@ -31,3 +31,5 @@ Accuracy of SEAA is very good: with the implementation of the illness dictionary
 Efficiency is lower than expected (80% or higher). A proportion of answers seems to be written in English (~5 - 20%) which currently all will be flagged as 'might contain privacy-related data' and contribute strongly to a lower efficiency as false positives. By excluding English answers the true efficiency can be calculated.
 
 The illness dictionary contained one word that is also a common Dutch word: 'als'. To evade a high number of false positives we opted to exclude the illness smallcaps writing 'als' and only inlude the truecaps writing 'ALS'.
+
+There is one type of privacy-related content SEAA currently cannot detect. For instance the sentence 'docent groen is stom' will be not be flagged by SEAA since all words are part of the Dutch language dictionary. To correct for this, we want to implement smart rules to identify these types of privacy-related language.
