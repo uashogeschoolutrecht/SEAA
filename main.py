@@ -17,6 +17,11 @@ nseant_df = loaddata(path, file_name)
 dictionary = "wordlist.txt"
 word_list_df = loaddict(path, dictionary)
 
+# white list (words not part of the Dutch dictionary but considered safe regardless)
+dictionary = 'whitelist.txt'
+whitelist_df = loaddict(path, dictionary)
+word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
+
 # illnesses dictionary
 dictionary = 'illness.txt'
 illness_df = loaddict(path, dictionary, 'illness')
@@ -40,5 +45,5 @@ from AVG_list import AVG_list
 avg_words_df = AVG_list(result_df)
 
 # Save word count list to file
-avg_words_df.to_csv('avg_words_count.csv', index=False) 
-
+file_name = 'avg_words_count.csv'
+avg_words_df.to_csv(f'{path}{file_name}', sep =';')
