@@ -10,12 +10,40 @@ def loaddata(path, file_name):
     # Clean data
     df['Antwoord_clean'] = df['Antwoord'].str.lower()
     df['Antwoord_clean'] = df['Antwoord_clean'].str.replace(r"([0-9])", "", regex=True)
-    
+
+      
     # Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.
     ## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
     df['AVG_gevoelig'] = 1
     ## Column to print words present in answers but not in imported dictionary.
     df['gevoelige_woorden'] = ''
+    # Add column to check if the anwser is in Dutch or not
+    df['NL/NietNL'] = ''
+    return df
+
+def loaddataNew(shp_response,open_antw_col):
+    """Load csv file containing one column of open answers (strings), cleans the data
+    and add columns."""
+    import pandas as pd
+    import io
+
+    # Import NSE open answers
+    resp = io.BytesIO(shp_response.content)
+    df = pd.read_csv(resp, sep=";")
+
+    # Clean data
+    df["Antwoord_clean"] = df[open_antw_col].str.lower()
+    df["Antwoord_clean"] = df["Antwoord_clean"].str.replace(r"([0-9])", "", regex=True)
+
+    # Add column for check if awnsers are dutch or not
+    df["Nederlands/Niet Nederlands"] = ""
+
+    # Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.
+    ## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
+    df["AVG_gevoelig"] = 1
+
+    ## Column to print words present in answers but not in imported dictionary.
+    df["gevoelige_woorden"] = ""
 
     return df
 
