@@ -144,33 +144,6 @@ def uploadToSharePoint(input_df, shp_file_name, shp_folder, client_id, client_se
             futures.result().execute_query()
 
 
-def excelColToPy(sheet, cols, shp_response):
-    import pandas as pd
-    import io
-    import warnings
-
-    warnings.filterwarnings("ignore")
-    export = (
-        pd.read_excel(
-            io.BytesIO(shp_response.content),
-            sheet_name=sheet,
-            index_col=None,
-            na_values=False,
-            usecols=cols,
-        )
-        .dropna()
-        .loc[9:]
-    )
-
-    export.columns = ["Col"]
-    export = export["Col"].to_list()
-
-    if len(export) > 1:
-        return export
-    else:
-        return export[0]
-
-
 def sqlPathToString(sql_file, jmstart="", jmend="", suppliers=""):
     ## Load totals from UBW
     sql_path = f"SQLS\\{sql_file}.sql"
