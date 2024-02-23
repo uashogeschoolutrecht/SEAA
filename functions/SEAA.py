@@ -30,7 +30,7 @@ def SEAA(df, df_dict, N=-1):
             # Loop over individual words in answer i.
                 for word in words_in_answer:
             # If the word is not in our wordlist the word may be AVG sensitive.
-                    if word not in df_dict['WoordenClean'].tolist():
+                    if word not in df_dict['words'].tolist():
                         sensitive_words_amount += 1
                         sensitive_words_list += [word]
             # If no AVG sensitive words found, the answer is safe. Else, keep track which sensitive words were found.    
