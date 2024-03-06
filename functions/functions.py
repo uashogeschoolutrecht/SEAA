@@ -1,5 +1,3 @@
-# DWH FUNCTIONS
-
 
 def getAzureKey(vault, key):
     """Retrieve keys from the Azure keyvault with the vault name and key name"""
