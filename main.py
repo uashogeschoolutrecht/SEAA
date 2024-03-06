@@ -18,7 +18,7 @@ dictionary = "wordlist.txt"
 word_list_df = loaddict(path, dictionary)
 
 # white list (words not part of the Dutch dictionary but considered safe regardless)
-dictionary = 'whitelist.txt'
+dictionary = 'whitelist_demo.txt'
 whitelist_df = loaddict(path, dictionary)
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
