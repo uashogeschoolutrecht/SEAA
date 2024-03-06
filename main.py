@@ -28,11 +28,21 @@ illness_df = loaddict(path, dictionary, 'illness')
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,illness_df)
+result_df = SEAA(nseant_df, word_list_df,illness_df) # <== 4m .7s
+
+# Add Dutch or not Dutch column classificatiion
+# If the anwser contains 8 or more words and more than 40 percent of those words are unkown
+# the awnser will be classified as not Dutch
+import numpy as np
+result_df["NL/NietNL"] = np.where(
+    (result_df['total_word_count']>=8) & 
+    (result_df['sensitive_word_count'] / result_df['total_word_count']> 0.4),
+     "Niet NL",
+     "NL")              
 
 from functions.validation import SEAA_efficiency
 # Calculate efficiency of SEAA
-efficiency = SEAA_efficiency(result_df)
+efficiency = SEAA_efficiency(result_df[result_df["NL/NietNL"]=='NL'])
 
 # Calculate accuracy of SEAA
 validation_df = loaddata(path, "nse annoteringen.csv")
