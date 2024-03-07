@@ -42,7 +42,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                         flagged_words_number += 1
                         flagged_words_list += [word]
             # If no AVG sensitive words found, the answer is safe. Else, keep track which sensitive words were found.    
-                if sensitive_words_amount  == 0 & flagged_words_number == 0:
+                if (sensitive_words_amount  == 0) & (flagged_words_number == 0):
                     df.loc[i,'AVG_gevoelig'] = 0
                 elif flagged_words_number > 0:
                     df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
