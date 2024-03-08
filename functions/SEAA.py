@@ -40,37 +40,37 @@ def SEAA(df, df_dict, df_flag, N=-1):
 
                     # If looking for sensitive words. Amount of unknown words based on total words minus known words
                     if dict_type == 'sensitive':
-                        forbidden_words_number = words_number - check_df["known"].sum()      
+                        unknown_words_number = words_number - check_df["known"].sum()      
                         # Select list of sensitive words
-                        sensitive_words_list = check_df[check_df["known"].isnull()][
+                        unknown_words_list = check_df[check_df["known"].isnull()][
                             "words"
                         ].tolist()
                         
-                        if forbidden_words_number >= 1:                    
+                        if unknown_words_number >= 1:                    
                             df.loc[i, "AVG_gevoelig"] = 1
-                            df.loc[i, "gevoelige_woorden"] = ", ".join(sensitive_words_list)
+                            df.loc[i, "gevoelige_woorden"] = ", ".join(unknown_words_list)
                             
                             # for sensitive words add column with amount of sensitive words plus amount of words 
                             # this is for later language analysis.
                             df.loc[i, "total_word_count"] = words_number
-                            df.loc[i, "sensitive_word_count"] = forbidden_words_number                        
+                            df.loc[i, "sensitive_word_count"] = unknown_words_number                        
                             
                             print(
-                                f"Answer {i} might contain privacy-related data: {forbidden_words_number} unknown word(s)."
+                                f"Answer {i} might contain privacy-related data: {unknown_words_number} unknown word(s)."
                             )
                         # If no unknown words are found AVG is set to 0
                         else:
                             df.loc[i, "AVG_gevoelig"] = 0
                     else:
                         # If looking for flagged words take the sum of the total known
-                        forbidden_words_number = check_df["known"].sum()
-                        if forbidden_words_number >= 1:
+                        unknown_words_number = check_df["known"].sum()
+                        if unknown_words_number >= 1:
                             flagged_words_list = check_df[~check_df["known"].isnull()][
                                 "words"
                             ].tolist()
                             df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
                             df.loc[i, "AVG_gevoelig"] = 1         
-                            print(f"Answer {i} contains privacy-related data: {forbidden_words_number} illness word(s).")                                                                             
+                            print(f"Answer {i} contains privacy-related data: {unknown_words_number} illness word(s).")                                                                             
         except Exception as e:
             print(e)
         # Exit the loop early for answering purposes
