@@ -29,6 +29,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 df.loc[i, "NL/NietNL"] = "NL"
             # Else continue with SEAA
             else:
+                # Loop over all dictionaries
                 for dicts,dict_type in zip([df_dict,df_flag],['sensitive','flagged']):
                     # Set col_name for merge, making sure that both columns have the same name
                     col_name = dicts.columns[0]
@@ -46,6 +47,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                             "words"
                         ].tolist()
                         
+                        # If at least one word is unknown, AVG is set to 1
                         if unknown_words_number >= 1:                    
                             df.loc[i, "AVG_gevoelig"] = 1
                             df.loc[i, "gevoelige_woorden"] = ", ".join(unknown_words_list)
@@ -73,7 +75,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                             print(f"Answer {i} contains privacy-related data: {unknown_words_number} illness word(s).")                                                                             
         except Exception as e:
             print(e)
-        # Exit the loop early for answering purposes
+        # Exit the loop early for testing purposes
         if i == N:
             break
 
