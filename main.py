@@ -29,13 +29,4 @@ illness_df = loaddict(path, dictionary, 'illness')
 # Run SEAA
 from functions.SEAA import SEAA
 result_df = SEAA(nseant_df, word_list_df,illness_df)
-
-#Extract AVG words with count
-from AVG_list import AVG_list
-avg_words_df = AVG_list(result_df)
-
-# Save word count list to file
-file_name = 'avg_words_count.csv'
-avg_words_df.to_csv(f'{path}{file_name}', sep =';')
-
 result_df
