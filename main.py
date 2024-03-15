@@ -9,7 +9,7 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "nse2023openant.csv"
+file_name = "demo.csv"
 nseant_df = loaddata(path, file_name)
 
 # import dictionaries
@@ -28,7 +28,7 @@ illness_df = loaddict(path, dictionary, 'illness')
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,illness_df) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,illness_df, 100) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
