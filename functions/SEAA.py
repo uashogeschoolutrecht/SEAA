@@ -15,7 +15,12 @@ def SEAA(df, df_dict, df_flag, N=-1):
     or not does not (0). '''
 
     import re
+    # import warnings
+
     import pandas as pd
+
+    # warnings.simplefilter(action="ignore")
+    
     df_dict["known"] = 1
     df_flag["known"] = 1
 
@@ -26,55 +31,58 @@ def SEAA(df, df_dict, df_flag, N=-1):
             # If answer contains no value, set output
             if pd.isna(df["Antwoord_clean"][i]):
                 df.loc[i, "AVG_gevoelig"] = 0
-                df.loc[i, "NL/NietNL"] = "NL"
             # Else continue with SEAA
             else:
-                # Loop over all dictionaries
-                for dicts,dict_type in zip([df_dict,df_flag],['sensitive','flagged']):
-                    # Set col_name for merge, making sure that both columns have the same name
-                    col_name = dicts.columns[0]
-                    answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
-                    check_df = pd.merge(answer_df, dicts, "left")
+                # Set col_name for merge, making sure that both columns have the same name
+                col_name = df_dict.columns[0]
+                answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
+                check_df = pd.merge(answer_df, df_dict, "left")
 
-                    # Count the number of words in the answer
-                    words_number = len(check_df[col_name])
+                # Count the number of words in the answer
+                words_number = len(check_df[col_name])
 
-                    # If looking for sensitive words. Amount of unknown words based on total words minus known words
-                    if dict_type == 'sensitive':
-                        unknown_words_number = words_number - check_df["known"].sum()      
-                        # Select list of sensitive words
-                        unknown_words_list = check_df[check_df["known"].isnull()][
-                            "words"
-                        ].tolist()
-                        
-                        # If at least one word is unknown, AVG is set to 1
-                        if unknown_words_number >= 1:                    
-                            df.loc[i, "AVG_gevoelig"] = 1
-                            df.loc[i, "gevoelige_woorden"] = ", ".join(unknown_words_list)
-                            
-                            # for sensitive words add column with amount of sensitive words plus amount of words 
-                            # this is for later language analysis.
-                            df.loc[i, "total_word_count"] = words_number
-                            df.loc[i, "sensitive_word_count"] = unknown_words_number                        
-                            
-                            print(
-                                f"Answer {i} might contain privacy-related data: {unknown_words_number} unknown word(s)."
-                            )
-                        # If no unknown words are found AVG is set to 0
-                        else:
-                            df.loc[i, "AVG_gevoelig"] = 0
-                    else:
-                        # If looking for flagged words take the sum of the total known
-                        unknown_words_number = check_df["known"].sum()
-                        if unknown_words_number >= 1:
-                            flagged_words_list = check_df[~check_df["known"].isnull()][
-                                "words"
-                            ].tolist()
-                            df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
-                            df.loc[i, "AVG_gevoelig"] = 1         
-                            print(f"Answer {i} contains privacy-related data: {unknown_words_number} illness word(s).")                                                                             
+                # If looking for sensitive words. Amount of unknown words based on total words minus known words            
+                unknown_words_number = words_number - check_df["known"].sum()      
+                # Select list of sensitive words
+                unknown_words_list = check_df[check_df["known"].isnull()][
+                    col_name
+                ].tolist()
+                
+                # If at least one word is unknown, AVG is set to 1
+                if unknown_words_number >= 1:                    
+                    df.loc[i, "AVG_gevoelig"] = 1
+                    df.loc[i, "gevoelige_woorden"] = ", ".join(unknown_words_list)
+                    
+                    # for sensitive words add column with amount of sensitive words plus amount of words 
+                    # this is for later language analysis.
+                    df.loc[i, "total_word_count"] = words_number
+                    df.loc[i, "sensitive_word_count"] = unknown_words_number                        
+                    
+                    print(
+                        f"Answer {i} might contain privacy-related data: {unknown_words_number} unknown word(s)."
+                    )
+                # If no unknown words are found AVG is set to 0
+                else:
+                    df.loc[i, "AVG_gevoelig"] = 0
+                    df.loc[i, "total_word_count"] = words_number
+                
+                # Repeat efor flagged words
+                # Set col_name for merge, making sure that both columns have the same name
+                col_name = df_flag.columns[0]
+                answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
+                check_df = pd.merge(answer_df, df_flag, "left")
+
+                # If looking for flagged words take the sum of the total known
+                flagged_words_number = check_df["known"].sum()
+                if flagged_words_number >= 1:
+                    flagged_words_list = check_df[~check_df["known"].isnull()][
+                        col_name
+                    ].tolist()
+                    df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
+                    df.loc[i, "AVG_gevoelig"] = 1         
+                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} illness word(s).")                                                                             
         except Exception as e:
-            print(e)
+            print(e)    
         # Exit the loop early for testing purposes
         if i == N:
             break
