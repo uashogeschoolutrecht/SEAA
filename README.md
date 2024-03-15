@@ -37,7 +37,7 @@ A word and/or sequence of words is defined as “possibly containing privacy-rel
 
 SEAA uses two different dictionaries:
 
-1. Dutch language word list ([OpenTaal](https://www.opentaal.org/))
+1. Dutch language word list of [OpenTaal](https://www.opentaal.org/), as publiced as wordlist on their [GitHub](https://github.com/OpenTaal/opentaal-wordlist)
 2. Dutch illness list ([Wikipedia](https://nl.wikipedia.org/wiki/Lijst_van_aandoeningen))
 
 ## Developer notes
