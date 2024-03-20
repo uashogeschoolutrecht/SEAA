@@ -9,26 +9,23 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "demo.csv"
+file_name = "annotatie_q2_q3_q4_q5_q6_q7_q8.csv"
 nseant_df = loaddata(path, file_name)
 
 # import dictionaries
 # Dutch word dictionary
-dictionary = "wordlist.txt"
-word_list_df = loaddict(path, dictionary)
+word_list_df = loaddict(path=path, file_name="wordlist.txt")
 
 # white list (words not part of the Dutch dictionary but considered safe regardless)
-dictionary = 'whitelist.txt'
-whitelist_df = loaddict(path, dictionary)
+whitelist_df = loaddict(path=path, file_name='whitelist.txt')
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
 # illnesses dictionary
-dictionary = 'illness.txt'
-illness_df = loaddict(path, dictionary, 'illness')
+illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,illness_df, 100) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,illness_df) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
@@ -54,10 +51,53 @@ validation_df = loaddata(path, "nse annoteringen.csv")
 from functions.validation import SEAA_accuracy
 accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
 
-#Extract AVG words with count
+# Extract AVG words with count
 from AVG_list import AVG_list
-avg_words_df = AVG_list(result_df)
+avg_words_df = AVG_list(result_df[result_df["NL/NietNL"]=='NL'])
 
-# Save word count list to file
+# Load whitelist
+whitelist_df = loaddict(path=path, file_name='whitelist_test.txt')
+
+# Load blacklist
+blacklist_df = loaddict(path=path, file_name='blacklist.txt')
+
+# Check if word is in blacklist 
+avg_words_df= avg_words_df.merge(blacklist_df,'left', left_on='AVG_woord',right_on='words')
+
+# remove rows with blacklisted words and remove redundant columns
+avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
+
+def jaNeeInput(question):
+    ## Let user choose input only 'j' or 'n'.
+    while "the answer is invalid":
+        reply = str(input(question+' (j/n): ')).lower().strip()
+        if reply[0] == 'j':
+            return 'j'
+        if reply[0] == 'n':
+            return 'n'
+        else:
+            print('Onjuiste input antwoord moet j/n zijn!')
+
+# Let user check words and add to whitelist or blacklist based on user input 
+for i in avg_words_df.tail(15).index:
+    avg_woord = avg_words_df['AVG_woord'][i]
+    #Get user input and transform to dataframe
+    user_input = jaNeeInput(f"{avg_woord} kwam {avg_words_df['Count'][i]} keer voor in de open antwoorden.\nWil je dit woord toevoegenaan de whitelist? ")
+    antwoord_df = pd.DataFrame({'words': [avg_woord]})
+    
+    if user_input == 'j':
+        #If wanser is yes add to whitelist
+        whitelist_df = pd.concat([whitelist_df, antwoord_df], axis=0)
+        print(f'{avg_woord} is toegevoegd aan de whitelist')
+    else:
+        #If not add awnser to blacklist
+        blacklist_df = pd.concat([blacklist_df, antwoord_df], axis=0)
+        print(f'{avg_woord} is toegevoegd aan de blacklist')
+
+whitelist_df.to_csv(f'{path}//dict//whitelist_test.txt',index=False)
+blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
+
+
+# Save word count list to file,
 file_name = 'avg_words_count.csv'
 avg_words_df.to_csv(f'{path}{file_name}', sep =';')
