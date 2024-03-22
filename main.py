@@ -9,7 +9,7 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "annotatie_q2_q3_q4_q5_q6_q7_q8.csv"
+file_name = "nse annoteringen totaal.csv"
 nseant_df = loaddata(path, file_name)
 
 # import dictionaries
@@ -96,7 +96,6 @@ for i in avg_words_df.tail(15).index:
 
 whitelist_df.to_csv(f'{path}//dict//whitelist_test.txt',index=False)
 blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
-
 
 # Save word count list to file,
 file_name = 'avg_words_count.csv'
