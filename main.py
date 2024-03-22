@@ -20,12 +20,18 @@ word_list_df = loaddict(path=path, file_name="wordlist.txt")
 whitelist_df = loaddict(path=path, file_name='whitelist.txt')
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
-# illnesses dictionary
+# illnesses dictionaries
 illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
+
+# blacklist dictionary
+blacklist_df = loaddict(path=path, file_name='blacklist.txt')
+
+# merge all words that should be flagged
+flag_df = pd.concat([illness_df, blacklist_df], ignore_index=True)
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,illness_df) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
@@ -55,14 +61,8 @@ accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
 from AVG_list import AVG_list
 avg_words_df = AVG_list(result_df[result_df["NL/NietNL"]=='NL'])
 
-# Load whitelist
-whitelist_df = loaddict(path=path, file_name='whitelist_test.txt')
-
-# Load blacklist
-blacklist_df = loaddict(path=path, file_name='blacklist.txt')
-
-# Check if word is in blacklist 
-avg_words_df= avg_words_df.merge(blacklist_df,'left', left_on='AVG_woord',right_on='words')
+# Check if word is in the flagged list
+avg_words_df= avg_words_df.merge(flag_df,'left', left_on='AVG_woord',right_on='words')
 
 # remove rows with blacklisted words and remove redundant columns
 avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
@@ -70,31 +70,35 @@ avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 def jaNeeInput(question):
     ## Let user choose input only 'j' or 'n'.
     while "the answer is invalid":
-        reply = str(input(question+' (j/n): ')).lower().strip()
+        reply = str(input(question+' (j/n/blacklist): ')).lower().strip()
         if reply[0] == 'j':
             return 'j'
-        if reply[0] == 'n':
+        elif reply == 'blacklist':
+            return 'b'
+        elif reply[0] == 'n':
             return 'n'
         else:
-            print('Onjuiste input antwoord moet j/n zijn!')
+            print('Onjuiste input antwoord moet j/n/blacklist zijn!')
 
 # Let user check words and add to whitelist or blacklist based on user input 
-for i in avg_words_df.tail(15).index:
+for i in avg_words_df.head(15).index:
     avg_woord = avg_words_df['AVG_woord'][i]
     #Get user input and transform to dataframe
     user_input = jaNeeInput(f"{avg_woord} kwam {avg_words_df['Count'][i]} keer voor in de open antwoorden.\nWil je dit woord toevoegenaan de whitelist? ")
     antwoord_df = pd.DataFrame({'words': [avg_woord]})
     
     if user_input == 'j':
-        #If wanser is yes add to whitelist
+        #If answer is yes add to whitelist
         whitelist_df = pd.concat([whitelist_df, antwoord_df], axis=0)
-        print(f'{avg_woord} is toegevoegd aan de whitelist')
-    else:
-        #If not add awnser to blacklist
+        print(f'Woord "{avg_woord}" is toegevoegd aan de whitelist')
+    elif user_input == 'blacklist':
+        #If answer is blacklist: add to blacklist
         blacklist_df = pd.concat([blacklist_df, antwoord_df], axis=0)
-        print(f'{avg_woord} is toegevoegd aan de blacklist')
+        print(f'Woord "{avg_woord}" is toegevoegd aan de blacklist')
+    else:
+        print(f'Woord "{avg_woord}" is overgeslagen')
 
-whitelist_df.to_csv(f'{path}//dict//whitelist_test.txt',index=False)
+whitelist_df.to_csv(f'{path}//dict//whitelist.txt',index=False)
 blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
 
 # Save word count list to file,
