@@ -31,7 +31,7 @@ flag_df = pd.concat([illness_df, blacklist_df], ignore_index=True)
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,flag_df, 50) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
@@ -52,10 +52,10 @@ from functions.validation import SEAA_efficiency
 efficiency = SEAA_efficiency(result_df[result_df["NL/NietNL"]=='NL'])
 
 # Calculate accuracy of SEAA
-validation_df = loaddata(path, "nse annoteringen.csv")
+validation_df = loaddata(path, "nse annoteringen totaal.csv")
 
 from functions.validation import SEAA_accuracy
-accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
+accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
 # Extract AVG words with count
 from AVG_list import AVG_list
