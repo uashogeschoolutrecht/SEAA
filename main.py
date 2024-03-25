@@ -9,26 +9,29 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "demo.csv"
+file_name = "nse2023openant.csv"
 nseant_df = loaddata(path, file_name)
 
 # import dictionaries
 # Dutch word dictionary
-dictionary = "wordlist.txt"
-word_list_df = loaddict(path, dictionary)
+word_list_df = loaddict(path=path, file_name="wordlist.txt")
 
 # white list (words not part of the Dutch dictionary but considered safe regardless)
-dictionary = 'whitelist.txt'
-whitelist_df = loaddict(path, dictionary)
+whitelist_df = loaddict(path=path, file_name='whitelist.txt')
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
-# illnesses dictionary
-dictionary = 'illness.txt'
-illness_df = loaddict(path, dictionary, 'illness')
+# illnesses dictionaries
+illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
+
+# blacklist dictionary
+blacklist_df = loaddict(path=path, file_name='blacklist.txt')
+
+# merge all words that should be flagged
+flag_df = pd.concat([illness_df, blacklist_df], ignore_index=True)
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,illness_df, 100) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df, 50) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
@@ -54,10 +57,22 @@ validation_df = loaddata(path, "nse annoteringen.csv")
 from functions.validation import SEAA_accuracy
 accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
 
-#Extract AVG words with count
+# Extract AVG words with count
 from AVG_list import AVG_list
-avg_words_df = AVG_list(result_df)
+avg_words_df = AVG_list(result_df[result_df["NL/NietNL"]=='NL'])
 
-# Save word count list to file
+# Check if word is in the flagged list
+avg_words_df= avg_words_df.merge(flag_df,'left', left_on='AVG_woord',right_on='words')
+
+# remove rows with blacklisted words and remove redundant columns
+avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
+
+from functions.expand_dicts import expand_dicts
+whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
+
+whitelist_df.to_csv(f'{path}//dict//whitelist.txt',index=False)
+blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
+
+# Save word count list to file,
 file_name = 'avg_words_count.csv'
 avg_words_df.to_csv(f'{path}{file_name}', sep =';')

@@ -15,11 +15,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
     or not does not (0). '''
 
     import re
-    # import warnings
-
     import pandas as pd
-
-    # warnings.simplefilter(action="ignore")
     
     df_dict["known"] = 1
     df_flag["known"] = 1
@@ -66,7 +62,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                     df.loc[i, "AVG_gevoelig"] = 0
                     df.loc[i, "total_word_count"] = words_number
                 
-                # Repeat efor flagged words
+                # Repeat for flagged words
                 # Set col_name for merge, making sure that both columns have the same name
                 col_name = df_flag.columns[0]
                 answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
@@ -80,7 +76,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                     ].tolist()
                     df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
                     df.loc[i, "AVG_gevoelig"] = 1         
-                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} illness word(s).")                                                                             
+                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} unsafe word(s).")                                                                             
         except Exception as e:
             print(e)    
         # Exit the loop early for testing purposes

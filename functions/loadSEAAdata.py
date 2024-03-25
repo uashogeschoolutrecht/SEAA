@@ -30,7 +30,7 @@ def loaddict(path, file_name, type = ''):
 
     # For the illness dictionary convert words to smallcase
     if type == "illness":
-        df_dict['Illness'] = df_dict['Illness'].str.lower()
+        df_dict['words'] = df_dict['words'].str.lower()
         # Exception for illness ALS, which in small cases is a common Dutch word
         df_dict = df_dict.replace('als', 'ALS')
 
