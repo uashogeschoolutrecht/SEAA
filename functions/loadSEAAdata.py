@@ -34,9 +34,4 @@ def loaddict(path, file_name, type = ''):
         # Exception for illness ALS, which in small cases is a common Dutch word
         df_dict = df_dict.replace('als', 'ALS')
 
-    if type == "name":
-        df_dict_lower = df_dict
-        df_dict_lower['words'] = df_dict_lower['words'].str.lower()
-        df_dict = pd.concat([df_dict, df_dict_lower])
-
     return df_dict

@@ -8,7 +8,7 @@ if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "demo.csv"
+file_name = "nse2023openant.csv"
 nseant_df = loaddata(path, file_name)
 
 ## Import dictionaries
