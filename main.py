@@ -20,14 +20,17 @@ word_list_df = loaddict(path=path, file_name="wordlist.txt")
 whitelist_df = loaddict(path=path, file_name='whitelist.txt')
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
-# illnesses dictionaries
+# illnesses dictionary
 illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
 
+#study-limitation dictionary
+study_disability_df = loaddict(path=path, file_name='studie-beperking.txt', type='disability')
+
 # blacklist dictionary
-blacklist_df = loaddict(path=path, file_name='blacklist.txt')
+blacklist_df = loaddict(path=path, file_name='blacklist.txt', type = 'blacklist')
 
 # merge all words that should be flagged
-flag_df = pd.concat([illness_df, blacklist_df], ignore_index=True)
+flag_df = pd.concat([illness_df, blacklist_df, study_disability_df], ignore_index=True)
 
 # Run SEAA
 from functions.SEAA import SEAA
