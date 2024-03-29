@@ -16,9 +16,15 @@ def SEAA(df, df_dict, df_flag, N=-1):
 
     import re
     import pandas as pd
-    
+    import os 
+    from functions.loadSEAAdata import loaddata
+
     df_dict["known"] = 1
     df_flag["known"] = 1
+    df["answer_censored"] = ""
+
+    # Set col_name for merge, making sure that both columns have the same name
+    col_name = df_dict.columns[0]
 
     # Loop over all rows of answers
     for i in df.index:
@@ -29,8 +35,6 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 df.loc[i, "AVG_gevoelig"] = 0
             # Else continue with SEAA
             else:
-                # Set col_name for merge, making sure that both columns have the same name
-                col_name = df_dict.columns[0]
                 answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
                 check_df = pd.merge(answer_df, df_dict, "left")
 
@@ -63,8 +67,6 @@ def SEAA(df, df_dict, df_flag, N=-1):
                     df.loc[i, "total_word_count"] = words_number
                 
                 # Repeat for flagged words
-                # Set col_name for merge, making sure that both columns have the same name
-                col_name = df_flag.columns[0]
                 answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
                 check_df = pd.merge(answer_df, df_flag, "left")
 
@@ -76,7 +78,12 @@ def SEAA(df, df_dict, df_flag, N=-1):
                     ].tolist()
                     df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
                     df.loc[i, "AVG_gevoelig"] = 1         
-                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} unsafe word(s).")                                                                             
+                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} word(s).")                                                                             
+
+                    mask = check_df['known'] == 1
+                    check_df.loc[mask, 'words'] = "XXX"
+                    
+                df.loc[i, "answer_censored"] = ' '.join(check_df["words"])
         except Exception as e:
             print(e)    
         # Exit the loop early for testing purposes
