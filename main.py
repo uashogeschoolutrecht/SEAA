@@ -1,36 +1,31 @@
 import os 
 import pandas as pd
 from functions.loadSEAAdata import loaddata
-from functions.loadSEAAdata import loaddict
 
-# import NSE open answers
+## Import NSE open answers
 logedin_user = os.getlogin()
 if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
 else:
     path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "nse2023openant.csv"
+file_name = "demo.csv"
 nseant_df = loaddata(path, file_name)
 
-# import dictionaries
-# Dutch word dictionary
+## Import dictionaries
+# Safe words dictionaries (Dutch dictionary + whitelist)
+from functions.loadSEAAdata import loaddict
 word_list_df = loaddict(path=path, file_name="wordlist.txt")
-
-# white list (words not part of the Dutch dictionary but considered safe regardless)
 whitelist_df = loaddict(path=path, file_name='whitelist.txt')
+# merge all words that are considered safe
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
-# illnesses dictionary
+## Flag words (privacy-related words: illness, disabilities, names, blacklist)
 illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
-
-#study-limitation dictionary
 study_disability_df = loaddict(path=path, file_name='studie-beperking.txt', type='disability')
-
-# blacklist dictionary
+first_name_df = loaddict(path=path, file_name='firstnames.txt', type='name')
 blacklist_df = loaddict(path=path, file_name='blacklist.txt', type = 'blacklist')
-
 # merge all words that should be flagged
-flag_df = pd.concat([illness_df, blacklist_df, study_disability_df], ignore_index=True)
+flag_df = pd.concat([illness_df, blacklist_df, study_disability_df, first_name_df], ignore_index=True)
 
 # Run SEAA
 from functions.SEAA import SEAA
