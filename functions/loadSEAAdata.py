@@ -16,7 +16,7 @@ def loaddata(path, file_name):
     ## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
     df['AVG_gevoelig'] = 1
     ## Column to print words present in answers but not in imported dictionary.
-    df['gevoelige_woorden'] = ''
+    df['unknown words'] = ''
     df['flagged words'] = ''
 
     return df
