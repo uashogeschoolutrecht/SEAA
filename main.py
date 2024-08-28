@@ -27,7 +27,9 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 
 # Run SEAA
 from functions.SEAA import SEAA
+
 result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
+
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
