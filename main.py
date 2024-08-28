@@ -1,37 +1,33 @@
 import os 
 import pandas as pd
 from functions.loadSEAAdata import loaddata
-from functions.loadSEAAdata import loaddict
 
-# import NSE open answers
+## Import NSE open answers
 logedin_user = os.getlogin()
-if logedin_user == 'pim.lamberts': #User Pim does not see the parent folder
-    path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Open antwoorden\\"
-else:
-    path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
+path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
 file_name = "nse2023openant.csv"
 nseant_df = loaddata(path, file_name)
 
-# import dictionaries
-# Dutch word dictionary
+## Import dictionaries
+# Safe words dictionaries (Dutch dictionary + whitelist)
+from functions.loadSEAAdata import loaddict
 word_list_df = loaddict(path=path, file_name="wordlist.txt")
-
-# white list (words not part of the Dutch dictionary but considered safe regardless)
 whitelist_df = loaddict(path=path, file_name='whitelist.txt')
+# merge all words that are considered safe
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
-# illnesses dictionaries
+## Flag words (privacy-related words: illness, disabilities, names, blacklist)
 illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
-
-# blacklist dictionary
-blacklist_df = loaddict(path=path, file_name='blacklist.txt')
-
-# merge all words that should be flagged
-flag_df = pd.concat([illness_df, blacklist_df], ignore_index=True)
+study_disability_df = loaddict(path=path, file_name='studie-beperking.txt', type='disability')
+first_name_df = loaddict(path=path, file_name='firstnames.txt', type='name')
+blacklist_df = loaddict(path=path, file_name='blacklist.txt', type = 'blacklist')
+# merge all wordlists that should be flagged into one dataframe
+flag_df = pd.concat([illness_df, blacklist_df, study_disability_df, first_name_df], ignore_index=True)
+del illness_df, blacklist_df, study_disability_df, first_name_df
 
 # Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,flag_df, 50) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
 
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
@@ -52,10 +48,10 @@ from functions.validation import SEAA_efficiency
 efficiency = SEAA_efficiency(result_df[result_df["NL/NietNL"]=='NL'])
 
 # Calculate accuracy of SEAA
-validation_df = loaddata(path, "nse annoteringen.csv")
+validation_df = loaddata(path, "nse annoteringen totaal.csv")
 
 from functions.validation import SEAA_accuracy
-accuracy = SEAA_accuracy(validation_df, word_list_df, illness_df)
+accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
 # Extract AVG words with count
 from AVG_list import AVG_list

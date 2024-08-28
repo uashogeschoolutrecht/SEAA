@@ -47,7 +47,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 # If at least one word is unknown, AVG is set to 1
                 if unknown_words_number >= 1:                    
                     df.loc[i, "AVG_gevoelig"] = 1
-                    df.loc[i, "gevoelige_woorden"] = ", ".join(unknown_words_list)
+                    df.loc[i, "unknown words"] = ", ".join(unknown_words_list)
                     
                     # for sensitive words add column with amount of sensitive words plus amount of words 
                     # this is for later language analysis.
