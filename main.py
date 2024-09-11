@@ -30,7 +30,11 @@ from functions.SEAA import SEAA
 
 result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
 
+# Save results to output file
+file_name = 'SEAA_output.csv'
+result_df.to_csv(f'{path}{file_name}', sep =';')
 
+## EXTRAS ##
 # Add Dutch or not Dutch column classificatiion
 # If the anwser contains 8 or more words and more than 40 percent of those words are unkown
 # the awnser will be classified as not Dutch
