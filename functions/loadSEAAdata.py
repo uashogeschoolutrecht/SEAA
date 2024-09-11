@@ -9,7 +9,7 @@ def loaddata(path, file_name):
     df = pd.read_csv(f'{path}{file_name}', sep =';')
     
     # Clean data
-    df['Antwoord_clean'] = df['Antwoord'].str.lower()
+    df['Antwoord_clean'] = df['Answer'].str.lower()
     df['Antwoord_clean'] = df['Antwoord_clean'].str.replace(r"([0-9])", "", regex=True)
     
     # Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.

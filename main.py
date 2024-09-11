@@ -5,7 +5,7 @@ from functions.loadSEAAdata import loaddata
 ## Import NSE open answers
 logedin_user = os.getlogin()
 path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "nse2023openant.csv"
+file_name = "nse2023_transformed.csv"
 nseant_df = loaddata(path, file_name)
 
 ## Import dictionaries
