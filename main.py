@@ -18,7 +18,7 @@ word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
 ## Flag words (privacy-related words: illness, disabilities, names, blacklist)
 illness_df = loaddict(path=path, file_name='illness.txt', type='illness')
-study_disability_df = loaddict(path=path, file_name='studie-beperking.txt', type='disability')
+study_disability_df = loaddict(path=path, file_name='studiebeperking.txt', type='disability')
 first_name_df = loaddict(path=path, file_name='firstnames.txt', type='name')
 blacklist_df = loaddict(path=path, file_name='blacklist.txt', type = 'blacklist')
 # merge all wordlists that should be flagged into one dataframe
