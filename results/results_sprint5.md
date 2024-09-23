@@ -7,7 +7,7 @@
 
 ## Results
 
-SEAA was run on the 2239 annotated cases:  efficiency = 74.2%, accuracy = 94%.
+SEAA was run on the 2239 annotated cases:  efficiency = 79.4%, accuracy = 94%.
 
 ## Discussion
 
