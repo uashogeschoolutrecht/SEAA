@@ -15,4 +15,4 @@ Out of 2239 cases there were 11 cases where SEAA did not flag the answer even th
 
 Efficiency can be easily further increased by excluding non-Dutch answers (which will always be flagged by SEAA) and adding more Dutch words to the whitelist dictionary. 
 
-In conclusion, SEAA reached a very high accuracy of 99% while flagging answers from the National Student Questionaire (NSE) 2023, with a decent effeciency rate of 74%. 
+In conclusion, SEAA reached a very high accuracy of 99% while flagging answers from the National Student Questionaire (NSE) 2023, with a decent effeciency rate of 79%. 
