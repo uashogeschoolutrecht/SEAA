@@ -27,8 +27,7 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 
 # Run SEAA
 from functions.SEAA import SEAA
-
-result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df) # <== 4m .7s
 
 # Save results to output file
 file_name = 'SEAA_output.csv'
