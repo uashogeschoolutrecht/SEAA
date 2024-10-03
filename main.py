@@ -59,7 +59,7 @@ from functions.validation import SEAA_accuracy
 accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
 # Extract AVG words with count
-from AVG_list import AVG_list
+from functions.AVG_list import AVG_list
 avg_words_df = AVG_list(result_df[result_df["NL/NietNL"]=='NL'])
 
 # Check if word is in the flagged list
