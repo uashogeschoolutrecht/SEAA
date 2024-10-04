@@ -10,7 +10,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
     i.e. containing privacy-related information. 
     - integer N (optional), number of answers to check (usefull for testing)
     
-    Output is dataframe df with one extra column ['AVG_gevoelig'] 
+    Output is dataframe df with one extra column ['Contains privacy'] 
     indicating whether the column might contain privacy-related data (1)
     or not does not (0). '''
 
@@ -32,7 +32,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
         try:
             # If answer contains no value, set output
             if pd.isna(df["Antwoord_clean"][i]):
-                df.loc[i, "AVG_gevoelig"] = 0
+                df.loc[i, "Contains privacy"] = 0
             # Else continue with SEAA
             else:
                 answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
@@ -50,7 +50,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 
                 # If at least one word is unknown, AVG is set to 1
                 if unknown_words_number >= 1:                    
-                    df.loc[i, "AVG_gevoelig"] = 1
+                    df.loc[i, "Contains privacy"] = 1
                     df.loc[i, "unknown words"] = ", ".join(unknown_words_list)
                     
                     # for sensitive words add column with amount of sensitive words plus amount of words 
@@ -63,7 +63,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                     )
                 # If no unknown words are found AVG is set to 0
                 else:
-                    df.loc[i, "AVG_gevoelig"] = 0
+                    df.loc[i, "Contains privacy"] = 0
                     df.loc[i, "total_word_count"] = words_number
                 
                 # Repeat for flagged words
@@ -77,7 +77,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                         col_name
                     ].tolist()
                     df.loc[i,'flagged words'] = ", ".join(flagged_words_list)
-                    df.loc[i, "AVG_gevoelig"] = 1         
+                    df.loc[i, "Contains privacy"] = 1         
                     print(f"Answer {i} contains privacy-related data: {flagged_words_number} word(s).")                                                                             
 
                     mask = check_df['known'] == 1
