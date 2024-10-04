@@ -27,7 +27,7 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 
 ## Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df, 100)
 
 # And save results to output file
 file_name = 'SEAA_output.csv'
@@ -73,6 +73,6 @@ avg_words_df.to_csv(f'{path}{file_name}', sep =';')
 from functions.expand_dicts import expand_dicts
 whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
 
+# Save lists to file
 whitelist_df.to_csv(f'{path}//dict//whitelist.txt',index=False)
 blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
-
