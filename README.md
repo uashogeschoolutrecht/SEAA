@@ -3,7 +3,7 @@
 Semi-automatic anonimisation (SEAA) algorithm of the HU University of Applied Sciences Utrecht.
 
 ## Summary
-Open answers (an answer given to an open question) can contain privacy-related data. Currently, the most used method of anonimisation at the HU is to do this by hand, or to simply not anonimise. The SEAA algorithm uses privacy-by-design as a fundamental principle: always make sure your data does not contain any privacy-related information. Using SEAA on your open answer data you can quickly identify which answers might contain privacy-related data and which answer do not. The answers that SEAA flags as 'might contain privacy-related data' can then be manually reviewed.  
+Open answers (an answer given to an open question) can contain privacy-related data. Currently, the most used method of anonimisation at the HU is to do this by hand, to use non-anonimised data, or simple not use the data at all. The SEAA algorithm uses privacy-by-design as a fundamental principle: always make sure your data does not contain any privacy-related information. Using SEAA on your open answer data you can quickly identify which answers might contain privacy-related data and which answer do not. The answers that SEAA flags as 'might contain privacy-related data' can then be manually reviewed.  
 
 ## How does SEAA work?
 
