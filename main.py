@@ -27,7 +27,7 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 
 ## Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,flag_df, 100)
+result_df = SEAA(nseant_df, word_list_df,flag_df)
 
 # And save results to output file
 file_name = 'SEAA_output.csv'
@@ -41,7 +41,7 @@ def detect_language(text):
         return detect(text)
     except:
         return None
-result_df['language'] = result_df['Antwoord_clean'].apply(detect_language)
+result_df['language'] = result_df['answer_clean'].apply(detect_language)
 
 ## Efficiency calculation
 from functions.validation import SEAA_efficiency

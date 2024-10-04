@@ -6,7 +6,7 @@ def SEAA_efficiency(df):
     algorithm whether row has AVG data (1) or not (0). '''
 
     # Calculate efficiency (%)
-    efficiency = (1 - (sum(df['Contains privacy']) / len(df)))*100
+    efficiency = (1 - (sum(df['contains_privacy']) / len(df)))*100
 
     return efficiency
 
@@ -35,8 +35,8 @@ def SEAA_accuracy(df, df_dict, df_flag):
     # We define accuracy as the proporition of correctly classified cases (true positives) 
     # with respect to the total number of cases that contain privacy-related data (AVG 
     # validatie = 1, i.e. true posities + false negatives).
-    true_positives = sum((result_df['AVG validatie']==1) & (result_df['Contains privacy'] == 1));
-    false_negatives = sum((result_df['AVG validatie']==1) & (result_df['Contains privacy'] == 0));
+    true_positives = sum((result_df['AVG validatie']==1) & (result_df['contains_privacy'] == 1));
+    false_negatives = sum((result_df['AVG validatie']==1) & (result_df['contains_privacy'] == 0));
     accuracy = (true_positives) / (true_positives+false_negatives) * 100
 
     return accuracy
