@@ -27,10 +27,12 @@ def loaddict(path, file_name, type = ''):
     import pandas as pd
     path = f"{path}dict\\"
     df_dict = pd.read_csv(f"{path}{file_name}", sep =';')
-
-    # For the illness dictionary convert words to smallcase
-    if type == "illness":
+    
+    if type != 'known':
+        # Convert dict words to smallcase
         df_dict['words'] = df_dict['words'].str.lower()
+
+    if type == "illness":
         # Exception for illness ALS, which in small cases is a common Dutch word
         df_dict = df_dict.replace('als', 'ALS')
 

@@ -3,7 +3,7 @@ import pandas as pd
 def AVG_list(df):
     '''Retrieve list of flagged AVG words and write unique values
     to CSV with count.'''
-    avg_list = df['unknown words'].tolist()
+    avg_list = df['unknown_words'].tolist()
     
     # Clean wordlist from empty values
     while('' in avg_list):
