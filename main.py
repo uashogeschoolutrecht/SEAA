@@ -25,16 +25,16 @@ blacklist_df = loaddict(path=path, file_name='blacklist.txt', type = 'blacklist'
 flag_df = pd.concat([illness_df, blacklist_df, study_disability_df, first_name_df], ignore_index=True)
 del illness_df, blacklist_df, study_disability_df, first_name_df
 
-# Run SEAA
+## Run SEAA
 from functions.SEAA import SEAA
-result_df = SEAA(nseant_df, word_list_df,flag_df) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
 
-# Save results to output file
+# And save results to output file
 file_name = 'SEAA_output.csv'
 result_df.to_csv(f'{path}{file_name}', sep =';')
 
-## EXTRAS ##
-# Add language detection
+################ EXTRAS ###################
+## Language detection
 from langdetect import detect
 def detect_language(text):
     try:
@@ -43,22 +43,20 @@ def detect_language(text):
         return None
 result_df['language'] = result_df['Antwoord_clean'].apply(detect_language)
 
-# Delete columns after language check   
-result_df.drop(columns=['total_word_count','sensitive_word_count'], inplace=True)
-
+## Efficiency calculation
 from functions.validation import SEAA_efficiency
-# Calculate efficiency of SEAA
+efficiency = SEAA_efficiency(result_df)
 # Exclude English answers for efficiency calcuation
-efficiency = SEAA_efficiency(result_df[result_df["language"]!='en'])
+efficiency_no_en = SEAA_efficiency(result_df[result_df["language"]!='en'])
 
-# Calculate accuracy of SEAA
+## Accuracy calculation of SEAA
 validation_df = loaddata(path, "nse annoteringen totaal.csv")
-
 from functions.validation import SEAA_accuracy
 accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
-# Extract AVG words with count
+## Create list of unknown words for review
 from functions.AVG_list import AVG_list
+# Get list of unknown words, exclude English answers
 avg_words_df = AVG_list(result_df[result_df["language"]!='en'])
 
 # Check if word is in the flagged list
@@ -67,12 +65,14 @@ avg_words_df= avg_words_df.merge(flag_df,'left', left_on='AVG_woord',right_on='w
 # remove rows with blacklisted words and remove redundant columns
 avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 
+# Save unknown words to file,
+file_name = 'avg_words_count.csv'
+avg_words_df.to_csv(f'{path}{file_name}', sep =';')
+
+## Expand upon the blacklist and/or whitelist
 from functions.expand_dicts import expand_dicts
 whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
 
 whitelist_df.to_csv(f'{path}//dict//whitelist.txt',index=False)
 blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
 
-# Save word count list to file,
-file_name = 'avg_words_count.csv'
-avg_words_df.to_csv(f'{path}{file_name}', sep =';')
