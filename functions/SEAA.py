@@ -44,7 +44,7 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 df.loc[i, "total_word_count"] = words_number
 
                 # Find number of unknown words
-                unknown_words_number = words_number - check_df["known"].sum()      
+                unknown_words_number = int(words_number - check_df["known"].sum())      
                 # Select list of unknown words
                 unknown_words_list = check_df[check_df["known"].isnull()][
                     col_name
@@ -69,14 +69,14 @@ def SEAA(df, df_dict, df_flag, N=-1):
                 check_df = pd.merge(answer_df, df_flag, "left")
 
                 # If looking for flagged words take the sum of the total known
-                flagged_words_number = check_df["known"].sum()
+                flagged_words_number = int(check_df["known"].sum())
                 if flagged_words_number >= 1:
                     flagged_words_list = check_df[~check_df["known"].isnull()][
                         col_name
                     ].tolist()
                     df.loc[i,'flagged_words'] = ", ".join(flagged_words_list)
                     df.loc[i, "contains_privacy"] = 1         
-                    print(f"Answer {i} contains_privacy-related data: {flagged_words_number} word(s).")                                                                             
+                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} flagged word(s).")                                                                             
 
                     df.loc[i, "flagged_word_count"] = flagged_words_number       
 
