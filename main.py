@@ -27,31 +27,29 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 
 # Run SEAA
 from functions.SEAA import SEAA
-
-result_df = SEAA(nseant_df, word_list_df,flag_df, 100) # <== 4m .7s
+result_df = SEAA(nseant_df, word_list_df,flag_df) # <== 4m .7s
 
 # Save results to output file
 file_name = 'SEAA_output.csv'
 result_df.to_csv(f'{path}{file_name}', sep =';')
 
 ## EXTRAS ##
-# Add Dutch or not Dutch column classificatiion
-# If the anwser contains 8 or more words and more than 40 percent of those words are unkown
-# the awnser will be classified as not Dutch
-import numpy as np
-result_df.loc[:,"NL/NietNL"] = "NL"
-result_df.loc[:,"NL/NietNL"] = np.where(
-    (result_df['total_word_count']>=8) & 
-    (result_df['sensitive_word_count'] / result_df['total_word_count']> 0.4),
-     "Niet NL",
-     "NL")           
+# Add language detection
+from langdetect import detect
+def detect_language(text):
+    try:
+        return detect(text)
+    except:
+        return None
+result_df['language'] = result_df['Antwoord_clean'].apply(detect_language)
 
 # Delete columns after language check   
 result_df.drop(columns=['total_word_count','sensitive_word_count'], inplace=True)
 
 from functions.validation import SEAA_efficiency
 # Calculate efficiency of SEAA
-efficiency = SEAA_efficiency(result_df[result_df["NL/NietNL"]=='NL'])
+# Exclude English answers for efficiency calcuation
+efficiency = SEAA_efficiency(result_df[result_df["language"]!='en'])
 
 # Calculate accuracy of SEAA
 validation_df = loaddata(path, "nse annoteringen totaal.csv")
@@ -60,8 +58,8 @@ from functions.validation import SEAA_accuracy
 accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
 # Extract AVG words with count
-from AVG_list import AVG_list
-avg_words_df = AVG_list(result_df[result_df["NL/NietNL"]=='NL'])
+from functions.AVG_list import AVG_list
+avg_words_df = AVG_list(result_df[result_df["language"]!='en'])
 
 # Check if word is in the flagged list
 avg_words_df= avg_words_df.merge(flag_df,'left', left_on='AVG_woord',right_on='words')
