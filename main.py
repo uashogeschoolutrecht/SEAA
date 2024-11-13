@@ -28,36 +28,3 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 ## Run SEAA
 from functions.SEAA import SEAA
 result_df = SEAA(nseant_df, word_list_df,flag_df)
-
-################ EXTRAS ###################
-## Language detection
-from langdetect import detect
-def detect_language(text):
-    try:
-        return detect(text)
-    except:
-        return None
-result_df['language'] = result_df['answer_clean'].apply(detect_language)
-
-## Create list of unknown words for review
-from functions.AVG_list import AVG_list
-# Get list of unknown words, exclude English answers
-avg_words_df = AVG_list(result_df[result_df["language"]!='en'])
-
-# Check if word is in the flagged list
-avg_words_df= avg_words_df.merge(flag_df,'left', left_on='AVG_woord',right_on='words')
-
-# remove rows with blacklisted words and remove redundant columns
-avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
-
-# Save unknown words to file,
-file_name = 'avg_words_count.csv'
-avg_words_df.to_csv(f'{path}{file_name}', sep =';')
-
-## Expand upon the blacklist and/or whitelist
-from functions.expand_dicts import expand_dicts
-whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
-
-# Save lists to file
-whitelist_df.to_csv(f'{path}//dict//whitelist.txt',index=False)
-blacklist_df.to_csv(f'{path}//dict//blacklist.txt',index=False)
