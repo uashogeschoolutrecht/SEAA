@@ -8,6 +8,8 @@ path = f"C:\\Users\\{logedin_user}\\OneDrive - Stichting Hogeschool Utrecht\\Doc
 #"C:\Users\fraukje.coopmans\OneDrive - Stichting Hogeschool Utrecht\Documents\git repos\SEAA"
 file_name = "demo.csv"
 nseant_df = loaddata(path, file_name)
+# Make sure to change the path in case you are working with privacy-related data!
+# Privacy-related data should not be part of a git repo!
 
 ## Import dictionaries
 # Safe words dictionaries (Dutch dictionary + whitelist)
@@ -29,6 +31,10 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 ## Run SEAA
 from functions.SEAA import SEAA
 result_df = SEAA(nseant_df, word_list_df,flag_df)
+
+# Save results to output file
+file_name = 'SEAA_output.csv'
+result_df.to_csv(f'{path}{file_name}', sep =';')
 
 ################ EXTRAS ###################
 ## Language detection
