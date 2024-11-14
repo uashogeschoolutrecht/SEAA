@@ -4,7 +4,8 @@ from functions.loadSEAAdata import loaddata
 
 ## Import NSE open answers
 logedin_user = os.getlogin()
-path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
+path = f"C:\\Users\\{logedin_user}\\OneDrive - Stichting Hogeschool Utrecht\\Documents\\git repos\\SEAA\\"
+#"C:\Users\fraukje.coopmans\OneDrive - Stichting Hogeschool Utrecht\Documents\git repos\SEAA"
 file_name = "demo.csv"
 nseant_df = loaddata(path, file_name)
 
