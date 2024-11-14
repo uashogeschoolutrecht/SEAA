@@ -4,15 +4,16 @@ from functions.loadSEAAdata import loaddata
 
 ## Import NSE open answers
 logedin_user = os.getlogin()
-path = f"C:\\Users\\{logedin_user}\\Stichting Hogeschool Utrecht\\FCA-DA-P - Analytics\\Open antwoorden\\"
-file_name = "exit.csv"
+path = f"C:\\Users\\{logedin_user}\\OneDrive - Stichting Hogeschool Utrecht\\Documents\\git repos\\SEAA\\"
+#"C:\Users\fraukje.coopmans\OneDrive - Stichting Hogeschool Utrecht\Documents\git repos\SEAA"
+file_name = "demo.csv"
 nseant_df = loaddata(path, file_name)
 
 ## Import dictionaries
 # Safe words dictionaries (Dutch dictionary + whitelist)
 from functions.loadSEAAdata import loaddict
 word_list_df = loaddict(path=path, file_name="wordlist.txt", type='known')
-whitelist_df = loaddict(path=path, file_name='whitelist.txt')
+whitelist_df = loaddict(path=path, file_name='whitelist_demo.txt')
 # merge all words that are considered safe
 word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
@@ -29,10 +30,6 @@ del illness_df, blacklist_df, study_disability_df, first_name_df
 from functions.SEAA import SEAA
 result_df = SEAA(nseant_df, word_list_df,flag_df)
 
-# And save results to output file
-file_name = 'SEAA_output.csv'
-result_df.to_csv(f'{path}{file_name}', sep =';')
-
 ################ EXTRAS ###################
 ## Language detection
 from langdetect import detect
@@ -42,17 +39,6 @@ def detect_language(text):
     except:
         return None
 result_df['language'] = result_df['answer_clean'].apply(detect_language)
-
-## Efficiency calculation
-from functions.validation import SEAA_efficiency
-efficiency = SEAA_efficiency(result_df)
-# Exclude English answers for efficiency calcuation
-efficiency_no_en = SEAA_efficiency(result_df[result_df["language"]!='en'])
-
-## Accuracy calculation of SEAA
-validation_df = loaddata(path, "nse annoteringen totaal.csv")
-from functions.validation import SEAA_accuracy
-accuracy = SEAA_accuracy(validation_df, word_list_df,flag_df)
 
 ## Create list of unknown words for review
 from functions.AVG_list import AVG_list
