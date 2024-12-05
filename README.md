@@ -12,9 +12,6 @@ The algorithm uses both dictionairies and smart rules to determine if input (an 
 
 The algorithm gives an advice in the form of 'Yes/No' whether the input contains privacy-related data. SEAA uses the 'privacy-by-default' rule: if the algorithm is not sure if an answer contains privacy-related information, it will always give back 'Yes'. Only when SEAA is 100% sure the input does not contain any privacy-related data, a 'No' will be adviced.
 
-### Censoring
-Currently we have implemented a censoring functionality that will mask any blacklist words by replacing them with 'XXX'. This will increase the number of answers that do not contain any privacy-related data. 
-
 ## Dictionaries
 
 SEAA uses a number different dictionaries, to determine unknown words as well as flagged words. The following dictionaries are combined and used to determine known words:
