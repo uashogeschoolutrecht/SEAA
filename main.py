@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 from functions.loadSEAAdata import loaddata, loaddict
+
+from functions.nse.transform_raw_data import transform_nse_data
 from functions.SEAA import SEAA
 from langdetect import detect
 from functions.AVG_list import AVG_list
@@ -14,6 +16,11 @@ def detect_language(text):
         return None
 
 def main(path, file_name):
+    # Transform raw data
+    transform_nse_data(
+        input_path=r'C:\Users\AnneL\OneDrive - Stichting Hogeschool Utrecht\Documents\testpath', 
+        input_file_name='nse2023.csv')
+
     # Set location using SHPFCA class
     nseant_df = loaddata(path, file_name)
 
