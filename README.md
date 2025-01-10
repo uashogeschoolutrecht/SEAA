@@ -7,7 +7,7 @@ Open answers (an answer given to an open question) can contain privacy-related d
 
 ## How does SEAA work?
 
-![How SEAA works](image.png)
+![How SEAA works](images/seaa_logo.png)
 The algorithm uses both dictionairies and smart rules to determine if input (an answer to an open question) contains privacy-related data. SEAA will check for each answer if the words it contains are 'unknown' words (i.e. not part of the Dutch standard dictionary) as well as 'flagged' words (i.e. checking several blacklists for specific words related to privacy). An answer will be flagged as soon as it contains any unknown words and/or flagged words. 
 
 The algorithm gives an advice in the form of 'Yes/No' whether the input contains privacy-related data. SEAA uses the 'privacy-by-default' rule: if the algorithm is not sure if an answer contains privacy-related information, it will always give back 'Yes'. Only when SEAA is 100% sure the input does not contain any privacy-related data, a 'No' will be adviced.
@@ -59,7 +59,7 @@ A word and/or sequence of words is defined as “possibly containing privacy-rel
 
 ### Security
 SEAA is an algorithm that handles data that might contain privacy-related information, thus storing and handling this type of sensitive data is paramount. SEAA, as used by Team Data & Analytics of the HU, uses the following data architecture to ensure data safety:
-![alt text](image-1.png)
+![alt text](images/flow.png)
 
 1. Data to enter SEAA (input) is stored in a secure OneDrive folder with only limited access. Only employees with explicit permissions are allowed to enter this data folder. 
 2. SEAA is run in a local Python workspace in Visual Studio Code in which security is ensured through Windows security. This workspace concurrently uses data from the input folder (step 1) as well as code and/or docs present on the GitHub respository (https://github.com/uashogeschoolutrecht/SEAA). Please note that data or any other privacy-related information is never stored on GitHub, and this is enforced by explicit rules excluding data from uploading to GitHub. 
