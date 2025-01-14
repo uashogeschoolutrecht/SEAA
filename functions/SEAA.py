@@ -1,3 +1,6 @@
+import re
+import pandas as pd
+
 def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
     """Semi-automatic anonymization algorithm
     
@@ -10,10 +13,6 @@ def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
     Returns:
         DataFrame with additional columns including 'contains_privacy' flag
     """
-
-    import re
-    import pandas as pd
-
     # Initialize flags in dictionary and flag dataframes
     dictionary_df["is_known"] = 1
     flag_df["is_known"] = 1
