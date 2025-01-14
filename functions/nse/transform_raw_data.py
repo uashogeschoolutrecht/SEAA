@@ -1,3 +1,4 @@
+
 # Kind of hard-coded file to transform the NSE open answers data structure
 # Input is:
 # Id    Question 1    Question 2    etc. 
@@ -53,16 +54,28 @@ def transform_nse_data(input_path, input_file_name):
             # Append the transformed data to the list if the answer is not empty
             if pd.notna(answer):
                 transformed_data.append([idea_id, answer, q_number])
-
+                
+                
     # Create a new DataFrame with the transformed data
-    transformed_df = pd.DataFrame(transformed_data, columns=['Id', 'Answer', 'Q Number'])
-
+    transformed_df = pd.DataFrame(transformed_data, columns=['Id', 'Answer', 'Q Name'])
+    
+    # Add a Q dimension table
+    q_name_df = transformed_df[['Q Name']].drop_duplicates()
+    q_name_df.reset_index(inplace=True)
+    q_name_df.columns = ['Q ID', 'Q Name']
+    
+    # Add ID to transformed data
+    transformed_df = transformed_df.merge(q_name_df, 'left', left_on='Q Name', right_on='Q Name')
+    transformed_df.drop(columns=['Q Name'], inplace=True)
+    
     # Save the transformed DataFrame to a new Excel file
-    output_file_path = os.path.join(input_path, "nse_transformed.xlsx")
-    transformed_df.to_excel(output_file_path, index=False)
-
+    output_file_path = os.path.join(input_path, "nse_transformed.csv")
+    transformed_df.to_csv(output_file_path, index=False, sep=';')
+    
+    # Save DIM data to file
+    output_file_path = os.path.join(input_path, "nse_q_dim.csv")
+    q_name_df.to_csv(output_file_path, index=False, sep=';')
+    
     # Print a success message
-    print("The data has been successfully transformed and saved to nse_transformed.xlsx")
+    print("The data has been successfully transformed and saved to nse_transformed.csv")
 
-# Example usage:
-# transform_nse_data("C:\\Users\\YourUsername\\Path\\To\\Data\\", "nse2023.csv")

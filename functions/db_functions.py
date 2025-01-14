@@ -2,9 +2,10 @@ import struct
 import pyodbc
 import pandas as pd
 from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential
 import adal 
 from typing import Any
+from string import Template
 
 class DB:
     def __init__(self):
@@ -60,6 +61,34 @@ class DB:
         
         return struct.pack("=i", len(expanded_token)) + expanded_token
 
+    from azure.identity import InteractiveBrowserCredential
+
+
+    def generate_token_structure(self) -> bytes:
+        """
+        Generate a token structure required for SQL Server connection using Azure Entra account.
+
+        Returns:
+        - bytes: The packed token structure for SQL Server connection.
+        """
+        authority_host_url = "https://login.microsoftonline.com"
+        authority_url = f"{authority_host_url}/{self.tenant_id}"
+        scope = "https://database.windows.net/.default"
+        
+        # Obtain authentication token using InteractiveBrowserCredential
+        credential = InteractiveBrowserCredential()
+        token = credential.get_token(scope)
+        
+        # Process the token into the required binary structure
+        token_bytes = bytes(token.token, "UTF-8")
+        expanded_token = b''
+
+        for byte in token_bytes:
+            expanded_token += bytes({byte})
+            expanded_token += bytes(1)
+        
+        return struct.pack("=i", len(expanded_token)) + expanded_token
+
     def read_from_db(self, otap: str, sql_query: str) -> pd.DataFrame:
         """
         Executes a SQL query against a specified database and returns the results as a DataFrame.
@@ -95,4 +124,6 @@ class DB:
 
         # Convert fetched rows to DataFrame
         return pd.DataFrame.from_records(rows, columns=[column[0] for column in cursor.description])
+    
+    
 

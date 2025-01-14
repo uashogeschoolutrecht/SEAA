@@ -1,39 +1,49 @@
-## Load data
-def loaddata(path, file_name):
-    '''Load csv file containing one column of open answers (strings), cleans the data 
-    and add columns.'''
-    import pandas as pd
+import pandas as pd
+import os
+from typing import Union, Literal
 
+def load_data(path: str, file_name: str) -> pd.DataFrame:
+    """
+    Load and clean CSV file containing open-ended answers.
+    
+    Args:
+        path: Directory path containing the CSV file
+        file_name: Name of the CSV file
+    
+    Returns:
+        DataFrame with cleaned answers and additional columns
+    """
     # Import NSE open answers
-    path = f"{path}data\\"
-    df = pd.read_csv(f'{path}{file_name}', sep =';')
+    df = pd.read_csv(os.path.join(path, file_name), sep =';')
     
     # Clean data
     df['answer_clean'] = df['Answer'].str.lower()
     df['answer_clean'] = df['answer_clean'].str.replace(r"([0-9])", "", regex=True)
     
-    # Add columns: 1 for AVG sensitivity and 1 to track AVG sensitive words.
-    ## AVG sensitivity is either 0 or 1. preset 1 means sensitive.
+    # Initialize tracking columns
     df['contains_privacy'] = 1
-    ## Column to print words present in answers but not in imported dictionary.
     df['unknown_words'] = ''
     df['flagged_words'] = ''
 
     return df
 
-## Load dictionary
-def loaddict(path, file_name, type = ''):
-    '''Load text file containing dictionary (i.e. words of the Dutch language).'''
-    import pandas as pd
-    path = f"{path}dict\\"
-    df_dict = pd.read_csv(f"{path}{file_name}", sep =';')
+def load_dictionary(file_name: str, dict_type: Union[Literal['known'], Literal['illness'], str] = '') -> pd.DataFrame:
+    """
+    Load dictionary file containing word lists.
     
-    if type != 'known':
-        # Convert dict words to smallcase
-        df_dict['words'] = df_dict['words'].str.lower()
+    Args:
+        file_name: Name of the dictionary file
+        dict_type: Type of dictionary ('known' or 'illness' for special processing)
+    
+    Returns:
+        DataFrame containing dictionary words
+    """
+    dictionary_df = pd.read_csv(os.path.join('dict', file_name), sep =';')
+    
+    if dict_type != 'known':
+        dictionary_df['words'] = dictionary_df['words'].str.lower()
 
-    if type == "illness":
-        # Exception for illness ALS, which in small cases is a common Dutch word
-        df_dict = df_dict.replace('als', 'ALS')
+    if dict_type == "illness":
+        dictionary_df = dictionary_df.replace('als', 'ALS')
 
-    return df_dict
+    return dictionary_df
