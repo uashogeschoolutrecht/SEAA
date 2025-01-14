@@ -9,3 +9,7 @@ slides
 nederlandse
 bijv
 mischien
+concretie
+toetscodes
+toetsinschrijving
+voeldoet

@@ -1,7 +1,7 @@
 import re
 import pandas as pd
 
-def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
+def SEAA(dataframe, dictionary_df, flag_df, limit=-1):
     """Semi-automatic anonymization algorithm
     
     Args:
@@ -13,6 +13,10 @@ def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
     Returns:
         DataFrame with additional columns including 'contains_privacy' flag
     """
+    # set if limit is set
+    if limit > 0:
+        dataframe = dataframe.head(limit)
+    
     # Initialize flags in dictionary and flag dataframes
     dictionary_df["is_known"] = 1
     flag_df["is_known"] = 1
@@ -25,7 +29,7 @@ def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
 
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
-
+    
     # Process each answer
     for idx in dataframe.index:
         answer = dataframe["answer_clean"][idx]
@@ -73,8 +77,7 @@ def semi_automatic_anonymization(dataframe, dictionary_df, flag_df, limit=-1):
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")
             
-        if idx == limit:
-            break
+
 
     return dataframe
 

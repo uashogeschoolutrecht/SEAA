@@ -1,3 +1,5 @@
+from functions.SEAA import SEAA
+
 def SEAA_efficiency(df):
     '''Calculate efficiency of SEAA algorithm: the number of detected cases
     without privacy-related data with respect to the total number of cases. 
@@ -28,7 +30,6 @@ def SEAA_accuracy(df, df_dict, df_flag):
     - False negative = Contains privacy = 0 and AVG validatie = 1''' 
 
     #Run SEAA on annotated data
-    from functions.SEAA import SEAA
     result_df = SEAA(df, df_dict, df_flag)
     
     # Calculate accuracy
