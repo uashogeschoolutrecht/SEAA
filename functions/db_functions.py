@@ -64,30 +64,30 @@ class DB:
     from azure.identity import InteractiveBrowserCredential
 
 
-    def generate_token_structure(self) -> bytes:
-        """
-        Generate a token structure required for SQL Server connection using Azure Entra account.
+    # def generate_token_structure(self) -> bytes:
+    #     """
+    #     Generate a token structure required for SQL Server connection using Azure Entra account.
 
-        Returns:
-        - bytes: The packed token structure for SQL Server connection.
-        """
-        authority_host_url = "https://login.microsoftonline.com"
-        authority_url = f"{authority_host_url}/{self.tenant_id}"
-        scope = "https://database.windows.net/.default"
+    #     Returns:
+    #     - bytes: The packed token structure for SQL Server connection.
+    #     """
+    #     authority_host_url = "https://login.microsoftonline.com"
+    #     authority_url = f"{authority_host_url}/{self.tenant_id}"
+    #     scope = "https://database.windows.net/.default"
         
-        # Obtain authentication token using InteractiveBrowserCredential
-        credential = InteractiveBrowserCredential()
-        token = credential.get_token(scope)
+    #     # Obtain authentication token using InteractiveBrowserCredential
+    #     credential = InteractiveBrowserCredential()
+    #     token = credential.get_token(scope)
         
-        # Process the token into the required binary structure
-        token_bytes = bytes(token.token, "UTF-8")
-        expanded_token = b''
+    #     # Process the token into the required binary structure
+    #     token_bytes = bytes(token.token, "UTF-8")
+    #     expanded_token = b''
 
-        for byte in token_bytes:
-            expanded_token += bytes({byte})
-            expanded_token += bytes(1)
+    #     for byte in token_bytes:
+    #         expanded_token += bytes({byte})
+    #         expanded_token += bytes(1)
         
-        return struct.pack("=i", len(expanded_token)) + expanded_token
+    #     return struct.pack("=i", len(expanded_token)) + expanded_token
 
     def read_from_db(self, otap: str, sql_query: str) -> pd.DataFrame:
         """

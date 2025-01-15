@@ -5,8 +5,9 @@ from functions.SEAA import SEAA
 from langdetect import detect
 from functions.AVG_list import AVG_list
 from functions.expand_dicts import expand_dicts
+from functions.get_medewerkers_names import get_medewerkers_names
 
-def main(path, file_name, input_file_name=None):
+def main(path, file_name=None, limit=-1,input_file_name=None):
     """
     Process and analyze student evaluation answers (SEAA) data.
     
@@ -34,21 +35,24 @@ def main(path, file_name, input_file_name=None):
         file_name='nse_transformed.csv'
     
     nseant_df = load_data(path, file_name)
+    
+    # Import latast medewerkers names
+    # get_medewerkers_names()
 
     # Import dictionaries
     word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
-    whitelist_df = load_dictionary(file_name='whitelist_demo.txt')
+    whitelist_df = load_dictionary(file_name='whitelist.txt', dict_type='known')
     
     word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
 
     # Flag words
     flag_df = pd.DataFrame()
-    for file_name,file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('firstnames.txt', 'name'), ('blacklist.txt', 'blacklist')]:
+    for file_name,file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('firstnames.txt', 'name'), ('medewerkers_names.txt', 'medewerkers_names'), ('blacklist.txt', 'blacklist')]:
         temp_df = load_dictionary(file_name=file_name, dict_type=file_type)
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
-    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=10)
+    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=limit)
 
     # Save results to output file
     file_name = '\\SEAA_output.csv'
@@ -62,9 +66,9 @@ def main(path, file_name, input_file_name=None):
             return None
 
     result_df['language'] = result_df['answer_clean'].apply(detect_language)
-
-    # Create list of unknown words for review
-    avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'])
+    
+    # get all avg words that are not flagged yet
+    avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(),flag_df)
     
     ### @ Fraukje -- we weten toch al dat deze woorden niet in de flag_df zitten? Is deze stap wel nodig?
     # avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
@@ -75,13 +79,13 @@ def main(path, file_name, input_file_name=None):
     avg_words_df.to_csv(f'{path}{file_name}', sep=';')
 
     # Import blacklist
-    blacklist_df = load_dictionary(file_name='blacklist.txt')
-    
+    blacklist_df = load_dictionary(file_name='blacklist.txt', dict_type='known')
+
     # Expand upon the blacklist and/or whitelist
     whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
     
     # Save lists to file
-    whitelist_df.to_csv(f'dict//whitelist_demo.txt', index=False) 
+    whitelist_df.to_csv(f'dict//whitelist.txt', index=False) 
     blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
 
 
@@ -90,6 +94,4 @@ if __name__ == "__main__":
         path = r'C:\Users\AnneL\OneDrive - Stichting Hogeschool Utrecht\Documents\testpath', 
         input_file_name = "nse2023.csv"
         )
-
-
 

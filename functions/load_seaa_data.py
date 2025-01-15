@@ -14,7 +14,7 @@ def load_data(path: str, file_name: str) -> pd.DataFrame:
         DataFrame with cleaned answers and additional columns
     """
     # Import NSE open answers
-    df = pd.read_csv(os.path.join(path, file_name), sep =';')
+    df = pd.read_csv(os.path.join(path, file_name), sep =';', encoding='utf-8')
     
     # Clean data
     df['answer_clean'] = df['Answer'].str.lower()
@@ -38,12 +38,14 @@ def load_dictionary(file_name: str, dict_type: Union[Literal['known'], Literal['
     Returns:
         DataFrame containing dictionary words
     """
-    dictionary_df = pd.read_csv(os.path.join('dict', file_name), sep =';')
+    dictionary_df = pd.read_csv(os.path.join('dict', file_name), sep =';', encoding='utf-8')
     
     if dict_type != 'known':
         dictionary_df['words'] = dictionary_df['words'].str.lower()
+        dictionary_df['dict_type'] = dict_type        
 
     if dict_type == "illness":
         dictionary_df = dictionary_df.replace('als', 'ALS')
-
+        
+    
     return dictionary_df
