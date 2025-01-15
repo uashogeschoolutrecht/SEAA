@@ -52,7 +52,7 @@ def main(path, file_name=None, limit=-1,input_file_name=None):
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
-    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=limit)
+    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=1000)
 
     # Save results to output file
     file_name = '\\SEAA_output.csv'
@@ -89,9 +89,7 @@ def main(path, file_name=None, limit=-1,input_file_name=None):
     blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
 
 
-if __name__ == "__main__":
-    main(
-        path = r'C:\Users\AnneL\OneDrive - Stichting Hogeschool Utrecht\Documents\testpath', 
-        input_file_name = "nse2023.csv"
-        )
 
+file_name = "nse2023.csv"
+path = r'C:\Users\fraukje.coopmans\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
+main(path, file_name, input_file_name=file_name)
