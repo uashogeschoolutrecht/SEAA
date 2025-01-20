@@ -76,7 +76,8 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                 
                 if len(flagged_words) > 0:
                     for flagged_word,flag_type in zip(flagged_words,flag_type):
-                        answer_censored = re.sub(flagged_word,f'CENSORED_{flag_type}',answer_censored)                    
+                        answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
+                                            
             if len(dataframe.loc[idx, "unknown_words"]) == 0 or (len(dataframe.loc[idx, "unknown_words"]) == len(dataframe.loc[idx, "flagged_words"])):    
                 dataframe.loc[idx, "answer_censored"] = answer_censored
 
