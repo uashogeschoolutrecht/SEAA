@@ -7,34 +7,50 @@ from functions.AVG_list import AVG_list
 from functions.expand_dicts import expand_dicts
 from functions.get_medewerkers_names import get_medewerkers_names
 
-def main(path, file_name=None, limit=-1,input_file_name=None):
+def main(
+    path, 
+    input_file=None,
+    transform_nse=False,
+    limit=-1
+):
     """
-    Process and analyze student evaluation answers (SEAA) data.
+    Process and analyze open-ended survey responses, with optional NSE (National Student Survey) support.
     
     Args:
         path (str): Directory path where input/output files are stored
-        file_name (str): Name of the file to process (if NSE data is already transformed)
-        input_file_name (str, optional): Name of raw NSE data file to transform. If provided,
-            transforms the data before processing
+        input_file (str): Name of the input CSV file to process. Must contain these columns:
+            - 'answer': The text responses to analyze
+            - 'respondent_id': Unique identifier for each respondent
+            - 'question_id': Identifier for the question being answered
+        transform_nse (bool, optional): Set to True if input is a raw NSE file that needs transformation
+        limit (int, optional): Limit the number of responses to process. Default -1 (process all)
     
-    The function:
-    - Transforms NSE data if raw input is provided
-    - Loads and processes dictionaries (word lists, whitelists, and flag words)
-    - Performs SEAA analysis on the text
-    - Detects language of responses
-    - Generates and saves lists of unknown words
-    - Updates and saves whitelist/blacklist dictionaries
+    Required Input Format:
+    The input CSV file must be semicolon-separated (;) and contain the following columns:
+    - answer: The actual text responses
+    - respondent_id: Unique identifier for each respondent
+    - question_id: Identifier for the question being answered
+    
+    Output:
+    - SEAA_output.csv: Main analysis results
+    - avg_words_count.csv: List of unknown words for review
+    - Updated whitelist.txt and blacklist.txt in the dict/ folder
     """
     
-    # If NSE transform raw data
-    if input_file_name is not None:
+    # Handle NSE transformation if requested
+    if transform_nse:
+        if input_file is None:
+            raise ValueError("input_file must be provided when transform_nse is True")
         transform_nse_data(
             input_path=path,
-            input_file_name=input_file_name,
+            input_file_name=input_file,
         )
-        file_name='nse_transformed.csv'
+        input_file = 'nse_transformed.csv'
     
-    nseant_df = load_data(path, file_name)
+    if input_file is None:
+        raise ValueError("Please provide an input_file name")
+
+    nseant_df = load_data(path, input_file)
     
     # Import latast medewerkers names
     # get_medewerkers_names()
@@ -47,13 +63,13 @@ def main(path, file_name=None, limit=-1,input_file_name=None):
 
     # Flag words
     flag_df = pd.DataFrame()
-    for file_name,file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('firstnames.txt', 'name'), ('medewerkers_names.txt', 'medewerkers_names'), ('blacklist.txt', 'blacklist')]:
+    for file_name,file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('names.txt', 'name'), ('blacklist.txt', 'blacklist')]:
         temp_df = load_dictionary(file_name=file_name, dict_type=file_type)
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
     result_df = SEAA(nseant_df, word_list_df, flag_df,limit=1000)
-
+ 
     # Save results to output file
     file_name = '\\SEAA_output.csv'
     result_df.to_csv(f'{path}{file_name}', sep=';')
@@ -86,8 +102,15 @@ def main(path, file_name=None, limit=-1,input_file_name=None):
     whitelist_df.to_csv(f'dict//whitelist.txt', index=False) 
     blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
 
+# ALL INPUTS must be csv files
+# Set input file, if NSE transform is required define the transform_nse object, for any other input file define the input_file object
+transform_nse = "nse2023.csv"
 
+# Make sure that the input file has the following columns: respondent_id, answer, question_id, in this order and with the correct headers.
+input_file = None
 
-file_name = "nse2023.csv"
+# Set path to the folder where the input and output files are stored
 path = r'C:\Users\fraukje.coopmans\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
-main(path, file_name, input_file_name=file_name)
+
+# Run the main function
+main(path, transform_nse=transform_nse, input_file=input_file)

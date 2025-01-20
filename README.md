@@ -1,91 +1,165 @@
-# SEAA
+# SEAA: Semi-automatic Anonymization Algorithm
+A Python tool for detecting and anonymizing privacy-sensitive information in open-ended dutch survey responses or other open anwnsers.
 
-Semi-automatic anonimisation (SEAA) algorithm of the HU University of Applied Sciences Utrecht.
+## Overview
+SEAA helps identify and anonymize potentially privacy-sensitive information in text responses, particularly useful for processing survey data. Any csv file with open answers can be processed. It uses dictionary-based matching and user interaction to:
+- Detect unknown words that might contain private information
+- Flag known privacy-sensitive terms (names, medical conditions, etc.)
+- Replace sensitive information with category markers (e.g., [NAME], [ILLNESS])
+- Allow users to expand the whitelist/blacklist of words through interactive review
+- User input is expanded in the dictionaries and used for future analyses
 
-## Summary
-Open answers (an answer given to an open question) can contain privacy-related data. Currently, the most used methods of anonimisation at the HU is to do this by hand, to use non-anonimised data, or simple not use the data at all. The SEAA algorithm uses privacy-by-design as a fundamental principle: always make sure your data does not contain any privacy-related information. Using SEAA on your open answer data you can quickly identify which answers might contain privacy-related data and which answer do not. The answers that SEAA flags as 'might contain privacy-related data' can then be manually reviewed.  
+> NOTE: this tool can only be used for Dutch text.
 
-## How does SEAA work?
 
-![How SEAA works](images/seaa_logo.png)
-The algorithm uses both dictionairies and smart rules to determine if input (an answer to an open question) contains privacy-related data. SEAA will check for each answer if the words it contains are 'unknown' words (i.e. not part of the Dutch standard dictionary) as well as 'flagged' words (i.e. checking several blacklists for specific words related to privacy). An answer will be flagged as soon as it contains any unknown words and/or flagged words. 
+##  Flow chart
+```mermaid
+%%{init: {'sequence': {'theme': 'hand'}}}%%
+sequenceDiagram
+    participant Input as Input Files
+    participant Trans as NSE Transform
+    participant SEAA as SEAA Process
+    participant Dict as Dictionaries
+    participant User as User Review
+    participant Out as Output Files
 
-The algorithm gives an advice in the form of 'Yes/No' whether the input contains privacy-related data. SEAA uses the 'privacy-by-default' rule: if the algorithm is not sure if an answer contains privacy-related information, it will always give back 'Yes'. Only when SEAA is 100% sure the input does not contain any privacy-related data, a 'No' will be adviced.
+    alt NSE Data
+        Input->>Trans: Raw NSE CSV
+        Trans->>Trans: Transform wide to long format
+        Note over Trans: Convert:<br/>Q1 Q2 Q3<br/>to<br/>Answer Question_id
+        Trans->>SEAA: nse_transformed.csv
+    else Regular Data
+        Input->>SEAA: Standard CSV
+    end
 
-## Dictionaries
+    activate SEAA
+    SEAA->>SEAA: Load & Clean Text
+    
+    loop Word Check
+        SEAA->>Dict: Check against dictionaries
+        Dict-->>SEAA: Return matches
+    end
+    
+    SEAA->>Out: Write SEAA_output.csv
+    SEAA->>Out: Write unknown_words.csv
+    deactivate SEAA
+    
+    loop For each unknown word
+        Out->>User: Present word
+        User->>Dict: Add to whitelist/blacklist
+    end
+    
+    Dict->>Dict: Update dictionaries
+```
 
-SEAA uses a number different dictionaries, to determine unknown words as well as flagged words. The following dictionaries are combined and used to determine known words:
+## Installation
 
-- Dutch language word list of [OpenTaal](https://www.opentaal.org/), the publiced wordlists 'basiswoorden-gekeurd' and 'flexies-ongekeurd' on their [GitHub](https://github.com/OpenTaal/opentaal-wordlist)
-- HU Whitelist. Assembled by the project team with input from the stakeholders. 
+1. Clone the repository:
 
-Any words of an open answer that are not part of above dictionaries are flagged by SEAA as 'unknown' words. 
+```bash
+git clone https://github.com/uashogeschoolutrecht/SEAA.git
+cd seaa
+```
 
-In addition, any words (known or unknown) that are part of the following dictionaries are flagged by SEAA as sensitive words:
+2. Install required dependencies:
 
-- Dutch illness list ([Wikipedia](https://nl.wikipedia.org/wiki/Lijst_van_aandoeningen))
-- Dutch first name list ([Nederlandse Voornamenbank](https://nvb.meertens.knaw.nl/veelgesteldevragen))
-- Study limitations. Assembled by the project team with input from the stakeholders. 
-- Blacklist. Assembled by the project team with input from the stakeholders. 
+```bash
+pip install -r requirements.txt
+```
 
-Dictionaries are currently static, but will be added upon by stakeholders. 
+## Input Requirements
 
-## How can I use SEAA?
-It is important to note that SEAA is only a tool and further work is needed on the data. When SEAA has given advice on your data, you are advised to use the 'contains_privacy' column that was added by SEAA to filter out all open answer that possibly contain privacy-related data. Only when this data is filtered, the remaining data is effectively anonimized and can be stored in another (more accessible) location and/or distributed (e.g. in a report). Furthermore, we strongly advise to use anonimised data as much as possible instead of unanonimsed data. Unanonimised data should only be used by a small number of people, and only when strictly necessary. 
+Your input CSV file must:
+- Use semicolon as the separator
+- Contain these columns in order: 
+  1. `respondent_id` - Unique identifier for each respondent
+  2. `Answer` - The text responses to analyze
+  3. `question_id` - Identifier for the question being answered
 
-We do advice when sharing data anonimised by SEAA to always include a disclaimer that reads the following: "Deze data is geanonimiseerd. Zie je toch nog privacy-gerelateerde informatie? Neem dan contact op met ...', in which a contact number and/or emailaddress is added. 
+Example input CSV format:
+```csv
+respondent_id;Answer;question_id
+1001;"Mijn docent Peter heeft mij enorm geholpen";Q1
+1002;"Ik had moeite met concentratie tijdens de lessen";Q1
+```
 
-In addition, any possible flaws in the SEAA algorithm can be flagged here in the GitHub repo as an issue. 
+## Basic Usage
 
-## Privacy & security
-SEAA uses the privacy-by-design principle by always flagging an answer unless it only contains words that are deemed 'safe'. Words that are considered 'safe' are words part of the regular Dutch dictionary. In addition, an answer was also flagged as soon as it contains at least one word part of a sensitive word dictionary. For example, the answer 'Ik ben een docent' will not be flagged since it only contains 'safe' words, i.e. words part of the Dutch dictionary, and it contains no sensitive words. In contrast, the answer 'Ik heb een depressie' will be flagged. This answer contains only 'safe' words, i.e. words part of the Dutch dictionary, however, it also contains the sensitive word 'depressie' and therefor will be flagged (privacy first). 
+1. Place your input CSV file in your working directory
+2. Update the path and filename in your script:
 
-### Privacy definitions
-A strict privacy definition was needed to determine when an answer was considered to contain privacy-related data. Find below the privacy definitions we used to assess answers. 
+```python
+# Set your file path and name
+path = r'C:\Your\Path\Here'
+input_file = 'your_input_file.csv'
 
-In general SEAA follows the Dutch implementation of the GDPR as provided by the [Autoriteit Persoonsgegevens](https://www.autoriteitpersoonsgegevens.nl/) (i.e. the [Dutch Data Protection Authority](https://www.autoriteitpersoonsgegevens.nl/en/about-the-dutch-dpa/tasks-and-powers-of-the-dutch-dpa)). Since SEAA is an algorithm, a set of specified rules about when exactly privacy-concerns arise are needed. The enforcement of GDPR on data, however, is not specified in detail so a specific set of rules was defined based on the GDPR.
-A word and/or sequence of words is defined as “possibly containing privacy-related information” when one of the following:
+# Run the main function
+main(path, input_file=input_file)
+```
 
-- Contains information directly relatable to a person. That is:
-  - First name, last name
-  - Email address
-  - IP address
-  - Address
-  - Phone number
-  - Student number
-  - BSN number
-  - Date of birth
-- Contains any mention of illness(type).
+### For NSE (National Student Survey) Data
+If you're processing NSE data, use:
 
-### Security
-SEAA is an algorithm that handles data that might contain privacy-related information, thus storing and handling this type of sensitive data is paramount. SEAA, as used by Team Data & Analytics of the HU, uses the following data architecture to ensure data safety:
-![alt text](images/flow.png)
+```python
+path = r'C:\Your\Path\Here'
+transform_nse = "nse2023.csv"  # Your NSE file
+input_file = None
 
-1. Data to enter SEAA (input) is stored in a secure OneDrive folder with only limited access. Only employees with explicit permissions are allowed to enter this data folder. 
-2. SEAA is run in a local Python workspace in Visual Studio Code in which security is ensured through Windows security. This workspace concurrently uses data from the input folder (step 1) as well as code and/or docs present on the GitHub respository (https://github.com/uashogeschoolutrecht/SEAA). Please note that data or any other privacy-related information is never stored on GitHub, and this is enforced by explicit rules excluding data from uploading to GitHub. 
-3. Results from SEAA are added back into the original data file, such that the same security from step 1 applies. 
+main(path, transform_nse=transform_nse, input_file=input_file)
+```
 
-Data in the secure OneDrive folder is only stored for the duration of the analysis. 
+## Output Files
 
-## Validation
-SEAA was developed as a pilot to be ran on the open answer data of the National Student Questionaire (NSE) as requested by Hans Kruijer. During this phase (which ran from Sep '23 - Feb '24) the following stakeholders were involved:
+The tool generates several output files:
 
-- Team Institutional Research (product owner: Hans Kruijer)
-- Team Data & Analytics
-- Leonie Redder (opdrachtgever)
-- Dick Vestdijk (privacy manager OO&S)
+1. `SEAA_output.csv`: Main analysis results containing:
+   - Original text
+   - Censored text
+   - Privacy flags
+   - Detected sensitive words
+   - Word counts
 
-During this pilot we developed SEAA to work as we intended and we tested this as following: SEAA was validated using open answer data of the National Student Questionaire (NSE) of 2023. In total a number of 2239 open answers were annotated by hand, i.e. manually indicating whether an answer contains privacy-related data. Annotations include a random draw from all NSE questions, as well as all answers from the question regarding study limitations and illness. 
+2. `avg_words_count.csv`: List of unknown words for review
 
-### Pilot results
-#### Accuracy
-Out of 2239 cases there were 11 cases where SEAA did not flag the answer even though it was annotated as containing privacy-related data. Examining these false negative cases in more depth showed that 10 out of 11 answers where falsely annotated as containing privacy-related data. One false negative case contained a reference to a car-accident ('auto-ongeluk').
+3. Updated dictionary files in `dict/` folder:
+   - `whitelist.txt`: Safe words
+   - `blacklist.txt`: Privacy-sensitive words
 
-In conclusion, SEAA reached a very high accuracy of 99% while flagging answers from the National Student Questionaire (NSE) 2023. 
+## Interactive Word Review
 
-#### Efficiency
-Out of 2239 annotated cases, SEAA classified 1777 cases as not containing any privacy-related data, indicating an efficiency of 79%. In effect, using SEAA on this specific dataset would decrease the manual workload with 79%.  
+The tool will present unknown words for review, allowing you to:
+- Add words to the whitelist (safe words)
+- Add words to the blacklist (privacy-sensitive words)
+- Skip words for later review
 
-## After the pilot
-SEAA was further evaluated for organizational adoption by privacy officer Lisanne Reurings (Dienst Finance, Control & Analytics) and privacy manager Rinske Plomp. 
+Example interaction:
+```
+"docent" kwam 45 keer voor in de open antwoorden.
+Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): j
+Woord "docent" is toegevoegd aan de whitelist
+
+"janssen" kwam 12 keer voor in de open antwoorden.
+Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): blacklist
+Woord "janssen" is toegevoegd aan de blacklist
+```
+
+## Dictionary Management
+
+The tool uses several dictionary files in the `dict/` folder:
+- `wordlist.txt`: Base dictionary of common words
+- `whitelist.txt`: User-approved safe words
+- `blacklist.txt`: Known privacy-sensitive words
+- `illness.txt`: Medical conditions
+- `studiebeperking.txt`: Study limitations
+- `names.txt`: Common first names plus some last names
+
+## Language Detection
+
+The tool automatically detects the language of responses and primarily processes Dutch text. Non-Dutch responses are flagged in the output.
+
+## Limitations
+
+- The tool is optimized for Dutch language text
+- Dictionary-based approach may miss complex or context-dependent privacy information
+- Regular maintenance of dictionaries is recommended for optimal performance
 
