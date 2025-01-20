@@ -28,7 +28,6 @@ def scrape_page_content(driver, url):
         print(f"Error scraping content from {url}: {str(e)}")
         return ""
 
-
 def scrape_link_content(base_url):
     # Set up Chrome driver (you can use Firefox or others)
     options = webdriver.ChromeOptions()
@@ -102,7 +101,11 @@ if __name__ == "__main__":
     # Step 1: Web scraping
     base_url = "https://studiegids.hu.nl/"
     df_links = scrape_link_content(base_url)
-    print(f"Total links found: {len(scrape_link_content)}")
+    print(f"Total links found: {len(df_links)}")
+    
+    df_links.to_csv('studiegids_termen.csv', sep=';', index=False, encoding='utf-8')
+    
+    df_links = pd.read_csv('studiegids_termen.csv', sep=';',encoding='utf-8')
     
     # Process content into unique words
     # Combine all content into one string and convert to lowercase
@@ -115,16 +118,24 @@ if __name__ == "__main__":
     unique_words = sorted(set(words))
     
     for word in unique_words:
-        if len(word) < 3:
+        if len(word) < 4:
             unique_words.remove(word)
 
     from functions.load_seaa_data import load_dictionary
     # Check if word is in word list
-    word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
+    words_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
+    word_list_df = words_df['words'].tolist()
+    
+    unique_words_clean = []
+    
+    # remove all known words    
     for word in unique_words:
-        if word in word_list_df:
-            unique_words.remove(word)
-    unique_words.to_csv(f'dict//hu_words.txt', index=False) 
+        if word not in word_list_df:
+            unique_words_clean.append(word)
+   
+    df_unique_words_clean = pd.DataFrame(   unique_words_clean, columns=['words'])
+    
+    df_unique_words_clean.to_csv(f'dict//hu_words.txt', index=False) 
      
     print(f"Total unique words found: {len(unique_words)}")
     print("First 10 words as sample:", unique_words[:10])
