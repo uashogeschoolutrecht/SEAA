@@ -69,10 +69,8 @@ def main(path, file_name=None, limit=-1,input_file_name=None):
     
     # get all avg words that are not flagged yet
     avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(),flag_df)
-    
-    ### @ Fraukje -- we weten toch al dat deze woorden niet in de flag_df zitten? Is deze stap wel nodig?
-    # avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
-    # avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
+    avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
+    avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 
     # Save unknown words to file
     file_name = 'avg_words_count.csv'
