@@ -155,7 +155,7 @@ The tool uses several dictionary files in the `dict/` folder:
 
 ## Language Detection
 
-The tool automatically detects the language of responses and primarily processes Dutch text. Non-Dutch responses are flagged in the output.
+The tool automatically detects the language of responses and processes Dutch text. Non-Dutch responses are flagged in the output.
 
 ## Limitations
 
