@@ -2,12 +2,13 @@
 A Python tool for detecting and anonymizing privacy-sensitive information in open-ended dutch survey responses or other open anwnsers.
 
 ## Overview
-SEAA helps identify and anonymize potentially privacy-sensitive information in text responses, particularly useful for processing survey data. Any csv file with open answers can be processed. It uses dictionary-based matching and user interaction to:
+SEAA helps identify and anonymize potentially privacy-sensitive information in text responses, particularly useful for processing survey data. Any csv file with open answers can be processed. It uses dictionary-based matching that is updated by user interaction to:
 - Detect unknown words that might contain private information
 - Flag known privacy-sensitive terms (names, medical conditions, etc.)
 - Replace sensitive information with category markers (e.g., [NAME], [ILLNESS])
 - Allow users to expand the whitelist/blacklist of words through interactive review
 - User input is expanded in the dictionaries and used for future analyses
+- Originally developed for the National Student Survey (NSE) data but expaned to other csv files with open answers.
 
 > NOTE: this tool can only be used for Dutch text.
 
@@ -117,7 +118,6 @@ The tool generates several output files:
    - Censored text
    - Privacy flags
    - Detected sensitive words
-   - Word counts
 
 2. `avg_words_count.csv`: List of unknown words for review
 

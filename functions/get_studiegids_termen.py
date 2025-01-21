@@ -3,10 +3,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from urllib.parse import urljoin, urlparse
-import csv
 import time
 import pandas as pd
 import re
+from langdetect import detect
+import os
+
+def detect_language(text):
+    try:
+        return detect(text)
+    except:
+        return None
+
 
 def is_valid_url(url, base_domain):
     """Check if URL belongs to the same domain and is valid"""
@@ -28,16 +36,13 @@ def scrape_page_content(driver, url):
         print(f"Error scraping content from {url}: {str(e)}")
         return ""
 
-def scrape_link_content(base_url):
+def scrape_link_content(base_url,N=-1):
     # Set up Chrome driver (you can use Firefox or others)
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # Run in headless mode (no GUI)
     driver = webdriver.Chrome(options=options)
     
-    # Set for storing unique URLs
     base_domain = urlparse(base_url).netloc
-    
-    # Modify the data collection structure
     all_links = []
 
     try:
@@ -48,23 +53,30 @@ def scrape_link_content(base_url):
             EC.presence_of_element_located((By.TAG_NAME, "table"))
         )
         
-        # Find all tables
         tables = driver.find_elements(By.TAG_NAME, "table")
-
         
-        for table in tables:
-            # First find all rows in the table
+        for table in tables[0:N]:
             rows = table.find_elements(By.TAG_NAME, "tr")
-            for index, row in enumerate(rows, 0):
+            for index, row in enumerate(rows, 1):  # Start from 1 to match XPath indexing
                 try:
-                    # Find the link in this row
-                    link = row.find_element(By.TAG_NAME, "a")
+                    # Find all links in this row
+                    links = row.find_elements(By.TAG_NAME, "a")
+                    
+                    # Skip if no links found
+                    if not links:
+                        continue
+                        
+                    # Use the first link found
+                    link = links[0]
                     href = link.get_attribute('href')
                     
                     # Find the template name div in this specific row
-                    template_xpath = f'//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[{index}]/td[1]/div'
-                    template_div = driver.find_element(By.XPATH, template_xpath)
-                    template_class = template_div.text
+                    try:
+                        template_xpath = f'//*[@id="app"]/div[2]/div/div[1]/table/tbody/tr[{index}]/td[1]/div'
+                        template_div = driver.find_element(By.XPATH, template_xpath)
+                        template_class = template_div.text
+                    except:
+                        template_class = ""  # Set empty string if template class not found
                     
                     if href:
                         full_url = urljoin(current_url, href)
@@ -75,7 +87,7 @@ def scrape_link_content(base_url):
                                 'subtext': template_class
                             })
                 except Exception as e:
-                    print(f"Error processing row {index}: {str(e)}")
+                    print(f"Skipping row {index}: {str(e)}")
                     continue
 
     except Exception as e:
@@ -103,9 +115,14 @@ if __name__ == "__main__":
     df_links = scrape_link_content(base_url)
     print(f"Total links found: {len(df_links)}")
     
+    # Save in case of crash
     df_links.to_csv('studiegids_termen.csv', sep=';', index=False, encoding='utf-8')
     
     df_links = pd.read_csv('studiegids_termen.csv', sep=';',encoding='utf-8')
+    
+    # Only keep dutch studiegidsen
+    df_links['language'] = df_links['content'].apply(detect_language)    
+    df_links = df_links[df_links['language']=='nl']
     
     # Process content into unique words
     # Combine all content into one string and convert to lowercase
@@ -135,7 +152,12 @@ if __name__ == "__main__":
    
     df_unique_words_clean = pd.DataFrame(   unique_words_clean, columns=['words'])
     
-    df_unique_words_clean.to_csv(f'dict//hu_words.txt', index=False) 
+    df_unique_words_clean.to_csv(f'dict//hu_words.txt', index=False, encoding='utf-8') 
      
     print(f"Total unique words found: {len(unique_words)}")
-    print("First 10 words as sample:", unique_words[:10])
+    print("First 10 words as sample:", unique_words[1:10])
+    
+    # Remove studiegids_termen.csv
+    if os.path.exists('studiegids_termen.csv'):
+        os.remove('studiegids_termen.csv')
+    
