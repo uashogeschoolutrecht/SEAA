@@ -6,6 +6,8 @@ def SEAA_efficiency(df):
     INPUT:
     df = dataframe with column ['Contains privacy'] that contains classification of SEAA 
     algorithm whether row has AVG data (1) or not (0). '''
+    
+    df = df.copy()
 
     # Calculate efficiency (%)
     efficiency = (1 - (sum(df['contains_privacy']) / len(df)))*100
@@ -30,7 +32,8 @@ def SEAA_accuracy(df, df_dict, df_flag):
     - False negative = Contains privacy = 0 and AVG validatie = 1''' 
 
     #Run SEAA on annotated data
-    result_df = SEAA(df, df_dict, df_flag)
+    # result_df = SEAA(df, df_dict, df_flag)
+    result_df = df.copy()
     
     # Calculate accuracy
     # We define accuracy as the proporition of correctly classified cases (true positives) 
