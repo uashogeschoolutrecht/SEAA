@@ -1,5 +1,5 @@
 # SEAA: Semi-automatic Anonymization Algorithm
-A Python tool for detecting and anonymizing privacy-sensitive information in open-ended dutch survey responses or other open anwnsers.
+A Python tool for detecting and anonymizing privacy-sensitive information in open-ended Dutch survey responses or other open answers.
 
 ## Overview
 SEAA helps identify and anonymize potentially privacy-sensitive information in text responses, particularly useful for processing survey data. Any csv file with open answers can be processed. It uses dictionary-based matching that is updated by user interaction to:

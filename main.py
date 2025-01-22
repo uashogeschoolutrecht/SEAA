@@ -52,7 +52,7 @@ def main(
 
     nseant_df = load_data(path, input_file)
     
-    # Import latast medewerkers names
+    # Import latest employee names
     # get_medewerkers_names()
 
     # Import dictionaries
@@ -83,7 +83,7 @@ def main(
 
     result_df['language'] = result_df['answer_clean'].apply(detect_language)
     
-    # get all avg words that are not flagged yet
+    # Get all avg words that are not flagged yet
     avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(),flag_df)
     avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
     avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
@@ -104,10 +104,10 @@ def main(
 
 # ALL INPUTS must be csv files
 # Set input file, if NSE transform is required define the transform_nse object, for any other input file define the input_file object
-transform_nse = "nse2023.csv"
+transform_nse = None
 
-# Make sure that the input file has the following columns: respondent_id, answer, question_id, in this order and with the correct headers.
-input_file = None
+# Make sure that the input file has the following columns: respondent_id, Answer, question_id, in this order and with the correct headers.
+input_file = "demo.csv"
 
 # Set path to the folder where the input and output files are stored
 path = r'C:\Users\fraukje.coopmans\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
