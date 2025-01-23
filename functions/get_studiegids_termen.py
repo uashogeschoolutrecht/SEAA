@@ -116,9 +116,9 @@ if __name__ == "__main__":
     print(f"Total links found: {len(df_links)}")
     
     # Save in case of crash
-    df_links.to_csv('studiegids_termen.csv', sep=';', index=False, encoding='utf-8')
+    df_links.to_csv('studiegids_termen.csv', sep=';', index=False, encoding='utf-8-sig')
     
-    df_links = pd.read_csv('studiegids_termen.csv', sep=';',encoding='utf-8')
+    df_links = pd.read_csv('studiegids_termen.csv', sep=';',encoding='utf-8-sig')
     
     # Only keep dutch studiegidsen
     df_links['language'] = df_links['content'].apply(detect_language)    
@@ -152,7 +152,7 @@ if __name__ == "__main__":
    
     df_unique_words_clean = pd.DataFrame(   unique_words_clean, columns=['words'])
     
-    df_unique_words_clean.to_csv(f'dict//hu_words.txt', index=False, encoding='utf-8') 
+    df_unique_words_clean.to_csv(f'dict//hu_words.txt', index=False, encoding='utf-8-sig') 
      
     print(f"Total unique words found: {len(unique_words)}")
     print("First 10 words as sample:", unique_words[1:10])

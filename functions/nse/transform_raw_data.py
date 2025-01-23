@@ -37,7 +37,7 @@ def transform_nse_data(input_path, input_file_name):
     full_path = os.path.join(input_path, input_file_name)
 
     # Read the CSV file
-    df = pd.read_csv(full_path, sep=';', encoding='utf-8')
+    df = pd.read_csv(full_path, sep=';', encoding='utf-8-sig')
 
     # Initialize an empty list to store the transformed data
     transformed_data = []

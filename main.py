@@ -7,6 +7,24 @@ from functions.AVG_list import AVG_list
 from functions.expand_dicts import expand_dicts
 from functions.get_medewerkers_names import get_medewerkers_names
 
+def fix_encoding(text):
+    """
+    Fix common encoding issues in text.
+    """
+    if isinstance(text, str):
+        # Fix common encoding issues
+        return (text.encode('latin1', errors='ignore')
+                   .decode('utf-8-sig', errors='ignore')
+                   .replace('â€™', "'")
+                   .replace('â€"', "–")
+                   .replace('â€œ', '"')
+                   .replace('â€', '"')
+                   .replace('Ã©', 'é')
+                   .replace('Ã«', 'ë')
+                   .replace('Ã¨', 'è')
+                   .replace('Ã¯', 'ï'))
+    return text
+
 def main(
     path, 
     input_file=None,
@@ -51,7 +69,6 @@ def main(
         raise ValueError("Please provide an input_file name")
 
     nseant_df = load_data(path, input_file)
-    
     # Import latest employee names
     # get_medewerkers_names()
 
@@ -68,11 +85,9 @@ def main(
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
-    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=limit)
+    result_df = SEAA(nseant_df, word_list_df, flag_df)
  
-    # Save results to output file
-    file_name = '\\SEAA_output.csv'
-    result_df.to_csv(f'{path}{file_name}', sep=';')
+
 
     # Language detection    
     def detect_language(text):
@@ -90,7 +105,7 @@ def main(
 
     # Save unknown words to file
     file_name = 'avg_words_count.csv'
-    avg_words_df.to_csv(f'{path}{file_name}', sep=';')
+    avg_words_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
 
     # Import blacklist
     blacklist_df = load_dictionary(file_name='blacklist.txt', dict_type='known')
@@ -101,7 +116,7 @@ def main(
     # Save lists to file
     whitelist_df.to_csv(f'dict//whitelist.txt', index=False) 
     blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
-    
+
     return result_df
 
 # ALL INPUTS must be csv files
@@ -111,31 +126,13 @@ transform_nse = None
 # Make sure that the input file has the following columns: respondent_id, Answer, question_id, in this order and with the correct headers.
 input_file = "validation_df_correct_structure.csv"
 
+
 # Set path to the folder where the input and output files are stored
-path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden'
+path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
 
 # Run the main function
 results_df = main(path, transform_nse=transform_nse, input_file=input_file)
+    # Save results to output file
+file_name = '\\SEAA_output.csv'
+results_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
 
-results_df.to_csv(f'{path}\\SEAA_output_validation.csv', sep=';')
-
-
-
-results_df = pd.read_csv(f'{path}\\SEAA_output_validation.csv', sep=';')
-
-word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
-whitelist_df = load_dictionary(file_name='whitelist.txt', dict_type='known')
-
-word_list_df = pd.concat([word_list_df, whitelist_df], ignore_index=True)
-
-# Flag words
-flag_df = pd.DataFrame()
-for file_name,file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('names.txt', 'name'), ('blacklist.txt', 'blacklist')]:
-    temp_df = load_dictionary(file_name=file_name, dict_type=file_type)
-    flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
-del temp_df
-
-import functions.validation as validation
-results_df = results_df[results_df['language'] == 'nl']
-validation.SEAA_accuracy(results_df, word_list_df, flag_df)
-validation.SEAA_efficiency(results_df)
