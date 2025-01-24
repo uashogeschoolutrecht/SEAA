@@ -111,7 +111,7 @@ input_file = "validation_df_correct_structure.csv"
 path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
 
 # Run the main function
-results_df = main(path, transform_nse=transform_nse, input_file=input_file)
+results_df = main(path, transform_nse=transform_nse, input_file=input_file, limit=200)
     # Save results to output file
 file_name = '\\SEAA_output.csv'
 results_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
