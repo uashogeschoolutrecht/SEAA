@@ -7,24 +7,6 @@ from functions.AVG_list import AVG_list
 from functions.expand_dicts import expand_dicts
 from functions.get_medewerkers_names import get_medewerkers_names
 
-def fix_encoding(text):
-    """
-    Fix common encoding issues in text.
-    """
-    if isinstance(text, str):
-        # Fix common encoding issues
-        return (text.encode('latin1', errors='ignore')
-                   .decode('utf-8-sig', errors='ignore')
-                   .replace('â€™', "'")
-                   .replace('â€"', "–")
-                   .replace('â€œ', '"')
-                   .replace('â€', '"')
-                   .replace('Ã©', 'é')
-                   .replace('Ã«', 'ë')
-                   .replace('Ã¨', 'è')
-                   .replace('Ã¯', 'ï'))
-    return text
-
 def main(
     path, 
     input_file=None,
