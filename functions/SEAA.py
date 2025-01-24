@@ -41,7 +41,10 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                 dataframe.loc[idx, "answer_censored"] = answer
                 continue
             
-            answer_censored = answer        
+            # Initialize unknown words not flagged
+            unknown_words_not_flagged = []
+            answer_censored = answer 
+                
             # Create DataFrame of words from answer
             words_df = pd.DataFrame({word_column: re.findall(r"(\w+)", answer)})
             
@@ -53,9 +56,9 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
             # Process unknown words
             unknown_count = int(total_words - unknown_check["is_known"].sum())
             if unknown_count >= 1:
-                unknown_words = unknown_check[unknown_check["is_known"].isnull()][word_column].tolist()
+                unknown_words_list = unknown_check[unknown_check["is_known"].isnull()][word_column].tolist()
                 dataframe.loc[idx, "contains_privacy"] = 1
-                dataframe.loc[idx, "unknown_words"] = ", ".join(unknown_words)
+                dataframe.loc[idx, "unknown_words"] = ", ".join(unknown_words_list)
                 dataframe.loc[idx, "unknown_word_count"] = unknown_count
                 print(f"Answer {idx} might contain privacy-related data: {unknown_count} unknown word(s).")
             else:
@@ -73,16 +76,40 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                 flag_type = flag_check[~flag_check["is_known"].isnull()]['dict_type'].tolist()
                 dataframe.loc[idx, "flagged_word_type"] = ", ".join(flag_type)
                 print(f"Answer {idx} contains privacy-related data: {flagged_count} flagged word(s).")      
-                
-                if len(flagged_words) > 0:
-                    for flagged_word,flag_type in zip(flagged_words,flag_type):
-                        answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
+            else:        
+                continue
+            
+            if flagged_count == 0 and unknown_count == 0:
+                continue
+            elif flagged_count == 0 and unknown_count > 0:
+                dataframe.loc[idx, "unknown_words_not_flagged"] = dataframe.loc[idx, "unknown_words"]
+                continue
+            else:        
+                # Censor flagged words and unknown words
+                # New column that shows all unknown words that are not flagged
+                for unknown_word in unknown_words_list:
+                    if unknown_word not in flagged_words:
+                        unknown_words_not_flagged.append(unknown_word)
+                    
+            # Add to dataframe
+            dataframe.loc[idx, "unknown_words_not_flagged"] = ", ".join(unknown_words_not_flagged)      
+
+            # Censor flagged words
+            if len(flagged_words) > 0:
+                for flagged_word,flag_type in zip(flagged_words,flag_type):
+                    answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
+                    
+            # Censor unknown words not flagged
+            if len(unknown_words_not_flagged) > 0:
+                for unknown_words_not_flagged in unknown_words_not_flagged:
+                    answer_censored = re.sub(unknown_words_not_flagged,f'[UNKNOWN]',answer_censored)
                                             
-            if len(dataframe.loc[idx, "unknown_words"]) == 0 or (len(dataframe.loc[idx, "unknown_words"]) == len(dataframe.loc[idx, "flagged_words"])):    
-                dataframe.loc[idx, "answer_censored"] = answer_censored
+            # Add to dataframe
+            dataframe.loc[idx, "answer_censored"] = answer_censored
 
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")           
+         
 
             
 
