@@ -67,10 +67,8 @@ def main(
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
-    result_df = SEAA(nseant_df, word_list_df, flag_df)
+    result_df = SEAA(nseant_df, word_list_df, flag_df,limit=limit)
  
-
-
     # Language detection    
     def detect_language(text):
         try:
