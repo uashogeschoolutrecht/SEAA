@@ -28,7 +28,7 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
     dataframe["total_word_count"] = 0
     dataframe["unknown_word_count"] = 0
     dataframe["flagged_word_count"] = 0
-
+    dataframe["unknown_words_not_flagged"] = ""
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
 
@@ -43,8 +43,11 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
             
             # Initialize unknown words not flagged
             unknown_words_not_flagged = []
+            unknown_words_list = []
+            flagged_words_list = []
             answer_censored = answer 
-                
+            
+            
             # Create DataFrame of words from answer
             words_df = pd.DataFrame({word_column: re.findall(r"(\w+)", answer)})
             
@@ -69,34 +72,34 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
             flagged_count = int(flag_check["is_known"].sum())
             
             if flagged_count >= 1:
-                flagged_words = flag_check[~flag_check["is_known"].isnull()][word_column].tolist()
-                dataframe.loc[idx, "flagged_words"] = ", ".join(flagged_words)
+                flagged_words_list = flag_check[~flag_check["is_known"].isnull()][word_column].tolist()
                 dataframe.loc[idx, "contains_privacy"] = 1
                 dataframe.loc[idx, "flagged_word_count"] = flagged_count
                 flag_type = flag_check[~flag_check["is_known"].isnull()]['dict_type'].tolist()
                 dataframe.loc[idx, "flagged_word_type"] = ", ".join(flag_type)
                 print(f"Answer {idx} contains privacy-related data: {flagged_count} flagged word(s).")      
             else:        
-                continue
+                flagged_words_list = []
             
+            dataframe.loc[idx, "flagged_words"] = ", ".join(flagged_words_list)
+        
             if flagged_count == 0 and unknown_count == 0:
-                continue
+                unknown_words_not_flagged = []
             elif flagged_count == 0 and unknown_count > 0:
-                dataframe.loc[idx, "unknown_words_not_flagged"] = dataframe.loc[idx, "unknown_words"]
-                continue
+                unknown_words_not_flagged = unknown_words_list.copy()
             else:        
                 # Censor flagged words and unknown words
                 # New column that shows all unknown words that are not flagged
                 for unknown_word in unknown_words_list:
-                    if unknown_word not in flagged_words:
+                    if unknown_word not in flagged_words_list:
                         unknown_words_not_flagged.append(unknown_word)
                     
             # Add to dataframe
             dataframe.loc[idx, "unknown_words_not_flagged"] = ", ".join(unknown_words_not_flagged)      
 
             # Censor flagged words
-            if len(flagged_words) > 0:
-                for flagged_word,flag_type in zip(flagged_words,flag_type):
+            if len(flagged_words_list) > 0:
+                for flagged_word,flag_type in zip(flagged_words_list,flag_type):
                     answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
                     
             # Censor unknown words not flagged
@@ -108,7 +111,7 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
             dataframe.loc[idx, "answer_censored"] = answer_censored
 
         except Exception as e:
-            print(f"Error processing row {idx}: {str(e)}")           
+            print(f"Error processing row {idx}: {str(e)}")  
          
 
             
