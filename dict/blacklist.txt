@@ -1,4 +1,4 @@
-﻿words
+words
 katrin
 duijndam
 caroline
@@ -6,7 +6,3 @@ huirne
 beerman
 mizwer
 vermeulen
-slbrs
-slb
-testvision
-arduino

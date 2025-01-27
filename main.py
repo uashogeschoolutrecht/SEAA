@@ -104,15 +104,16 @@ def main(
 transform_nse = None
 
 # Make sure that the input file has the following columns: respondent_id, Answer, question_id, in this order and with the correct headers.
-input_file = "validation_df_correct_structure.csv"
+input_file = "combined_responses_100_dagen_2024_2025.csv"
 
 
 # Set path to the folder where the input and output files are stored
 path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
 
 # Run the main function
-results_df = main(path, transform_nse=transform_nse, input_file=input_file, limit=200)
+results_df = main(path, transform_nse=transform_nse, input_file=input_file)
     # Save results to output file
-file_name = '\\SEAA_output.csv'
+file_name = '\\SEAA_output_100_dagen_2024_2025.csv'
 results_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
+
 

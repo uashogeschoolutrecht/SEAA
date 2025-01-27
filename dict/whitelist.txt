@@ -1,4 +1,4 @@
-﻿words
+words
 nederlands
 powerpoint
 ipv
@@ -656,3 +656,4 @@ jabra
 bureacratisch
 collegas
 gaotich
+studiestress
