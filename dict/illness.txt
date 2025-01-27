@@ -1,4 +1,4 @@
-words
+﻿words
 asd
 1q21.1-deletiesyndroom
 1q21.1-duplicatiesyndroom
@@ -52,7 +52,7 @@ crohn
 darmkanker
 decubitus
 depressie
-diabetes 
+diabetes
 mellitus
 diarree
 difterie
