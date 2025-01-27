@@ -125,6 +125,31 @@ The tool generates several output files:
    - `whitelist.txt`: Safe words
    - `blacklist.txt`: Privacy-sensitive words
 
+## Output File Columns
+
+The `SEAA_output.csv` contains the following columns:
+
+- `respondent_id`: Original respondent identifier
+- `Answer`: Original text response
+- `question_id`: Original question identifier
+- `answer_clean`: Cleaned version of the text (lowercase, normalized)
+- `contains_privacy`: Binary flag (1/0) indicating if privacy-sensitive content was detected
+- `unknown_words`: List of words not found in the dictionary or whitelist
+- `flagged_words`: List of words matched against the privacy-sensitive dictionaries
+- `answer_censored`: Text with privacy-sensitive words replaced by category markers (e.g., [NAME], [ILLNESS]) and unknown words replaced by [UNKOWN]
+- `total_word_count`: Total number of words in the response
+- `unknown_word_count`: Number of words not found in dictionaries (still need to be reviewed)
+- `flagged_word_count`: Number of privacy-sensitive words detected
+- `unknown_words_not_flagged`: Unknown words that are not in the dictionaries
+- `flagged_word_type`: Categories of privacy-sensitive content found (e.g., "name, illness")
+- `language`: Detected language of the response (e.g., 'nl' for Dutch, 'en' for English)
+
+Example row:
+```csv
+respondent_id;Answer;question_id;answer_clean;contains_privacy;unknown_words;flagged_words;answer_censored;total_word_count;unknown_word_count;flagged_word_count;unknown_words_not_flagged;flagged_word_type;language
+1;"Mijn docent Peter heeft mij geholpen met mijn loopbaanbegleidingstraject";"Q1";"mijn docent peter heeft mij geholpen met mijn loopbaanbegleidingstraject";1;"";peter;"Mijn docent [NAME] heeft mij geholpen met mijn [UNKOWN]";10;0;1;;"name";"nl"
+```
+
 ## Interactive Word Review
 
 The tool will present unknown words for review, allowing you to:
