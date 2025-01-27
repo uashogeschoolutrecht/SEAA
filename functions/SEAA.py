@@ -1,97 +1,122 @@
-def SEAA(df, df_dict, df_flag, N=-1):
-    '''Semi-automatic anonimisation algorithm
+import re
+import pandas as pd
+
+def SEAA(df, dictionary_df, flag_df, limit=-1):
+    """Semi-automatic anonymization algorithm
     
-    Input is 3 dataframes:
-    - a dataframe df containing text to be checked by SEAA
-    for possible privacy-related data in the column ['answer_clean']
-    - a dataframe df_dict: a list of words that are considered safe,
-    i.e. not privacy-related. 
-    - a dataframe df_flag: a list of words that are considered unsafe,
-    i.e. containing privacy-related information. 
-    - integer N (optional), number of answers to check (usefull for testing)
+    Args:
+        dataframe: DataFrame containing text to check in column ['answer_clean']
+        dictionary_df: DataFrame of safe words (not privacy-related)
+        flag_df: DataFrame of unsafe words (privacy-related)
+        limit: Optional integer, number of answers to check (useful for testing)
     
-    Output is dataframe df with one extra column ['contains_privacy'] 
-    indicating whether the column might contain privacy-related data (1)
-    or not does not (0). '''
+    Returns:
+        DataFrame with additional columns including 'contains_privacy' flag
+    """
+    
+    dataframe = df.copy()
+    # set if limit is set
+    if limit > 0:
+        dataframe = dataframe.head(limit)
 
-    import re
-    import pandas as pd
+    # Initialize flags in dictionary and flag dataframes
+    dictionary_df["is_known"] = 1
+    flag_df["is_known"] = 1
 
-    df_dict["known"] = 1
-    df_flag["known"] = 1
-    df["answer_censored"] = ""
-    df["total_word_count"] = 0
-    df["unknown_word_count"] = 0
-    df["flagged_word_count"] = 0
+    # Initialize new columns in main dataframe
+    dataframe["answer_censored"] = ""
+    dataframe["total_word_count"] = 0
+    dataframe["unknown_word_count"] = 0
+    dataframe["flagged_word_count"] = 0
+    dataframe["unknown_words_not_flagged"] = ""
+    # Use consistent column name for merging
+    word_column = dictionary_df.columns[0]
 
-    # Set col_name for merge, making sure that both columns have the same name
-    col_name = df_dict.columns[0]
-
-    # Loop over all rows of answers
-    for i in df.index:
-        answer = df["answer_clean"][i]
+    # Process each answer
+    for idx in dataframe.index:
+        answer = dataframe["answer_clean"][idx]
         try:
-            # If answer contains no value, set output
-            if pd.isna(df["answer_clean"][i]):
-                df.loc[i, "contains_privacy"] = 0
-            # Else continue with SEAA
+            if pd.isna(answer):
+                dataframe.loc[idx, "contains_privacy"] = 0
+                dataframe.loc[idx, "answer_censored"] = answer
+                continue
+            
+            # Initialize unknown words not flagged
+            unknown_words_not_flagged = []
+            unknown_words_list = []
+            flagged_words_list = []
+            answer_censored = answer 
+            
+            
+            # Create DataFrame of words from answer
+            words_df = pd.DataFrame({word_column: re.findall(r"(\w+)", answer)})
+            
+            # Check against dictionary
+            unknown_check = pd.merge(words_df, dictionary_df, "left")
+            total_words = len(unknown_check[word_column])
+            dataframe.loc[idx, "total_word_count"] = total_words
+
+            # Process unknown words
+            unknown_count = int(total_words - unknown_check["is_known"].sum())
+            if unknown_count >= 1:
+                unknown_words_list = unknown_check[unknown_check["is_known"].isnull()][word_column].tolist()
+                dataframe.loc[idx, "contains_privacy"] = 1
+                dataframe.loc[idx, "unknown_words"] = ", ".join(unknown_words_list)
+                dataframe.loc[idx, "unknown_word_count"] = unknown_count
+                print(f"Answer {idx} might contain privacy-related data: {unknown_count} unknown word(s).")
             else:
-                answer_df = pd.DataFrame({col_name: re.findall(r"(\w+)", answer)})
-                check_df = pd.merge(answer_df, df_dict, "left")
+                dataframe.loc[idx, "contains_privacy"] = 0
 
-                # Count the number of words in the answer
-                words_number = len(check_df[col_name])
-                df.loc[i, "total_word_count"] = words_number
-
-                # Find number of unknown words
-                unknown_words_number = int(words_number - check_df["known"].sum())      
-                # Select list of unknown words
-                unknown_words_list = check_df[check_df["known"].isnull()][
-                    col_name
-                ].tolist()
-                
-                # If at least one word is unknown, 'contains_privacy' is set to 1
-                if unknown_words_number >= 1:                    
-                    df.loc[i, "contains_privacy"] = 1
-                    df.loc[i, "unknown_words"] = ", ".join(unknown_words_list)
+            # Check against flag list
+            flag_check = pd.merge(words_df, flag_df, "left")
+            flagged_count = int(flag_check["is_known"].sum())
+            
+            if flagged_count >= 1:
+                flagged_words_list = flag_check[~flag_check["is_known"].isnull()][word_column].tolist()
+                dataframe.loc[idx, "contains_privacy"] = 1
+                dataframe.loc[idx, "flagged_word_count"] = flagged_count
+                flag_type = flag_check[~flag_check["is_known"].isnull()]['dict_type'].tolist()
+                dataframe.loc[idx, "flagged_word_type"] = ", ".join(flag_type)
+                print(f"Answer {idx} contains privacy-related data: {flagged_count} flagged word(s).")      
+            else:        
+                flagged_words_list = []
+            
+            dataframe.loc[idx, "flagged_words"] = ", ".join(flagged_words_list)
+        
+            if flagged_count == 0 and unknown_count == 0:
+                unknown_words_not_flagged = []
+            elif flagged_count == 0 and unknown_count > 0:
+                unknown_words_not_flagged = unknown_words_list.copy()
+            else:        
+                # Censor flagged words and unknown words
+                # New column that shows all unknown words that are not flagged
+                for unknown_word in unknown_words_list:
+                    if unknown_word not in flagged_words_list:
+                        unknown_words_not_flagged.append(unknown_word)
                     
-                    # for unknown words add column with amount of unknown words plus total number of words 
-                    df.loc[i, "unknown_word_count"] = unknown_words_number                        
+            # Add to dataframe
+            dataframe.loc[idx, "unknown_words_not_flagged"] = ", ".join(unknown_words_not_flagged)      
+
+            # Censor flagged words
+            if len(flagged_words_list) > 0:
+                for flagged_word,flag_type in zip(flagged_words_list,flag_type):
+                    answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
                     
-                    print(
-                        f"Answer {i} might contain privacy-related data: {unknown_words_number} unknown word(s)."
-                    )
-                # If case does not contain unknown words 'contains_privacy' is set to 0
-                else:
-                    df.loc[i, "contains_privacy"] = 0
+            # Censor unknown words not flagged
+            if len(unknown_words_not_flagged) > 0:
+                for unknown_words_not_flagged in unknown_words_not_flagged:
+                    answer_censored = re.sub(unknown_words_not_flagged,f'[UNKNOWN]',answer_censored)
+                                            
+            # Add to dataframe
+            dataframe.loc[idx, "answer_censored"] = answer_censored
 
-                # Repeat for flagged words
-                check_df = pd.merge(answer_df, df_flag, "left")
-
-                # If looking for flagged words take the sum of the total known
-                flagged_words_number = int(check_df["known"].sum())
-                if flagged_words_number >= 1:
-                    flagged_words_list = check_df[~check_df["known"].isnull()][
-                        col_name
-                    ].tolist()
-                    df.loc[i,'flagged_words'] = ", ".join(flagged_words_list)
-                    df.loc[i, "contains_privacy"] = 1         
-                    print(f"Answer {i} contains privacy-related data: {flagged_words_number} flagged word(s).")                                                                             
-
-                    df.loc[i, "flagged_word_count"] = flagged_words_number       
-
-                    # Censor flagged words
-                    mask = check_df['known'] == 1
-                    check_df.loc[mask, 'words'] = "XXX"
-                    
-                df.loc[i, "answer_censored"] = ' '.join(check_df["words"])
         except Exception as e:
-            print(e)    
-        # Exit the loop early for testing purposes
-        if i == N:
-            break
+            print(f"Error processing row {idx}: {str(e)}")  
+         
 
-    return df
+            
+
+    return dataframe
 
         
         
