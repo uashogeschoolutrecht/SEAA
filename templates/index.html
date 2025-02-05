@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEAA Data Processor</title>
+    <style>
+        .drag-drop-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 20px;
+            cursor: pointer;
+        }
+        .drag-over {
+            background-color: #e1e1e1;
+            border-color: #999;
+        }
+        .preview-table {
+            margin: 20px;
+            border-collapse: collapse;
+        }
+        .preview-table th, .preview-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="drag-drop-area" id="dropZone">
+        <p>Drag and drop your CSV file here or click to select</p>
+        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+    </div>
+    
+    <div style="text-align: center;">
+        <button id="processButton" class="button" disabled>Process File</button>
+        <button id="downloadButton" class="button hidden">Download Results</button>
+    </div>
+
+    <div id="preview" class="hidden">
+        <h3>Preview of Results:</h3>
+        <table id="previewTable" class="preview-table">
+        </table>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const processButton = document.getElementById('processButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const preview = document.getElementById('preview');
+        const previewTable = document.getElementById('previewTable');
+        let currentFile = null;
+
+        // Handle drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            handleFile(files[0]);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (file && file.name.endsWith('.csv')) {
+                currentFile = file;
+                dropZone.innerHTML = `Selected file: ${file.name}`;
+                processButton.disabled = false;
+            } else {
+                alert('Please select a CSV file');
+            }
+        }
+
+        processButton.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            try {
+                processButton.disabled = true;
+                processButton.textContent = 'Processing...';
+
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Show preview
+                displayPreview(data.preview);
+                
+                // Show download button
+                downloadButton.classList.remove('hidden');
+                downloadButton.onclick = () => window.location.href = `/download/${data.output_filename}`;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                processButton.disabled = false;
+                processButton.textContent = 'Process File';
+            }
+        });
+
+        function displayPreview(previewData) {
+            if (!previewData || previewData.length === 0) return;
+
+            // Create table header
+            const headers = Object.keys(previewData[0]);
+            let headerRow = '<tr>';
+            headers.forEach(header => {
+                headerRow += `<th>${header}</th>`;
+            });
+            headerRow += '</tr>';
+
+            // Create table rows
+            let rows = '';
+            previewData.forEach(row => {
+                rows += '<tr>';
+                headers.forEach(header => {
+                    rows += `<td>${row[header]}</td>`;
+                });
+                rows += '</tr>';
+            });
+
+            previewTable.innerHTML = headerRow + rows;
+            preview.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
