@@ -6,8 +6,57 @@ from langdetect import detect
 from functions.AVG_list import AVG_list
 from functions.expand_dicts import expand_dicts
 from functions.get_medewerkers_names import get_medewerkers_names
+import azure.functions as func
+from flask import Flask, request, send_from_directory
+import logging
+import os
 
-def main(
+# Import your existing Flask app
+import app
+
+app = Flask(__name__)
+
+# Serve the static files
+@app.route('/')
+def index():
+    return send_from_directory('templates', 'index.html')
+
+# Add this route to serve static files if needed
+@app.route('/<path:path>')
+def static_file(path):
+    return send_from_directory('templates', path)
+
+def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
+    """
+    The main entry point for the Azure Function App.
+    """
+    logging.info('Python HTTP trigger function processed a request.')
+
+    # Create a Flask request object from the Azure Functions request
+    context = app.test_client().prepare_request(req.get_body())
+    context.environ['SERVER_NAME'] = req.headers.get('Host', 'localhost')
+    context.environ['SERVER_PORT'] = '443'
+    context.environ['SERVER_PROTOCOL'] = 'HTTP/1.1'
+    context.environ['wsgi.url_scheme'] = 'https'
+    context.environ['HTTP_HOST'] = req.headers.get('Host', 'localhost')
+    context.environ['PATH_INFO'] = req.route_params.get('route', '')
+    context.environ['REQUEST_METHOD'] = req.method
+    context.environ['QUERY_STRING'] = req.query_string.decode()
+    
+    for key, value in req.headers.items():
+        context.environ[f'HTTP_{key.upper().replace("-", "_")}'] = value
+
+    # Process the request and get the response
+    response = app.full_dispatch_request()
+
+    # Convert Flask response to Azure Functions response
+    return func.HttpResponse(
+        response.get_data(),
+        status_code=response.status_code,
+        headers=dict(response.headers)
+    )
+
+def main_local(
     path, 
     input_file=None,
     transform_nse=False,
