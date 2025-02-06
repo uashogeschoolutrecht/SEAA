@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+from flask import current_app
 
 def SEAA(df, dictionary_df, flag_df, limit=-1):
     """Semi-automatic anonymization algorithm
@@ -32,13 +33,22 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
 
+    # Get total number of rows
+    total_rows = len(dataframe.index)
+
     # Process each answer
-    for idx in dataframe.index:
+    for current_idx, idx in enumerate(dataframe.index):
         answer = dataframe["answer_clean"][idx]
         try:
             if pd.isna(answer):
                 dataframe.loc[idx, "contains_privacy"] = 0
                 dataframe.loc[idx, "answer_censored"] = answer
+                
+                # Calculate and emit progress
+                progress = (current_idx + 1) / total_rows * 100
+                if hasattr(current_app, 'progress_queue'):
+                    current_app.progress_queue.put(progress)
+                    
                 continue
             
             # Initialize unknown words not flagged
@@ -109,6 +119,11 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                                             
             # Add to dataframe
             dataframe.loc[idx, "answer_censored"] = answer_censored
+
+            # Add progress update at the end of each iteration
+            progress = (current_idx + 1) / total_rows * 100
+            if hasattr(current_app, 'progress_queue'):
+                current_app.progress_queue.put(progress)
 
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")  

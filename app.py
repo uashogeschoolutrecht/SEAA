@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, Response
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
 from main import main
 from functions.expand_dicts import process_word_decision
+from queue import Queue
+import json
 
 app = Flask(__name__)
 
@@ -18,6 +20,9 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 # Create folders if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# Add at app initialization
+app.progress_queue = Queue()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -135,6 +140,16 @@ def get_next_word():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/progress')
+def progress():
+    def generate():
+        while True:
+            progress = app.progress_queue.get()
+            yield f"data: {json.dumps({'percentage': progress})}\n\n"
+            if progress >= 100:
+                break
+    return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
     app.run(debug=True) 
