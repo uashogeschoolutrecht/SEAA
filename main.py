@@ -84,20 +84,20 @@ def main(
     avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 
     # Save unknown words to file
-    file_name = 'avg_words_count.csv'
-    avg_words_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
+    # file_name = 'avg_words_count.csv'
+    # avg_words_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
 
-    # Import blacklist
-    blacklist_df = load_dictionary(file_name='blacklist.txt', dict_type='known')
+    # # Import blacklist
+    # blacklist_df = load_dictionary(file_name='blacklist.txt', dict_type='known')
 
-    # Expand upon the blacklist and/or whitelist
-    whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
+    # # Expand upon the blacklist and/or whitelist
+    # whitelist_df, blacklist_df = expand_dicts(avg_words_df, whitelist_df, blacklist_df)
     
-    # Save lists to file
-    whitelist_df.to_csv(f'dict//whitelist.txt', index=False) 
-    blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
+    # # Save lists to file
+    # whitelist_df.to_csv(f'dict//whitelist.txt', index=False) 
+    # blacklist_df.to_csv(f'dict//blacklist.txt', index=False)
 
-    return result_df
+    return result_df, avg_words_df
 
 # # ALL INPUTS must be csv files
 # # Set input file, if NSE transform is required define the transform_nse object, for any other input file define the input_file object

@@ -32,6 +32,10 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
 
+    # Create a global variable to track progress
+    global current_progress
+    current_progress = {'current': 0, 'total': len(dataframe)}
+
     # Process each answer
     for idx in dataframe.index:
         answer = dataframe["answer_clean"][idx]
@@ -109,6 +113,9 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                                             
             # Add to dataframe
             dataframe.loc[idx, "answer_censored"] = answer_censored
+
+            # Update progress after each row
+            current_progress['current'] = idx + 1
 
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")  

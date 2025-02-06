@@ -19,6 +19,10 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+# Add at the top with other imports
+global current_progress
+current_progress = {'current': 0, 'total': 0}
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -28,6 +32,8 @@ def index():
 
 @app.route('/process', methods=['POST'])
 def process_file():
+    global current_progress
+    current_progress = {'current': 0, 'total': 0}  # Reset progress at start
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     
@@ -45,23 +51,26 @@ def process_file():
             os.makedirs('data', exist_ok=True)
             
             # Run main function with the uploaded file
-            results_df = main(
+            df = main(
                 path=app.config['UPLOAD_FOLDER'] + '/',
                 input_file=filename,
                 transform_nse=False
             )
-            
+            results_df = df[0]
+            avg_words_df = df[1]
             # Get unique words and their counts for dictionary expansion
-            words_series = pd.Series(' '.join(results_df['Answer'].fillna('')).lower().split()).value_counts()
-            avg_words_df = pd.DataFrame({
-                'AVG_woord': words_series.index,
-                'Count': words_series.values
-            })
+            
+            # words_series = pd.Series(' '.join(results_df['Answer'].fillna('')).lower().split()).value_counts()
+            # avg_words_df = pd.DataFrame({
+            #     'AVG_woord': words_series.index,
+            #     'Count': words_series.values
+            # })
+
             # Save avg_words for dictionary expansion
             avg_words_df.to_csv('data/avg_words.csv', index=False)
             
             # Drop unnecessary columns for preview
-            results_df = results_df.drop(columns=['Answer', 'flagged_word_count', 'flagged_word_type', 'total_word_count', 'unknown_word_count', 'unknown_words_not_flagged'])
+            results_df = results_df.drop(columns=['Answer', 'answer_clean', 'flagged_word_count', 'flagged_word_type', 'total_word_count', 'unknown_word_count', 'unknown_words_not_flagged'])
             
             # Get preview of results (first 10 rows)
             preview = results_df[results_df['contains_privacy']==1]
@@ -139,6 +148,14 @@ def get_next_word():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/progress')
+def get_progress():
+    global current_progress
+    return jsonify({
+        'current_row': current_progress['current'],
+        'total_rows': current_progress['total']
+    })
 
 if __name__ == '__main__':
     app.run(debug=True) 
