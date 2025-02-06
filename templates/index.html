@@ -12,7 +12,38 @@
             min-height: 100vh;
             font-family: 'Roboto', sans-serif;
         }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 300;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* Adjust body to account for larger header */
         .left-banner {
+            margin-top: 100px;
             width: 400px;
             background-color: #f5f5f5;
             padding: 20px;
@@ -26,6 +57,7 @@
         .main-content {
             flex: 1;
             padding: 20px;
+            margin-top: 100px;
         }
         .title {
             font-size: 24px;
@@ -175,6 +207,29 @@
             padding: 0 15px;
         }
 
+        .csv-info {
+            background-color: #e8f4f8;
+            border-left: 4px solid #2c3e50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .csv-info h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .csv-info code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
         .word-input {
             margin: 15px 0;
             text-align: center;
@@ -251,14 +306,34 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Semi-automatic Anonymization Algorithm</h1>
+        <p>This tool helps process and anonymize open-ended survey responses. 
+        Upload your CSV file containing the responses, and the algorithm will 
+        identify potential privacy-sensitive information. You can then help improve 
+        the tool by categorizing unknown words into whitelist or blacklist.</p>
+    </div>
     <div class="left-banner">
-        <h1 class="title">Semi-automatic Anonymization Algorithm</h1>
-        <div class="introduction">
-            This tool helps process and anonymize open-ended survey responses. 
-            Upload your CSV file containing the responses, and the algorithm will 
-            identify potential privacy-sensitive information. You can then help improve 
-            the tool by categorizing unknown words into whitelist or blacklist.
+        <div class="csv-info">
+            <h4>Required CSV Format:</h4>
+            <p>Your CSV file should contain:</p>
+            <ul>
+                <li>One response per row</li>
+                <li>UTF-8 encoding</li>
+                <li>Semicolon (;) seperator</li>
+                <li>Required columns:
+                    <ul>
+                        <li><code>ID</code> - Unique identifier</li>
+                        <li><code>Response</code> - The text to be processed</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>Example:<br>
+            <code>ID;Response<br>
+            1;"This is a sample response"<br>
+            2;"Another response here"</code></p>
         </div>
+
         <div class="drag-drop-area" id="dropZone">
             <p>Drag and drop your CSV file here or click to select</p>
             <input type="file" id="fileInput" accept=".csv" style="display: none;">
@@ -294,7 +369,7 @@
         </div>
 
         <div id="preview" class="hidden">
-            <h3>First 10 Rows of Results:</h3>
+            <h3>Preview AVG related answers</h3>
             <div style="overflow-x: auto;">
                 <table id="previewTable" class="preview-table">
                 </table>
@@ -391,7 +466,22 @@
                 
                 // Show download button
                 downloadButton.classList.remove('hidden');
-                downloadButton.onclick = () => window.location.href = `/download/${data.output_filename}`;
+                downloadButton.onclick = async () => {
+                    try {
+                        const response = await fetch(`/download/${data.output_filename}`);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = data.output_filename; // This will be the default filename in the save dialog
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    } catch (error) {
+                        alert('Error downloading file: ' + error.message);
+                    }
+                };
 
                 // After successful processing, start dictionary expansion
                 await startDictExpansion();
