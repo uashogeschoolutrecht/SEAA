@@ -220,35 +220,6 @@
             width: 100%;
             height: auto;
         }
-
-        /* Progress bar styles */
-        .progress-container {
-            width: 80%;
-            margin: 10px auto;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background-color: #4CAF50;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
@@ -265,12 +236,6 @@
             <input type="file" id="fileInput" accept=".csv" style="display: none;">
         </div>
         <button id="processButton" class="button" disabled>Process File</button>
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">Processing: 0%</div>
-        </div>
         <button id="downloadButton" class="button hidden">Download Results</button>
     </div>
 
@@ -358,24 +323,6 @@
             try {
                 processButton.disabled = true;
                 processButton.textContent = 'Processing...';
-                
-                // Show progress bar
-                const progressContainer = document.getElementById('progressContainer');
-                const progressFill = document.getElementById('progressFill');
-                const progressText = document.getElementById('progressText');
-                progressContainer.style.display = 'block';
-                
-                // Start progress monitoring
-                const progressMonitor = setInterval(async () => {
-                    const progressResponse = await fetch('/progress');
-                    const progressData = await progressResponse.json();
-                    
-                    if (progressData.total_rows > 0) {
-                        const progress = (progressData.current_row / progressData.total_rows) * 100;
-                        progressFill.style.width = `${progress}%`;
-                        progressText.textContent = `Processing: ${Math.round(progress)}% (${progressData.current_row}/${progressData.total_rows} rows)`;
-                    }
-                }, 500);
 
                 const response = await fetch('/process', {
                     method: 'POST',
@@ -383,17 +330,6 @@
                 });
 
                 const data = await response.json();
-
-                // Complete the progress bar
-                clearInterval(progressMonitor);
-                progressFill.style.width = '100%';
-                progressText.textContent = 'Processing: 100%';
-                
-                // Hide progress bar after a delay
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                    progressFill.style.width = '0%';
-                }, 1000);
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -410,9 +346,6 @@
                 await startDictExpansion();
 
             } catch (error) {
-                // Hide progress bar on error
-                progressContainer.style.display = 'none';
-                progressFill.style.width = '0%';
                 alert('Error: ' + error.message);
             } finally {
                 processButton.disabled = false;

@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, send_file, jsonify
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
-from main import main  # Import your existing main function
-from functions.expand_dicts import process_word_decision  # Add this import
+from main import main
+from functions.expand_dicts import process_word_decision
 
 app = Flask(__name__)
 
@@ -19,10 +19,6 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# Add at the top with other imports
-global current_progress
-current_progress = {'current': 0, 'total': 0}
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -32,8 +28,6 @@ def index():
 
 @app.route('/process', methods=['POST'])
 def process_file():
-    global current_progress
-    current_progress = {'current': 0, 'total': 0}  # Reset progress at start
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
     
@@ -58,13 +52,6 @@ def process_file():
             )
             results_df = df[0]
             avg_words_df = df[1]
-            # Get unique words and their counts for dictionary expansion
-            
-            # words_series = pd.Series(' '.join(results_df['Answer'].fillna('')).lower().split()).value_counts()
-            # avg_words_df = pd.DataFrame({
-            #     'AVG_woord': words_series.index,
-            #     'Count': words_series.values
-            # })
 
             # Save avg_words for dictionary expansion
             avg_words_df.to_csv('data/avg_words.csv', index=False)
@@ -148,14 +135,6 @@ def get_next_word():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-@app.route('/progress')
-def get_progress():
-    global current_progress
-    return jsonify({
-        'current_row': current_progress['current'],
-        'total_rows': current_progress['total']
-    })
 
 if __name__ == '__main__':
     app.run(debug=True) 
