@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 import pandas as pd
 from main import main  # Import your existing main function
+from functions.expand_dicts import process_word_decision  # Add this import
 
 app = Flask(__name__)
 
@@ -40,25 +41,36 @@ def process_file():
         file.save(filepath)
         
         try:
+            # Create data directory if it doesn't exist
+            os.makedirs('data', exist_ok=True)
+            
             # Run main function with the uploaded file
             results_df = main(
-                path=app.config['OUTPUT_FOLDER'] + '/',
+                path=app.config['UPLOAD_FOLDER'] + '/',
                 input_file=filename,
                 transform_nse=False
             )
             
-            # Save results
-            output_filename = 'SEAA_output.csv'
-            output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
-            results_df.to_csv(output_path, sep=';', encoding='utf-8-sig')
+            # Get unique words and their counts for dictionary expansion
+            words_series = pd.Series(' '.join(results_df['Answer'].fillna('')).lower().split()).value_counts()
+            avg_words_df = pd.DataFrame({
+                'AVG_woord': words_series.index,
+                'Count': words_series.values
+            })
+            # Save avg_words for dictionary expansion
+            avg_words_df.to_csv('data/avg_words.csv', index=False)
             
-            # Get preview of results
-            preview = results_df.head().to_dict('records')
+            # Drop unnecessary columns for preview
+            results_df = results_df.drop(columns=['Answer', 'flagged_word_count', 'flagged_word_type', 'total_word_count', 'unknown_word_count', 'unknown_words_not_flagged'])
+            
+            # Get preview of results (first 10 rows)
+            preview = results_df[results_df['contains_privacy']==1]
+            preview = preview.head(10).fillna('').to_dict('records')
             
             return jsonify({
                 'success': True,
                 'preview': preview,
-                'output_filename': output_filename
+                'output_filename': 'SEAA_output.csv'
             })
             
         except Exception as e:
@@ -74,6 +86,57 @@ def download_file(filename):
             as_attachment=True,
             download_name=filename
         )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/expand-dicts', methods=['POST'])
+def expand_dictionaries():
+    try:
+        data = request.get_json()
+        word = data.get('word')
+        decision = data.get('decision')
+        
+        # Load current dictionaries
+        whitelist_df = pd.read_csv('dict/whitelist.txt')
+        blacklist_df = pd.read_csv('dict/blacklist.txt')
+        
+        # Process the decision
+        whitelist_df, blacklist_df = process_word_decision(
+            word, decision, whitelist_df, blacklist_df
+        )
+        
+        # Save updated dictionaries
+        whitelist_df.to_csv('dict/whitelist.txt', index=False)
+        blacklist_df.to_csv('dict/blacklist.txt', index=False)
+        
+        # Remove the processed word from avg_words.csv
+        avg_words_df = pd.read_csv('data/avg_words.csv')
+        avg_words_df = avg_words_df[avg_words_df['AVG_woord'] != word]
+        avg_words_df.to_csv('data/avg_words.csv', index=False)
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-next-word', methods=['GET'])
+def get_next_word():
+    try:
+        # Read the current avg_words file
+        avg_words_df = pd.read_csv('data/avg_words.csv')
+        
+        if len(avg_words_df) == 0:
+            return jsonify({'complete': True})
+        
+        # Get the first word and its count
+        next_word = avg_words_df.iloc[0]
+        
+        return jsonify({
+            'word': next_word['AVG_woord'],
+            'count': int(next_word['Count']),
+            'complete': False
+        })
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

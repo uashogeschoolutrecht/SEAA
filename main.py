@@ -99,21 +99,21 @@ def main(
 
     return result_df
 
-# ALL INPUTS must be csv files
-# Set input file, if NSE transform is required define the transform_nse object, for any other input file define the input_file object
-transform_nse = None
+# # ALL INPUTS must be csv files
+# # Set input file, if NSE transform is required define the transform_nse object, for any other input file define the input_file object
+# transform_nse = None
 
-# Make sure that the input file has the following columns: respondent_id, Answer, question_id, in this order and with the correct headers.
-input_file = "combined_responses_100_dagen_2024_2025.csv"
+# # Make sure that the input file has the following columns: respondent_id, Answer, question_id, in this order and with the correct headers.
+# input_file = "combined_responses_100_dagen_2024_2025.csv"
 
 
-# Set path to the folder where the input and output files are stored
-path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
+# # Set path to the folder where the input and output files are stored
+# path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data'
 
-# Run the main function
-results_df = main(path, transform_nse=transform_nse, input_file=input_file)
-    # Save results to output file
-file_name = '\\SEAA_output_100_dagen_2024_2025.csv'
-results_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
+# # Run the main function
+# results_df = main(path, transform_nse=transform_nse, input_file=input_file)
+#     # Save results to output file
+# file_name = '\\SEAA_output_100_dagen_2024_2025.csv'
+# results_df.to_csv(f'{path}{file_name}', sep=';', encoding='utf-8-sig')
 
 

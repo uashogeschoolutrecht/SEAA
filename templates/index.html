@@ -2,25 +2,79 @@
 <html>
 <head>
     <title>SEAA Data Processor</title>
+    <!-- Add Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+        }
+        .left-banner {
+            width: 400px;
+            background-color: #f5f5f5;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
         .drag-drop-area {
             border: 2px dashed #ccc;
             padding: 20px;
             text-align: center;
-            margin: 20px;
+            margin: 20px 0;
             cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
         }
         .drag-over {
             background-color: #e1e1e1;
             border-color: #999;
         }
         .preview-table {
-            margin: 20px;
+            width: 100%;
             border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .preview-table th, .preview-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        
+        .preview-table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .preview-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .preview-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .preview-table tr:hover {
+            background-color: #f2f2f2;
         }
         .hidden {
             display: none;
@@ -29,24 +83,211 @@
             padding: 10px 20px;
             margin: 10px;
             cursor: pointer;
+            width: 80%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .dict-expansion {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .word-prompt {
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .decision-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .decision-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .whitelist-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .whitelist-button:hover {
+            background-color: #45a049;
+        }
+        
+        .skip-button {
+            background-color: #9e9e9e;
+            color: white;
+        }
+        
+        .skip-button:hover {
+            background-color: #8e8e8e;
+        }
+        
+        .blacklist-button {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .blacklist-button:hover {
+            background-color: #da190b;
+        }
+        
+        .exit-button {
+            background-color: #555555;
+            color: white;
+        }
+        
+        .exit-button:hover {
+            background-color: #444444;
+        }
+
+        .introduction {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 0 15px;
+        }
+
+        .word-input {
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .input-field {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 120px;
+        }
+        
+        .input-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .submit-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Progress bar styles */
+        .progress-container {
+            width: 80%;
+            margin: 10px auto;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-    <div class="drag-drop-area" id="dropZone">
-        <p>Drag and drop your CSV file here or click to select</p>
-        <input type="file" id="fileInput" accept=".csv" style="display: none;">
-    </div>
-    
-    <div style="text-align: center;">
+    <div class="left-banner">
+        <h1 class="title">Semi-automatic Anonymization Algorithm</h1>
+        <div class="introduction">
+            This tool helps process and anonymize open-ended survey responses. 
+            Upload your CSV file containing the responses, and the algorithm will 
+            identify potential privacy-sensitive information. You can then help improve 
+            the tool by categorizing unknown words into whitelist or blacklist.
+        </div>
+        <div class="drag-drop-area" id="dropZone">
+            <p>Drag and drop your CSV file here or click to select</p>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+        </div>
         <button id="processButton" class="button" disabled>Process File</button>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Processing: 0%</div>
+        </div>
         <button id="downloadButton" class="button hidden">Download Results</button>
     </div>
 
-    <div id="preview" class="hidden">
-        <h3>Preview of Results:</h3>
-        <table id="previewTable" class="preview-table">
-        </table>
+    <div class="main-content">
+        <div id="dictExpansion" class="dict-expansion hidden">
+            <h3>Dictionary Expansion</h3>
+            <div class="word-prompt" id="wordPrompt"></div>
+            <div class="decision-buttons">
+                <button class="decision-button whitelist-button" onclick="makeDecision('whitelist')">
+                    Whitelist
+                </button>
+                <button class="decision-button skip-button" onclick="makeDecision('skip')">
+                    Skip
+                </button>
+                <button class="decision-button blacklist-button" onclick="makeDecision('blacklist')">
+                    Blacklist
+                </button>
+                <button class="decision-button exit-button" onclick="makeDecision('exit')">
+                    Exit
+                </button>
+            </div>
+        </div>
+
+        <div id="preview" class="hidden">
+            <h3>First 10 Rows of Results:</h3>
+            <div style="overflow-x: auto;">
+                <table id="previewTable" class="preview-table">
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -57,6 +298,8 @@
         const preview = document.getElementById('preview');
         const previewTable = document.getElementById('previewTable');
         let currentFile = null;
+        let currentWord = null;
+        let currentCount = null;
 
         // Handle drag and drop events
         dropZone.addEventListener('dragover', (e) => {
@@ -102,6 +345,24 @@
             try {
                 processButton.disabled = true;
                 processButton.textContent = 'Processing...';
+                
+                // Show progress bar
+                const progressContainer = document.getElementById('progressContainer');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                progressContainer.style.display = 'block';
+                
+                // Start progress monitoring
+                const progressMonitor = setInterval(async () => {
+                    const progressResponse = await fetch('/progress');
+                    const progressData = await progressResponse.json();
+                    
+                    if (progressData.total_rows > 0) {
+                        const progress = (progressData.current_row / progressData.total_rows) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `Processing: ${Math.round(progress)}% (${progressData.current_row}/${progressData.total_rows} rows)`;
+                    }
+                }, 500);
 
                 const response = await fetch('/process', {
                     method: 'POST',
@@ -109,6 +370,17 @@
                 });
 
                 const data = await response.json();
+
+                // Complete the progress bar
+                clearInterval(progressMonitor);
+                progressFill.style.width = '100%';
+                progressText.textContent = 'Processing: 100%';
+                
+                // Hide progress bar after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressFill.style.width = '0%';
+                }, 1000);
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -121,7 +393,13 @@
                 downloadButton.classList.remove('hidden');
                 downloadButton.onclick = () => window.location.href = `/download/${data.output_filename}`;
 
+                // After successful processing, start dictionary expansion
+                await startDictExpansion();
+
             } catch (error) {
+                // Hide progress bar on error
+                progressContainer.style.display = 'none';
+                progressFill.style.width = '0%';
                 alert('Error: ' + error.message);
             } finally {
                 processButton.disabled = false;
@@ -140,19 +418,107 @@
             });
             headerRow += '</tr>';
 
-            // Create table rows
+            // Create table rows (limit to 10 rows)
             let rows = '';
-            previewData.forEach(row => {
+            const maxRows = Math.min(10, previewData.length);
+            for (let i = 0; i < maxRows; i++) {
                 rows += '<tr>';
                 headers.forEach(header => {
-                    rows += `<td>${row[header]}</td>`;
+                    rows += `<td>${previewData[i][header] || ''}</td>`;
                 });
                 rows += '</tr>';
-            });
+            }
 
             previewTable.innerHTML = headerRow + rows;
             preview.classList.remove('hidden');
         }
+
+        async function startDictExpansion() {
+            document.getElementById('dictExpansion').classList.remove('hidden');
+            await getNextWord();
+        }
+        
+        async function makeDecision(decision) {
+            if (decision === 'exit') {
+                document.getElementById('dictExpansion').classList.add('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/expand-dicts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word: currentWord,
+                        decision: decision
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Get next word
+                await getNextWord();
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function getNextWord() {
+            try {
+                const response = await fetch('/get-next-word');
+                const data = await response.json();
+                
+                if (data.complete) {
+                    document.getElementById('dictExpansion').classList.add('hidden');
+                    alert('Dictionary expansion complete!');
+                    return;
+                }
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                currentWord = data.word;
+                currentCount = data.count;
+                
+                const prompt = document.getElementById('wordPrompt');
+                prompt.innerHTML = `
+                    <strong>"${currentWord}"</strong> appears ${currentCount} times in the open answers.<br>
+                    Please select one of the options below or use keyboard shortcuts:
+                `;
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keypress', (event) => {
+            if (!currentWord) return; // Only handle keypresses when a word is being shown
+            
+            const key = event.key.toLowerCase();
+            switch(key) {
+                case 'j':
+                    makeDecision('whitelist');
+                    break;
+                case 'n':
+                    makeDecision('skip');
+                    break;
+                case 'b':
+                    makeDecision('blacklist');
+                    break;
+                case 'e':
+                    makeDecision('exit');
+                    break;
+            }
+        });
     </script>
 </body>
 </html>
