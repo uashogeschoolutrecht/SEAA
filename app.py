@@ -6,12 +6,14 @@ from main import main
 from functions.expand_dicts import process_word_decision
 from queue import Queue
 import json
+import threading
+import time
 
 app = Flask(__name__)
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
-OUTPUT_FOLDER = 'outputs'
+OUTPUT_FOLDER = 'output'
 ALLOWED_EXTENSIONS = {'csv'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -52,8 +54,7 @@ def process_file():
             # Run main function with the uploaded file
             df = main(
                 path=app.config['UPLOAD_FOLDER'] + '/',
-                input_file=filename,
-                transform_nse=False
+                input_file=filename
             )
             results_df = df[0]
             avg_words_df = df[1]
@@ -61,17 +62,32 @@ def process_file():
             # Save avg_words for dictionary expansion
             avg_words_df.to_csv('data/avg_words.csv', index=False)
             
+            # Ensure 'flagged_word_type' column exists before dropping
+            if 'flagged_word_type' not in results_df.columns:
+                results_df['flagged_word_type'] = None
+            
             # Drop unnecessary columns for preview
-            results_df = results_df.drop(columns=['Answer', 'answer_clean', 'flagged_word_count', 'flagged_word_type', 'total_word_count', 'unknown_word_count', 'unknown_words_not_flagged'])
+            results_df = results_df.drop(columns=[
+                'Answer', 'answer_clean', 'flagged_word_count', 
+                'flagged_word_type', 'total_word_count', 
+                'unknown_word_count', 'unknown_words_not_flagged'
+            ])
             
             # Get preview of results (first 10 rows)
             preview = results_df[results_df['contains_privacy']==1]
             preview = preview.head(10).fillna('').to_dict('records')
             
+            # Get the output filename from the request form
+            output_filename = request.form.get('output_filename', 'SEAA_output.csv')
+            
+            # Save the results to the output folder
+            output_filepath = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+            results_df.to_csv(output_filepath, index=False)
+            
             return jsonify({
                 'success': True,
                 'preview': preview,
-                'output_filename': 'SEAA_output.csv'
+                'output_filename': output_filename
             })
             
         except Exception as e:
@@ -79,14 +95,33 @@ def process_file():
     
     return jsonify({'error': 'Invalid file type'}), 400
 
+def delete_files_in_folder(folder_path):
+    # Wait for a short period to ensure files are no longer in use
+    time.sleep(1)
+    for file in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file)
+        try:
+            # Skip .gitkeep files
+            if os.path.isfile(file_path) and file != '.gitkeep':
+                os.unlink(file_path)
+        except Exception as e:
+            print(f"Error deleting file {file_path}: {e}")
+
 @app.route('/download/<filename>')
 def download_file(filename):
     try:
-        return send_file(
+        # Send the file for download
+        response = send_file(
             os.path.join(app.config['OUTPUT_FOLDER'], filename),
             as_attachment=True,
             download_name=filename
         )
+        
+        # Start background threads to delete files in both folders
+        threading.Thread(target=delete_files_in_folder, args=(app.config['OUTPUT_FOLDER'],)).start()
+        threading.Thread(target=delete_files_in_folder, args=(app.config['UPLOAD_FOLDER'],)).start()
+        
+        return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -150,6 +185,10 @@ def progress():
             if progress >= 100:
                 break
     return Response(generate(), mimetype='text/event-stream')
+
+@app.route('/seaa')
+def seaa():
+    return render_template('seaa.html')
 
 if __name__ == '__main__':
     app.run(debug=True) 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>SEAA Data Processor</title>
     <!-- Add Google Fonts -->
@@ -364,6 +364,25 @@
             font-size: 14px;
             color: #666;
         }
+
+        .seaa-link {
+            position: absolute;
+            right: 20px;
+            background-color: #124E66;
+            color: #D3D9D4;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .seaa-link:hover {
+            background-color: #748D92;
+        }
     </style>
 </head>
 <body>
@@ -375,9 +394,10 @@
                 This tool helps process and anonymize open-ended survey responses. 
                 Upload your CSV file containing the responses, and the algorithm will 
                 identify potential privacy-sensitive information. You can then help improve 
-                the tool by categorizing unknown words into whitelist or blacklist.
+                the tool by categorizing unknown words into whitelist or blacklist. (for more information, see <a href="/seaa">Documentation</a>)
             </div>
         </div>
+        <a href="/seaa" class="seaa-link">Documentation</a>
     </div>
     <div class="left-banner">
         <div class="csv-info">
@@ -530,8 +550,11 @@
                 // Show preview
                 displayPreview(data.preview);
                 
-                // Show download button
+                // Show download button and set its action
                 downloadButton.classList.remove('hidden');
+                downloadButton.onclick = () => {
+                    window.location.href = `/download/${data.output_filename}`;
+                };
                 
                 // Explicitly show dictionary expansion section
                 document.getElementById('dictExpansion').style.display = 'block';
