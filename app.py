@@ -6,6 +6,8 @@ from main import main
 from functions.expand_dicts import process_word_decision
 from queue import Queue
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
 
@@ -20,6 +22,10 @@ app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
 # Create folders if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+# Create required directories
+for directory in ['uploads', 'output', 'data', 'dict']:
+    os.makedirs(directory, exist_ok=True)
 
 # Add at app initialization
 app.progress_queue = Queue()
@@ -152,4 +158,11 @@ def progress():
     return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    # Configure logging
+    handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=1)
+    handler.setLevel(logging.INFO)
+    app.logger.addHandler(handler)
+    
+    # Use environment variables for configuration
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port) 
