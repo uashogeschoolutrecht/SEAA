@@ -11,8 +11,8 @@
             display: flex;
             min-height: 100vh;
             font-family: 'Roboto', sans-serif;
-            background-color: #141619;  /* Dark background */
-            color: #B3B4BD;  /* Light text */
+            background-color: #212A31;  /* Darkest background */
+            color: #D3D9D4;  /* Light text */
         }
         
         .header {
@@ -20,34 +20,79 @@
             top: 0;
             left: 0;
             right: 0;
-            background-color: #141619;  /* Dark header background */
-            color: #B3B4BD;  /* Light text color */
-            padding: 15px;
-            text-align: left;
+            background-color: #2E3944;
+            color: #D3D9D4;
+            padding: 20px;
+            text-align: center;  /* Center align the header content */
             z-index: 1000;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
 
         .header h1 {
-            margin: 0 0 10px 0;
+            margin: 0;
             font-size: 20px;
             font-weight: 500;
         }
 
-        .header p {
-            margin: 0;
+        .info-icon {
+            cursor: pointer;
+            position: relative;
+            color: #D3D9D4;
+            font-size: 18px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #D3D9D4;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #D3D9D4;
+            color: #2E3944;
+            padding: 10px;
+            border-radius: 4px;
+            width: 300px;
             font-size: 14px;
-            font-weight: 300;
-            max-width: 800px;
-            margin: 0 auto;
             line-height: 1.4;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1001;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 5px 5px 5px;
+            border-style: solid;
+            border-color: transparent transparent #2E3944 transparent;
         }
 
         /* Adjust body to account for larger header */
         .left-banner {
             margin-top: 100px;
             width: 400px;
-            background-color: #2C2E3A;  /* Darker sidebar */
+            background-color: #2E3944;  /* Darker sidebar */
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             display: flex;
@@ -55,15 +100,16 @@
             align-items: center;
             position: relative;
             min-height: 100vh;
-            color: #B3B4BD;  /* Light text color */
+            color: #D3D9D4;
         }
         .main-content {
             flex: 1;
             padding: 20px;
             margin-top: 100px;
-            background-color: #2C2E3A;
+            background-color: #D3D9D4;  /* Light background for output area */
             border-radius: 8px;
-            margin: 20px;
+            margin: 100px;
+            color: #212A31;  /* Dark text for contrast */
         }
         .title {
             font-size: 24px;
@@ -122,24 +168,25 @@
             margin: 10px;
             cursor: pointer;
             width: 80%;
-            background-color: #050A44;  /* Dark blue buttons */
-            color: #B3B4BD;
+            background-color: #124E66;
+            color: #D3D9D4;
             border: none;
             border-radius: 4px;
         }
         .button:disabled {
-            background-color: #2C2E3A;  /* Disabled state */
+            background-color: #2E3944;
             cursor: not-allowed;
         }
         .button:hover:not(:disabled) {
-            background-color: #0A21C0;  /* Lighter blue on hover */
+            background-color: #748D92;
         }
         .dict-expansion {
             margin-top: 20px;
             padding: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #748D92;
             border-radius: 4px;
-            background-color: #f9f9f9;
+            background-color: #2E3944;
+            color: #D3D9D4;
         }
         
         .word-prompt {
@@ -147,6 +194,7 @@
             margin-bottom: 15px;
             padding: 15px;
             background-color: white;
+            color: #2E3944;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
@@ -166,21 +214,21 @@
             font-weight: bold;
             font-size: 14px;
             transition: background-color 0.2s;
-            background-color: #050A44;
-            color: #B3B4BD;
+            background-color: #124E66;
+            color: #D3D9D4;
         }
         
         .decision-button:hover {
-            background-color: #0A21C0;
+            background-color: #748D92;
         }
         
         .whitelist-button {
-            background-color: #4CAF50;
-            color: white;
+            background-color: white;
+            color: #2E3944;
         }
         
         .whitelist-button:hover {
-            background-color: #45a049;
+            background-color: #c3cac3;
         }
         
         .skip-button {
@@ -193,21 +241,21 @@
         }
         
         .blacklist-button {
-            background-color: #f44336;
+            background-color: #292828;
             color: white;
         }
         
         .blacklist-button:hover {
-            background-color: #da190b;
+            background-color: #050505;
         }
         
         .exit-button {
-            background-color: #555555;
+            background-color: #eb2a2a;
             color: white;
         }
         
         .exit-button:hover {
-            background-color: #444444;
+            background-color: rgb(250, 16, 16);
         }
 
         .introduction {
@@ -220,27 +268,27 @@
         }
 
         .csv-info {
-            background-color: #2C2E3A;  /* Updated info box */
-            border-left: 4px solid #050A44;
+            background-color: #2E3944;
+            border-left: 4px solid #124E66;
             padding: 15px;
             margin: 20px 0;
             border-radius: 0 4px 4px 0;
             font-size: 14px;
             line-height: 1.5;
-            color: #B3B4BD;
+            color: #D3D9D4;
         }
 
         .csv-info h4 {
             margin: 0 0 10px 0;
-            color: #B3B4BD;
+            color: #D3D9D4;
         }
 
         .csv-info code {
-            background-color: #141619;
+            background-color: #212A31;
             padding: 2px 4px;
             border-radius: 3px;
             font-family: monospace;
-            color: #B3B4BD;
+            color: #D3D9D4;
         }
 
         .word-input {
@@ -321,10 +369,15 @@
 <body>
     <div class="header">
         <h1>Semi-automatic Anonymization Algorithm</h1>
-        <p>This tool helps process and anonymize open-ended survey responses. 
-        Upload your CSV file containing the responses, and the algorithm will 
-        identify potential privacy-sensitive information. You can then help improve 
-        the tool by categorizing unknown words into whitelist or blacklist.</p>
+        <div class="info-icon">
+            i
+            <div class="tooltip">
+                This tool helps process and anonymize open-ended survey responses. 
+                Upload your CSV file containing the responses, and the algorithm will 
+                identify potential privacy-sensitive information. You can then help improve 
+                the tool by categorizing unknown words into whitelist or blacklist.
+            </div>
+        </div>
     </div>
     <div class="left-banner">
         <div class="csv-info">
@@ -479,24 +532,12 @@
                 
                 // Show download button
                 downloadButton.classList.remove('hidden');
-                downloadButton.onclick = async () => {
-                    try {
-                        const response = await fetch(`/download/${data.output_filename}`);
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = data.output_filename; // This will be the default filename in the save dialog
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                    } catch (error) {
-                        alert('Error downloading file: ' + error.message);
-                    }
-                };
-
-                // After successful processing, start dictionary expansion
+                
+                // Explicitly show dictionary expansion section
+                document.getElementById('dictExpansion').style.display = 'block';
+                document.getElementById('dictExpansion').classList.remove('hidden');
+                
+                // Start dictionary expansion
                 await startDictExpansion();
 
             } catch (error) {
