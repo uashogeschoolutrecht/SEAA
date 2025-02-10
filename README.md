@@ -53,20 +53,64 @@ sequenceDiagram
     Dict->>Dict: Update dictionaries
 ```
 
+## Prerequisites
+
+Before installing SEAA, ensure you have:
+1. Python 3.7 or higher installed
+2. Git installed
+3. Basic understanding of command line operations
+4. A modern web browser (Chrome, Firefox, Safari, or Edge)
+
 ## Installation
 
-1. Clone the repository:
-
+1. Clone the repository and switch to the AL_local_flask branch:
 ```bash
 git clone https://github.com/uashogeschoolutrecht/SEAA.git
-cd seaa
+cd SEAA
+git checkout AL_local_flask
 ```
 
-2. Install required dependencies:
+> **Important**: The web interface is only available on the `AL_local_flask` branch. Make sure you switch to this branch before proceeding.
 
+2. Install required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+
+## Running the Application
+
+SEAA provides a web interface for processing and anonymizing your data. There are two ways to run the application:
+
+### Option 1: Using Flask Development Server
+1. Open a terminal in the project directory
+2. Run the Flask application:
+```bash
+python app.py
+```
+3. Open your web browser and navigate to:
+```
+http://localhost:5000
+```
+
+### Option 2: Using Python Application File
+1. Open a terminal in the project directory
+2. Run using the application file:
+```bash
+python application.py
+```
+3. Open your web browser and navigate to:
+```
+http://localhost:5000
+```
+
+> **Note**: The development server is not suitable for production use. 
+
+Once the application is running, you can:
+1. Access the main interface at `http://localhost:5000` for file processing
+2. View the documentation at `Documentation`
+3. Upload your CSV files through the web interface
+4. Process and download anonymized results
+5. Help improve the dictionaries through the interactive review process (optional)
 
 ## Input Requirements
 
@@ -82,31 +126,6 @@ Example input CSV format:
 respondent_id;Answer;question_id
 1001;"Mijn docent Peter heeft mij enorm geholpen";Q1
 1002;"Ik had moeite met concentratie tijdens de lessen";Q1
-```
-
-## Basic Usage
-
-1. Place your input CSV file in your working directory
-2. Update the path and filename in your script:
-
-```python
-# Set your file path and name
-path = r'C:\Your\Path\Here'
-input_file = 'your_input_file.csv'
-
-# Run the main function
-main(path, input_file=input_file)
-```
-
-### For NSE (National Student Survey) Data
-If you're processing NSE data, use:
-
-```python
-path = r'C:\Your\Path\Here'
-transform_nse = "nse2023.csv"  # Your NSE file
-input_file = None
-
-main(path, transform_nse=transform_nse, input_file=input_file)
 ```
 
 ## Output Files
