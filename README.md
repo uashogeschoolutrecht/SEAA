@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 SEAA provides a web interface for processing and anonymizing your data. There are two ways to run the application:
 
-### Option 1: Using Flask Development Server
+### Using Flask Development Server
 1. Open a terminal in the project directory
 2. Run the Flask application:
 ```bash
@@ -92,16 +92,6 @@ python app.py
 http://localhost:5000
 ```
 
-### Option 2: Using Python Application File
-1. Open a terminal in the project directory
-2. Run using the application file:
-```bash
-python application.py
-```
-3. Open your web browser and navigate to:
-```
-http://localhost:5000
-```
 
 > **Note**: The development server is not suitable for production use. 
 
