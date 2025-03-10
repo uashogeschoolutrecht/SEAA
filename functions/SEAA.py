@@ -116,6 +116,36 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
             if len(unknown_words_not_flagged) > 0:
                 for unknown_words_not_flagged in unknown_words_not_flagged:
                     answer_censored = re.sub(unknown_words_not_flagged,f'[UNKNOWN]',answer_censored)
+
+            # Detect and censor email addresses
+            email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+            emails_found = re.findall(email_pattern, answer_censored)
+            if emails_found:
+                dataframe.loc[idx, "contains_privacy"] = 1
+                dataframe.loc[idx, "flagged_word_count"] += len(emails_found)
+                
+                # Add emails to flagged words list
+                if len(flagged_words_list) > 0:
+                    flagged_words_list.extend(emails_found)
+                else:
+                    flagged_words_list = emails_found
+                
+                dataframe.loc[idx, "flagged_words"] = ", ".join(flagged_words_list)
+                
+                # Update flag type if needed
+                email_types = ["email"] * len(emails_found)
+                if "flagged_word_type" in dataframe.columns and idx in dataframe.index:
+                    current_types = dataframe.loc[idx, "flagged_word_type"]
+                    if pd.notna(current_types) and current_types:
+                        dataframe.loc[idx, "flagged_word_type"] = current_types + ", " + ", ".join(email_types)
+                    else:
+                        dataframe.loc[idx, "flagged_word_type"] = ", ".join(email_types)
+                
+                # Censor the emails
+                for email in emails_found:
+                    answer_censored = re.sub(re.escape(email), '[EMAIL]', answer_censored)
+                
+                print(f"Answer {idx} contains {len(emails_found)} email address(es).")
                                             
             # Add to dataframe
             dataframe.loc[idx, "answer_censored"] = answer_censored

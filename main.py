@@ -37,6 +37,25 @@ def main(
 
     input_df = load_data(path, input_file)
 
+    # Language detection    
+    def detect_language(text):
+        try:
+            return detect(text)
+        except:
+            return None
+
+    input_df['language'] = input_df['answer_clean'].apply(detect_language)
+    
+    # Translate non-Dutch responses to Dutch
+    from functions.translator_ import translate_large_text
+    
+    def translate_to_dutch(row):
+        if pd.notna(row['language']) and row['language'] != 'nl' and pd.notna(row['answer_clean']):
+            return translate_large_text(row['answer_clean'], source_lang=row['language'], target_lang='nl')
+        return row['answer_clean']
+    
+    input_df['answer_clean'] = result_df.apply(translate_to_dutch, axis=1)
+
     # Import dictionaries
     word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
     whitelist_df = load_dictionary(file_name='whitelist.txt', dict_type='known')
@@ -45,21 +64,14 @@ def main(
 
     # Flag words
     flag_df = pd.DataFrame()
-    for file_name, file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('names.txt', 'name'), ('blacklist.txt', 'blacklist')]:
+    for file_name, file_type in [('illness.txt', 'illness'), ('studiebeperking.txt', 'disability'), ('names.txt', 'name'), ('blacklist.txt', 'blacklist'), ('plaatsnamen.txt', 'plaatsnaam')]:
         temp_df = load_dictionary(file_name=file_name, dict_type=file_type)
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
 
     result_df = SEAA(input_df, word_list_df, flag_df, limit=limit)
  
-    # Language detection    
-    def detect_language(text):
-        try:
-            return detect(text)
-        except:
-            return None
 
-    result_df['language'] = result_df['answer_clean'].apply(detect_language)
     
     # Get all avg words that are not flagged yet
     avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(), flag_df)
