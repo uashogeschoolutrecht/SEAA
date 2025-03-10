@@ -337,23 +337,48 @@
             height: auto;
         }
 
-        .progress-container {
+        .progress-section {
             width: 80%;
-            margin: 20px auto;
-            display: none;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #2E3944;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .progress-section h3 {
+            color: #D3D9D4;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            width: 100%;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .progress-container h4 {
+            color: #D3D9D4;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 500;
         }
         
         .progress-bar {
             width: 100%;
             height: 20px;
-            background-color: #f0f0f0;
+            background-color: #2E3944;
             border-radius: 10px;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
-            background-color: #4CAF50;
+            background-color: #124E66;
             width: 0%;
             transition: width 0.3s ease;
         }
@@ -362,7 +387,7 @@
             text-align: center;
             margin-top: 5px;
             font-size: 14px;
-            color: #666;
+            color: #D3D9D4;
         }
 
         .seaa-link {
@@ -425,16 +450,45 @@
             <input type="file" id="fileInput" accept=".csv" style="display: none;">
         </div>
         <button id="processButton" class="button" disabled>Process File</button>
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0%</div>
-        </div>
+        
         <button id="downloadButton" class="button hidden">Download Results</button>
     </div>
 
     <div class="main-content">
+        <div class="progress-section" style="display: none;" id="progressSection">
+            <h3>Processing Status</h3>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+
+            <div class="progress-container" id="preparationProgressContainer" style="display: none;">
+                <h4>Preparing Data</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="preparationProgressFill"></div>
+                </div>
+                <div class="progress-text" id="preparationProgressText">0%</div>
+            </div>
+
+            <div class="progress-container" id="translationProgressContainer" style="display: none;">
+                <h4>Translating Non-Dutch Responses</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="translationProgressFill"></div>
+                </div>
+                <div class="progress-text" id="translationProgressText">0%</div>
+            </div>
+
+            <div class="progress-container" id="processingProgressContainer" style="display: none;">
+                <h4>Processing Data</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="processingProgressFill"></div>
+                </div>
+                <div class="progress-text" id="processingProgressText">0%</div>
+            </div>
+        </div>
+
         <div id="dictExpansion" class="dict-expansion hidden">
             <h3>Dictionary Expansion</h3>
             <div class="word-prompt" id="wordPrompt"></div>
@@ -519,17 +573,31 @@
                 processButton.disabled = true;
                 processButton.textContent = 'Processing...';
                 
-                // Show progress bar
+                // Show progress section
+                document.getElementById('progressSection').style.display = 'block';
                 document.getElementById('progressContainer').style.display = 'block';
                 
                 // Set up SSE for progress updates
                 const eventSource = new EventSource('/progress');
                 eventSource.onmessage = function(event) {
                     const progress = JSON.parse(event.data);
-                    updateProgress(progress.percentage);
                     
-                    if (progress.percentage >= 100) {
-                        eventSource.close();
+                    // Update the appropriate progress bar based on the current phase
+                    if (progress.current_phase === "preparation") {
+                        document.getElementById('preparationProgressContainer').style.display = 'block';
+                        updateProgressBar('preparationProgressFill', 'preparationProgressText', progress.preparation);
+                    } 
+                    else if (progress.current_phase === "translation") {
+                        document.getElementById('translationProgressContainer').style.display = 'block';
+                        updateProgressBar('translationProgressFill', 'translationProgressText', progress.translation);
+                    }
+                    else if (progress.current_phase === "processing") {
+                        document.getElementById('processingProgressContainer').style.display = 'block';
+                        updateProgressBar('processingProgressFill', 'processingProgressText', progress.processing);
+                        
+                        if (progress.processing >= 100) {
+                            eventSource.close();
+                        }
                     }
                 };
 
@@ -540,8 +608,8 @@
 
                 const data = await response.json();
                 
-                // Hide progress bar
-                document.getElementById('progressContainer').style.display = 'none';
+                // Hide progress section when complete
+                document.getElementById('progressSection').style.display = 'none';
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -571,9 +639,9 @@
             }
         });
 
-        function updateProgress(percentage) {
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
+        function updateProgressBar(fillId, textId, percentage) {
+            const progressFill = document.getElementById(fillId);
+            const progressText = document.getElementById(textId);
             
             progressFill.style.width = `${percentage}%`;
             progressText.textContent = `${Math.round(percentage)}%`;

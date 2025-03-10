@@ -821,7 +821,6 @@ Hedel
 Hedikhuizen
 Hee
 Heeg
-Heel
 Heelsum
 Heelweg
 Heemserveen
@@ -1000,7 +999,6 @@ Idaerd
 Idsegahuizum
 Idskenhuizen
 Idzega
-Ie
 Iens
 Ilpendam
 Indijk

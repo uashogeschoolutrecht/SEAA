@@ -1,13 +1,14 @@
 import pandas as pd
-from functions.load_seaa_data import load_data, load_dictionary
-from functions.SEAA import SEAA
+from src.load_seaa_data import load_data, load_dictionary
+from src.SEAA import SEAA
 from langdetect import detect
-from functions.AVG_list import AVG_list
+from src.AVG_list import AVG_list
 
 def main(
     path, 
     input_file=None,
-    limit=-1
+    limit=-1,
+    progress_callback=None
 ):
     """
     Process and analyze open-ended survey responses.
@@ -19,6 +20,7 @@ def main(
             - 'respondent_id': Unique identifier for each respondent
             - 'question_id': Identifier for the question being answered
         limit (int, optional): Limit the number of responses to process. Default -1 (process all)
+        progress_callback (callable, optional): Function to call with progress updates
     
     Required Input Format:
     The input CSV file must be semicolon-separated (;) and contain the following columns:
@@ -36,6 +38,10 @@ def main(
         raise ValueError("Please provide an input_file name")
 
     input_df = load_data(path, input_file)
+    
+    # Report progress if callback is provided
+    if progress_callback:
+        progress_callback(10, "preparation")
 
     # Language detection    
     def detect_language(text):
@@ -46,15 +52,49 @@ def main(
 
     input_df['language'] = input_df['answer_clean'].apply(detect_language)
     
+    if progress_callback:
+        progress_callback(20, "preparation")
+    
     # Translate non-Dutch responses to Dutch
-    from functions.translator_ import translate_large_text
+    from src.translator_ import translate_large_text
     
-    def translate_to_dutch(row):
-        if pd.notna(row['language']) and row['language'] != 'nl' and pd.notna(row['answer_clean']):
-            return translate_large_text(row['answer_clean'], source_lang=row['language'], target_lang='nl')
-        return row['answer_clean']
+    # Count how many translations are needed
+    non_dutch_count = len(input_df[(pd.notna(input_df['language'])) & 
+                                   (input_df['language'] != 'nl') & 
+                                   (input_df['language'] != 'af') & 
+                                   (pd.notna(input_df['answer_clean']))])
     
-    input_df['answer_clean'] = result_df.apply(translate_to_dutch, axis=1)
+    if non_dutch_count > 0:
+        if progress_callback:
+            progress_callback(0, "translation")
+            
+        # Create a counter for translations
+        translation_counter = 0
+        
+        def translate_to_dutch(row):
+            nonlocal translation_counter
+            if pd.notna(row['language']) and row['language'] != 'nl' and row['language'] != 'af' and pd.notna(row['answer_clean']):
+                # Translate the text
+                translated = translate_large_text(
+                    row['answer_clean'], 
+                    source_lang=row['language'], 
+                    target_lang='nl',
+                    progress_callback=progress_callback
+                )
+                
+                # Update progress
+                translation_counter += 1
+                if progress_callback:
+                    progress = (translation_counter / non_dutch_count) * 100
+                    progress_callback(progress, "translation")
+                    
+                return translated
+            return row['answer_clean']
+        
+        input_df['answer_clean'] = input_df.apply(translate_to_dutch, axis=1)
+    
+    if progress_callback:
+        progress_callback(30, "preparation")
 
     # Import dictionaries
     word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
@@ -68,10 +108,11 @@ def main(
         temp_df = load_dictionary(file_name=file_name, dict_type=file_type)
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
+    
+    if progress_callback:
+        progress_callback(40, "preparation")
 
-    result_df = SEAA(input_df, word_list_df, flag_df, limit=limit)
- 
-
+    result_df = SEAA(input_df, word_list_df, flag_df, limit=limit, progress_callback=progress_callback)
     
     # Get all avg words that are not flagged yet
     avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(), flag_df)

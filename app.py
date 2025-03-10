@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, send_file, jsonify, Response
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
-from main import main
-from functions.expand_dicts import process_word_decision
+from src.expand_dicts import process_word_decision
 from queue import Queue
 import json
 import threading
@@ -25,6 +24,14 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # Add at app initialization
 app.progress_queue = Queue()
+
+# Global progress variable
+progress = {
+    "preparation": 0,
+    "translation": 0,
+    "processing": 0,
+    "current_phase": "idle"
+}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -51,10 +58,26 @@ def process_file():
             # Create data directory if it doesn't exist
             os.makedirs('data', exist_ok=True)
             
-            # Run main function with the uploaded file
+            # Reset progress
+            global progress
+            progress = {
+                "preparation": 0,
+                "translation": 0,
+                "processing": 0,
+                "current_phase": "preparation"
+            }
+            
+            # Define a callback function to update progress
+            def update_progress(percentage, phase):
+                global progress
+                progress[phase] = percentage
+                progress["current_phase"] = phase
+            
+            # Run main function with the uploaded file and progress callback
             df = main(
                 path=app.config['UPLOAD_FOLDER'] + '/',
-                input_file=filename
+                input_file=filename,
+                progress_callback=update_progress
             )
             results_df = df[0]
             avg_words_df = df[1]
@@ -177,13 +200,19 @@ def get_next_word():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/progress')
-def progress():
+def progress_stream():
     def generate():
+        global progress
         while True:
-            progress = app.progress_queue.get()
-            yield f"data: {json.dumps({'percentage': progress})}\n\n"
-            if progress >= 100:
+            # Send the current progress
+            data = json.dumps(progress)
+            yield f"data: {data}\n\n"
+            time.sleep(0.5)
+            
+            # If processing is complete, end the stream
+            if progress["current_phase"] == "processing" and progress["processing"] >= 100:
                 break
+    
     return Response(generate(), mimetype='text/event-stream')
 
 @app.route('/seaa')

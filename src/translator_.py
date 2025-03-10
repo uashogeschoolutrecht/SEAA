@@ -1,5 +1,8 @@
+from deep_translator import (GoogleTranslator, DeeplTranslator, MyMemoryTranslator, 
+                           MicrosoftTranslator, PapagoTranslator, ChatGptTranslator)
+import time
 
-def translate_large_text(text, source_lang='nl', target_lang='en', chunk_size=4999):
+def translate_large_text(text, source_lang='nl', target_lang='en', chunk_size=4999, progress_callback=None):
     """
     Translates large text by breaking it into chunks and translating each chunk.
     Falls back to alternative translators if one fails.
@@ -9,6 +12,7 @@ def translate_large_text(text, source_lang='nl', target_lang='en', chunk_size=49
         source_lang (str): Source language code
         target_lang (str): Target language code
         chunk_size (int): Maximum size of each chunk (default 4999 for Google)
+        progress_callback (function): Callback function to report translation progress
         
     Returns:
         str: Full translated text
@@ -38,6 +42,11 @@ def translate_large_text(text, source_lang='nl', target_lang='en', chunk_size=49
                 translated_chunks.append(translated_chunk)
                 print(f"Chunk {i+1}/{len(chunks)} translated using {name}")
                 success = True
+                
+                # Report progress if callback is provided
+                if progress_callback:
+                    progress = (i + 1) / len(chunks) * 100
+                    progress_callback(progress, "translation")
                 
                 # Add a small delay to avoid rate limiting
                 time.sleep(0.5)

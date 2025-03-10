@@ -2,7 +2,7 @@ import re
 import pandas as pd
 from flask import current_app
 
-def SEAA(df, dictionary_df, flag_df, limit=-1):
+def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
     """Semi-automatic anonymization algorithm
     
     Args:
@@ -37,7 +37,7 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
     total_rows = len(dataframe.index)
 
     # Process each answer
-    for current_idx, idx in enumerate(dataframe.index):
+    for current_idx, (idx, row) in enumerate(dataframe.iterrows()):
         answer = dataframe["answer_clean"][idx]
         try:
             if pd.isna(answer):
@@ -46,8 +46,8 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
                 
                 # Calculate and emit progress
                 progress = (current_idx + 1) / total_rows * 100
-                if hasattr(current_app, 'progress_queue'):
-                    current_app.progress_queue.put(progress)
+                if progress_callback:
+                    progress_callback(progress, "processing")
                     
                 continue
             
@@ -152,8 +152,8 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
 
             # Add progress update at the end of each iteration
             progress = (current_idx + 1) / total_rows * 100
-            if hasattr(current_app, 'progress_queue'):
-                current_app.progress_queue.put(progress)
+            if progress_callback:
+                progress_callback(progress, "processing")
 
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")  
