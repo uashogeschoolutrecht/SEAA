@@ -1,55 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SEAA Data Processor</title>
-    <!-- Add Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi-automatic Anonymization Algorithm</title>
     <style>
-        body {
+        /* Brutalist Color Palette */
+        :root {
+            --concrete-dark: #333333;
+            --concrete-medium: #666666;
+            --concrete-light: #999999;
+            --concrete-pale: #cccccc;
+            --concrete-white: #f5f5f5;
+            --accent-color: #ff3c00;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            min-height: 100vh;
-            font-family: 'Roboto', sans-serif;
-            background-color: #212A31;  /* Darkest background */
-            color: #D3D9D4;  /* Light text */
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
-        
+
+        body {
+            background-color: var(--concrete-white);
+            color: var(--concrete-dark);
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: 80px 1fr;
+            grid-template-areas:
+                "header header"
+                "sidebar main";
+            height: 100vh;
+            overflow: hidden;
+        }
+
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background-color: #2E3944;
-            color: #D3D9D4;
+            grid-area: header;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
             padding: 20px;
-            text-align: center;  /* Center align the header content */
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            border-bottom: 5px solid var(--accent-color);
         }
 
         .header h1 {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 500;
+            font-size: 24px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .left-banner {
+            grid-area: sidebar;
+            background-color: var(--concrete-medium);
+            color: var(--concrete-white);
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 5px solid var(--concrete-dark);
+        }
+
+        .main-content {
+            grid-area: main;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: var(--concrete-white);
         }
 
         .info-icon {
-            cursor: pointer;
             position: relative;
-            color: #D3D9D4;
-            font-size: 18px;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #D3D9D4;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background-color: var(--concrete-white);
+            color: var(--concrete-dark);
+            text-align: center;
+            line-height: 24px;
             border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            width: 300px;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
+            text-align: left;
+            padding: 15px;
+            position: absolute;
+            z-index: 1;
+            top: 30px;
+            left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            line-height: 1.4;
+            border: 2px solid var(--concrete-white);
         }
 
         .info-icon:hover .tooltip {
@@ -57,376 +107,264 @@
             opacity: 1;
         }
 
-        .tooltip {
-            visibility: hidden;
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #D3D9D4;
-            color: #2E3944;
-            padding: 10px;
-            border-radius: 4px;
-            width: 300px;
+        .csv-info {
+            background-color: var(--concrete-dark);
+            padding: 20px;
+            margin-bottom: 30px;
             font-size: 14px;
-            line-height: 1.4;
-            margin-top: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 1001;
+            line-height: 1.5;
         }
 
-        .tooltip::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 0 5px 5px 5px;
-            border-style: solid;
-            border-color: transparent transparent #2E3944 transparent;
+        .csv-info h4 {
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: normal;
+            border-bottom: 2px solid var(--concrete-pale);
+            padding-bottom: 5px;
         }
 
-        /* Adjust body to account for larger header */
-        .left-banner {
-            margin-top: 100px;
-            width: 400px;
-            background-color: #2E3944;  /* Darker sidebar */
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            min-height: 100vh;
-            color: #D3D9D4;
+        .csv-info ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
         }
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            margin-top: 100px;
-            background-color: #D3D9D4;  /* Light background for output area */
-            border-radius: 8px;
-            margin: 100px;
-            color: #212A31;  /* Dark text for contrast */
+
+        .csv-info code {
+            background-color: var(--concrete-medium);
+            padding: 2px 4px;
+            font-family: monospace;
         }
-        .title {
-            font-size: 24px;
-            font-weight: bold;
+
+        .drag-drop-area {
+            border: 3px dashed var(--concrete-pale);
+            padding: 30px 20px;
             text-align: center;
             margin-bottom: 30px;
-            color: #333;
-        }
-        .drag-drop-area {
-            border: 2px dashed #ccc;
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
             cursor: pointer;
-            width: 100%;
-            box-sizing: border-box;
+            transition: all 0.2s;
         }
+
         .drag-over {
-            background-color: #e1e1e1;
-            border-color: #999;
+            background-color: var(--concrete-dark);
+            border-color: var(--concrete-white);
         }
-        .preview-table {
+
+        .button {
+            display: block;
             width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background-color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 16px;
+            transition: all 0.2s;
         }
-        
-        .preview-table th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: 500;
-            padding: 12px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
+
+        .button:disabled {
+            background-color: var(--concrete-light);
+            cursor: not-allowed;
         }
-        
-        .preview-table td {
-            padding: 12px;
-            border-bottom: 1px solid #dee2e6;
+
+        .button:hover:not(:disabled) {
+            background-color: var(--accent-color);
         }
-        
-        .preview-table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        
-        .preview-table tr:hover {
-            background-color: #f2f2f2;
-        }
+
         .hidden {
             display: none;
         }
-        .button {
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            width: 80%;
-            background-color: #124E66;
-            color: #D3D9D4;
-            border: none;
-            border-radius: 4px;
+
+        .progress-section {
+            margin: 0 0 40px 0;
+            padding: 30px;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
         }
-        .button:disabled {
-            background-color: #2E3944;
-            cursor: not-allowed;
+
+        .progress-section h3 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: normal;
+            text-align: center;
         }
-        .button:hover:not(:disabled) {
-            background-color: #748D92;
+
+        .progress-container {
+            margin-bottom: 25px;
         }
+
+        .progress-container h4 {
+            margin-bottom: 10px;
+            font-weight: normal;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: var(--concrete-medium);
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+        }
+
         .dict-expansion {
-            margin-top: 20px;
-            padding: 20px;
-            border: 1px solid #748D92;
-            border-radius: 4px;
-            background-color: #2E3944;
-            color: #D3D9D4;
+            padding: 30px;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
+            margin-bottom: 40px;
         }
-        
+
+        .dict-expansion h3 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: normal;
+            text-align: center;
+        }
+
         .word-prompt {
             font-size: 18px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background-color: white;
-            color: #2E3944;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: var(--concrete-medium);
+            text-align: center;
         }
-        
+
         .decision-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
-            margin: 20px 0;
         }
-        
+
         .decision-button {
-            padding: 12px 24px;
+            padding: 15px 25px;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             font-size: 14px;
             transition: background-color 0.2s;
-            background-color: #124E66;
-            color: #D3D9D4;
         }
-        
-        .decision-button:hover {
-            background-color: #748D92;
-        }
-        
+
         .whitelist-button {
-            background-color: white;
-            color: #2E3944;
+            background-color: var(--concrete-white);
+            color: var(--concrete-dark);
         }
-        
+
         .whitelist-button:hover {
-            background-color: #c3cac3;
+            background-color: var(--concrete-pale);
         }
-        
+
         .skip-button {
-            background-color: #9e9e9e;
-            color: white;
+            background-color: var(--concrete-light);
+            color: var(--concrete-white);
         }
-        
+
         .skip-button:hover {
-            background-color: #8e8e8e;
+            background-color: var(--concrete-medium);
         }
-        
+
         .blacklist-button {
-            background-color: #292828;
-            color: white;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
+            border: 1px solid var(--concrete-white);
         }
-        
+
         .blacklist-button:hover {
-            background-color: #050505;
+            background-color: #000000;
         }
-        
+
         .exit-button {
-            background-color: #eb2a2a;
-            color: white;
+            background-color: var(--accent-color);
+            color: var(--concrete-white);
         }
-        
+
         .exit-button:hover {
-            background-color: rgb(250, 16, 16);
+            background-color: #cc3000;
         }
 
-        .introduction {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-            padding: 0 15px;
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            background-color: var(--concrete-white);
+            border: 3px solid var(--concrete-dark);
         }
-
-        .csv-info {
-            background-color: #2E3944;
-            border-left: 4px solid #124E66;
+        
+        .preview-table th {
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
+            font-weight: normal;
             padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 4px 4px 0;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #D3D9D4;
-        }
-
-        .csv-info h4 {
-            margin: 0 0 10px 0;
-            color: #D3D9D4;
-        }
-
-        .csv-info code {
-            background-color: #212A31;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-            color: #D3D9D4;
-        }
-
-        .word-input {
-            margin: 15px 0;
-            text-align: center;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
-        .input-field {
-            padding: 8px 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-            width: 120px;
+        .preview-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--concrete-medium);
         }
         
-        .input-hint {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+        .preview-table tr:nth-child(even) {
+            background-color: var(--concrete-pale);
         }
         
-        .submit-button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .submit-button:hover {
-            background-color: #45a049;
-        }
-
-        .logo-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 200px;
-            text-align: center;
-        }
-        
-        .logo-container img {
-            width: 100%;
-            height: auto;
-        }
-
-        .progress-section {
-            width: 80%;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #2E3944;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        
-        .progress-section h3 {
-            color: #D3D9D4;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: 500;
-        }
-        
-        .progress-container {
-            width: 100%;
-            margin: 20px 0;
-            position: relative;
-        }
-        
-        .progress-container h4 {
-            color: #D3D9D4;
-            margin-bottom: 10px;
-            font-size: 16px;
-            font-weight: 500;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: #2E3944;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background-color: #124E66;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .progress-text {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #D3D9D4;
+        .preview-table tr:hover {
+            background-color: var(--concrete-light);
+            color: var(--concrete-white);
         }
 
         .seaa-link {
-            position: absolute;
-            right: 20px;
-            background-color: #124E66;
-            color: #D3D9D4;
+            background-color: var(--concrete-dark);
+            color: var(--concrete-white);
             padding: 10px 20px;
-            border-radius: 4px;
             text-decoration: none;
-            font-weight: bold;
-            border: none;
-            display: inline-block;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
         }
+        
         .seaa-link:hover {
-            background-color: #748D92;
+            background-color: var(--accent-color);
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Semi-automatic Anonymization Algorithm</h1>
-        <div class="info-icon">
-            i
-            <div class="tooltip">
-                This tool helps process and anonymize open-ended survey responses. 
-                Upload your CSV file containing the responses, and the algorithm will 
-                identify potential privacy-sensitive information. You can then help improve 
-                the tool by categorizing unknown words into whitelist or blacklist. (for more information, see <a href="/seaa">Documentation</a>)
+        <div>
+            <div class="info-icon">
+                i
+                <div class="tooltip">
+                    This tool helps process and anonymize open-ended survey responses. 
+                    Upload your CSV file containing the responses, and the algorithm will 
+                    identify potential privacy-sensitive information. You can then help improve 
+                    the tool by categorizing unknown words into whitelist or blacklist.
+                </div>
             </div>
+            <a href="/seaa" class="seaa-link">Documentation</a>
         </div>
-        <a href="/seaa" class="seaa-link">Documentation</a>
     </div>
     <div class="left-banner">
         <div class="csv-info">
-            <h4>Required CSV Format:</h4>
+            <h4>Required CSV Format</h4>
             <p>Your CSV file should contain:</p>
             <ul>
                 <li>One response per row</li>
@@ -450,21 +388,13 @@
             <input type="file" id="fileInput" accept=".csv" style="display: none;">
         </div>
         <button id="processButton" class="button" disabled>Process File</button>
-        
         <button id="downloadButton" class="button hidden">Download Results</button>
     </div>
 
     <div class="main-content">
-        <div class="progress-section" style="display: none;" id="progressSection">
+        <div class="progress-section hidden" id="progressSection">
             <h3>Processing Status</h3>
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text" id="progressText">0%</div>
-            </div>
-
-            <div class="progress-container" id="preparationProgressContainer" style="display: none;">
+            <div class="progress-container" id="preparationProgressContainer">
                 <h4>Preparing Data</h4>
                 <div class="progress-bar">
                     <div class="progress-fill" id="preparationProgressFill"></div>
@@ -472,7 +402,7 @@
                 <div class="progress-text" id="preparationProgressText">0%</div>
             </div>
 
-            <div class="progress-container" id="translationProgressContainer" style="display: none;">
+            <div class="progress-container" id="translationProgressContainer">
                 <h4>Translating Non-Dutch Responses</h4>
                 <div class="progress-bar">
                     <div class="progress-fill" id="translationProgressFill"></div>
@@ -480,7 +410,7 @@
                 <div class="progress-text" id="translationProgressText">0%</div>
             </div>
 
-            <div class="progress-container" id="processingProgressContainer" style="display: none;">
+            <div class="progress-container" id="processingProgressContainer">
                 <h4>Processing Data</h4>
                 <div class="progress-bar">
                     <div class="progress-fill" id="processingProgressFill"></div>
@@ -574,8 +504,7 @@
                 processButton.textContent = 'Processing...';
                 
                 // Show progress section
-                document.getElementById('progressSection').style.display = 'block';
-                document.getElementById('progressContainer').style.display = 'block';
+                document.getElementById('progressSection').classList.remove('hidden');
                 
                 // Set up SSE for progress updates
                 const eventSource = new EventSource('/progress');
@@ -584,15 +513,12 @@
                     
                     // Update the appropriate progress bar based on the current phase
                     if (progress.current_phase === "preparation") {
-                        document.getElementById('preparationProgressContainer').style.display = 'block';
                         updateProgressBar('preparationProgressFill', 'preparationProgressText', progress.preparation);
                     } 
                     else if (progress.current_phase === "translation") {
-                        document.getElementById('translationProgressContainer').style.display = 'block';
                         updateProgressBar('translationProgressFill', 'translationProgressText', progress.translation);
                     }
                     else if (progress.current_phase === "processing") {
-                        document.getElementById('processingProgressContainer').style.display = 'block';
                         updateProgressBar('processingProgressFill', 'processingProgressText', progress.processing);
                         
                         if (progress.processing >= 100) {
@@ -609,7 +535,7 @@
                 const data = await response.json();
                 
                 // Hide progress section when complete
-                document.getElementById('progressSection').style.display = 'none';
+                document.getElementById('progressSection').classList.add('hidden');
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -624,8 +550,7 @@
                     window.location.href = `/download/${data.output_filename}`;
                 };
                 
-                // Explicitly show dictionary expansion section
-                document.getElementById('dictExpansion').style.display = 'block';
+                // Show dictionary expansion section
                 document.getElementById('dictExpansion').classList.remove('hidden');
                 
                 // Start dictionary expansion
@@ -674,7 +599,6 @@
         }
 
         async function startDictExpansion() {
-            document.getElementById('dictExpansion').classList.remove('hidden');
             await getNextWord();
         }
         

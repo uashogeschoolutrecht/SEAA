@@ -7,6 +7,7 @@ from queue import Queue
 import json
 import threading
 import time
+from main import main
 
 app = Flask(__name__)
 
@@ -72,6 +73,8 @@ def process_file():
                 global progress
                 progress[phase] = percentage
                 progress["current_phase"] = phase
+                # Add more detailed debugging
+                print(f"Progress update: {phase} - {percentage}% at {time.strftime('%H:%M:%S')}")
             
             # Run main function with the uploaded file and progress callback
             df = main(

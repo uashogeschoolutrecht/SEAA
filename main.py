@@ -110,14 +110,23 @@ def main(
     del temp_df
     
     if progress_callback:
-        progress_callback(40, "preparation")
+        progress_callback(50, "preparation")
+
+    if progress_callback:
+        progress_callback(70, "preparation")
 
     result_df = SEAA(input_df, word_list_df, flag_df, limit=limit, progress_callback=progress_callback)
     
+    if progress_callback:
+        progress_callback(90, "preparation")
+
     # Get all avg words that are not flagged yet
     avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(), flag_df)
     avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
     avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
+
+    if progress_callback:
+        progress_callback(100, "preparation")
 
     return result_df, avg_words_df
 
