@@ -1,8 +1,73 @@
 import pandas as pd
 import os
 from typing import Union, Literal
+from src.translator_ import translate_large_text
+from langdetect import detect
 
-def load_data(path: str, file_name: str) -> pd.DataFrame:
+
+def translate_non_dutch_responses(input_df, progress_callback=None):
+    """
+    Translates non-Dutch responses to Dutch.
+    
+    Args:
+        input_df (DataFrame): DataFrame containing responses with 'language' and 'answer_clean' columns
+        progress_callback (callable, optional): Function to call with progress updates
+        
+    Returns:
+        DataFrame: Updated DataFrame with translated responses
+    """
+    # Language detection    
+    def detect_language(text):
+        try:
+            return detect(text)
+        except:
+            return None
+    df_copy = input_df.copy()
+    
+    df_copy['answer_clean'] = df_copy['Answer'].str.lower()
+
+    df_copy['language'] = df_copy['answer_clean'].apply(detect_language)
+    
+    if progress_callback:
+        progress_callback(25, "preparation")
+
+    # Count how many translations are needed
+    non_dutch_count = len(df_copy[(pd.notna(df_copy['language'])) & 
+                                  (df_copy['language'] != 'nl') & 
+                                  (df_copy['language'] != 'af') & 
+                                  (pd.notna(df_copy['answer_clean']))])
+    
+    # Create a copy of the DataFrame to avoid modifying during iteration
+   
+
+    if non_dutch_count > 0:
+        if progress_callback:
+            progress_callback(0, "translation")
+            
+        # Create a counter for translations
+        translation_counter = 0
+
+        for index, row in df_copy.iterrows(): 
+            if pd.notna(row['language']) and row['language'] != 'nl' and row['language'] != 'af' and pd.notna(row['answer_clean']):
+                # Translate the text
+                translated = translate_large_text(
+                    row['answer_clean'], 
+                    source_lang=row['language'], 
+                    target_lang='nl'
+                )
+                
+                # Update the original DataFrame with the translated text
+                df_copy.at[index, 'answer_clean'] = translated
+                
+                # Update progress
+                translation_counter += 1
+                if progress_callback:
+                    progress = (translation_counter / non_dutch_count) * 100
+                    progress_callback(progress, "translation")
+    
+    return df_copy
+
+def load_data(path: str, file_name: str, progress_callback=None) -> pd.DataFrame:
     """
     Load and clean CSV file containing open-ended answers.
     
@@ -15,10 +80,21 @@ def load_data(path: str, file_name: str) -> pd.DataFrame:
     """
     # Import NSE open answers
     df = pd.read_csv(os.path.join(path, file_name), sep =';', encoding='utf-8-sig')
+    df = translate_non_dutch_responses(df, progress_callback)
     
     # Clean data
-    df['answer_clean'] = df['Answer'].str.lower()
+    df['answer_clean'] = df['answer_clean'].str.lower()
+    
+    # Remove numbers
     df['answer_clean'] = df['answer_clean'].str.replace(r"([0-9])", "", regex=True)
+    
+    # Remove all symbols/punctuation marks
+    df['answer_clean'] = df['answer_clean'].str.replace(r'[^\w\s]', ' ', regex=True)
+    
+    # Trim whitespace
+    df['answer_clean'] = df['answer_clean'].str.strip()
+    # Remove multiple spaces
+    df['answer_clean'] = df['answer_clean'].str.replace(r'\s+', ' ', regex=True)
     
     # Initialize tracking columns
     df['contains_privacy'] = 1

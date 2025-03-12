@@ -2,71 +2,9 @@ import numpy as np
 import pandas as pd
 from src.load_seaa_data import load_data, load_dictionary
 from src.SEAA import SEAA
-from langdetect import detect
 from src.AVG_list import AVG_list
-from src.translator_ import translate_large_text
 import re  # Add this import at the top since it's used for email pattern matching
 
-
-def translate_non_dutch_responses(input_df, progress_callback=None):
-    """
-    Translates non-Dutch responses to Dutch.
-    
-    Args:
-        input_df (DataFrame): DataFrame containing responses with 'language' and 'answer_clean' columns
-        progress_callback (callable, optional): Function to call with progress updates
-        
-    Returns:
-        DataFrame: Updated DataFrame with translated responses
-    """
-    # Language detection    
-    def detect_language(text):
-        try:
-            return detect(text)
-        except:
-            return None
-
-    input_df['language'] = input_df['answer_clean'].apply(detect_language)
-    
-    if progress_callback:
-        progress_callback(25, "preparation")
-
-    # Count how many translations are needed
-    non_dutch_count = len(input_df[(pd.notna(input_df['language'])) & 
-                                  (input_df['language'] != 'nl') & 
-                                  (input_df['language'] != 'af') & 
-                                  (pd.notna(input_df['answer_clean']))])
-    
-    # Create a copy of the DataFrame to avoid modifying during iteration
-    df_copy = input_df.copy()
-    
-    
-    if non_dutch_count > 0:
-        if progress_callback:
-            progress_callback(0, "translation")
-            
-        # Create a counter for translations
-        translation_counter = 0
-
-        for index, row in df_copy.iterrows(): 
-            if pd.notna(row['language']) and row['language'] != 'nl' and row['language'] != 'af' and pd.notna(row['answer_clean']):
-                # Translate the text
-                translated = translate_large_text(
-                    row['answer_clean'], 
-                    source_lang=row['language'], 
-                    target_lang='nl'
-                )
-                
-                # Update the original DataFrame with the translated text
-                df_copy.at[index, 'answer_clean'] = translated
-                
-                # Update progress
-                translation_counter += 1
-                if progress_callback:
-                    progress = (translation_counter / non_dutch_count) * 100
-                    progress_callback(progress, "translation")
-    
-    return df_copy
 
 
 def main(
@@ -102,15 +40,14 @@ def main(
     if input_file is None:
         raise ValueError("Please provide an input_file name")
 
-    df = load_data(path, input_file)
+    
+    df = load_data(path, input_file,progress_callback)
     input_df = df.head(limit)
 
     # Report progress if callback is provided
     if progress_callback:
         progress_callback(0, "preparation")
 
-    # Translate non-Dutch responses
-    input_df = translate_non_dutch_responses(input_df, progress_callback)
     
     if progress_callback:
         progress_callback(50, "preparation")

@@ -10,4 +10,6 @@ sterfte
 sterven
 sterfgeval
 sterfgevallen
+overleden
+overleiden
 
