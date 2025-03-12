@@ -1,0 +1,13 @@
+words
+ongeluk
+ongeval
+incident
+ziekenhuis
+huisarts
+psycholoog
+psychiater
+sterfte
+sterven
+sterfgeval
+sterfgevallen
+
