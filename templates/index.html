@@ -4,27 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semi-automatic Anonymization Algorithm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Brutalist Color Palette */
+        /* Updated Color Palette */
         :root {
+            --hu-blue: #00a1e1;
+            --hu-dark-blue: #0077b3;
+            --hu-light-gray: #f5f5f5;
+            --hu-gray: #e0e0e0;
+            --hu-dark-gray: #333333;
+            --text-color: #333333;
+            
+            /* Keep existing color variables for reference */
+            --concrete-white: #ffffff;
+            --concrete-pale: #f5f5f5;
+            --concrete-light: #e0e0e0;
+            --concrete-medium: #cccccc;
             --concrete-dark: #333333;
-            --concrete-medium: #666666;
-            --concrete-light: #999999;
-            --concrete-pale: #cccccc;
-            --concrete-white: #f5f5f5;
-            --accent-color: #ff3c00;
+            --accent-color: #e63900;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Courier New', monospace;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--text-color);
         }
 
         body {
-            background-color: var(--concrete-white);
-            color: var(--concrete-dark);
+            background-color: var(--hu-light-gray);
+            color: var(--text-color);
             display: grid;
             grid-template-columns: 350px 1fr;
             grid-template-rows: 80px 1fr;
@@ -33,33 +43,55 @@
                 "sidebar main";
             height: 100vh;
             overflow: hidden;
+            line-height: 1.5;
         }
 
         .header {
             grid-area: header;
-            background-color: var(--concrete-dark);
-            color: var(--concrete-white);
-            padding: 20px;
+            background-color: var(--hu-blue);
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 5px solid var(--accent-color);
+            border-bottom: 5px solid var(--hu-dark-blue);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            border-radius: 4px;
         }
 
         .header h1 {
-            font-size: 24px;
-            font-weight: normal;
+            font-size: 20px;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 1px;
+            color: var(--concrete-white);
         }
 
         .left-banner {
             grid-area: sidebar;
-            background-color: var(--concrete-medium);
-            color: var(--concrete-white);
+            background-color: var(--hu-dark-blue);
             padding: 30px;
             overflow-y: auto;
-            border-right: 5px solid var(--concrete-dark);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 5;
+        }
+
+        .left-banner p, .left-banner li, .left-banner h4 {
+            color: var(--concrete-white);
         }
 
         .main-content {
@@ -71,57 +103,73 @@
 
         .info-icon {
             position: relative;
-            display: inline-block;
-            width: 24px;
-            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
             background-color: var(--concrete-white);
-            color: var(--concrete-dark);
+            color: var(--hu-dark-blue);
             text-align: center;
-            line-height: 24px;
             border-radius: 50%;
             cursor: pointer;
             margin-left: 10px;
             font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .tooltip {
             visibility: hidden;
             width: 300px;
-            background-color: var(--concrete-dark);
-            color: var(--concrete-white);
+            background-color: var(--hu-dark-gray);
             text-align: left;
             padding: 15px;
             position: absolute;
-            z-index: 1;
-            top: 30px;
+            z-index: 100;
+            top: 40px;
             left: -150px;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.3s, transform 0.3s;
             font-size: 14px;
-            line-height: 1.4;
-            border: 2px solid var(--concrete-white);
+            line-height: 1.5;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .tooltip p {
+            color: var(--concrete-white);
         }
 
         .info-icon:hover .tooltip {
             visibility: visible;
             opacity: 1;
+            transform: translateY(0);
         }
 
         .csv-info {
-            background-color: var(--concrete-dark);
-            padding: 20px;
+            background-color: var(--hu-dark-blue);
+            padding: 25px;
             margin-bottom: 30px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .csv-info h4 {
             margin: 0 0 15px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: normal;
-            border-bottom: 2px solid var(--concrete-pale);
-            padding-bottom: 5px;
+            font-weight: 500;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
         }
 
         .csv-info ul {
@@ -130,23 +178,33 @@
         }
 
         .csv-info code {
-            background-color: var(--concrete-medium);
-            padding: 2px 4px;
-            font-family: monospace;
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 3px 6px;
+            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--concrete-white);
         }
 
         .drag-drop-area {
-            border: 3px dashed var(--concrete-pale);
+            border: 2px dashed var(--hu-gray);
             padding: 30px 20px;
             text-align: center;
             margin-bottom: 30px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .drag-drop-area p {
+            color: var(--concrete-white);
         }
 
         .drag-over {
-            background-color: var(--concrete-dark);
+            background-color: rgba(0, 161, 225, 0.2);
             border-color: var(--concrete-white);
+            transform: scale(1.02);
         }
 
         .button {
@@ -154,23 +212,35 @@
             width: 100%;
             padding: 15px;
             margin-bottom: 20px;
-            background-color: var(--concrete-dark);
+            background-color: var(--hu-blue);
             color: var(--concrete-white);
             border: none;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-size: 16px;
-            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .button:disabled {
-            background-color: var(--concrete-light);
+            background-color: var(--hu-gray);
             cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
         }
 
         .button:hover:not(:disabled) {
-            background-color: var(--accent-color);
+            background-color: var(--hu-dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .hidden {
@@ -180,7 +250,12 @@
         .progress-section {
             margin: 0 0 40px 0;
             padding: 30px;
-            background-color: var(--concrete-dark);
+            background-color: var(--hu-blue);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-section h3, .progress-section h4 {
             color: var(--concrete-white);
         }
 
@@ -188,7 +263,7 @@
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: normal;
+            font-weight: 500;
             text-align: center;
         }
 
@@ -197,83 +272,113 @@
         }
 
         .progress-container h4 {
-            margin-bottom: 10px;
-            font-weight: normal;
+            margin-bottom: 12px;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 30px;
-            background-color: var(--concrete-medium);
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
             position: relative;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background-color: var(--accent-color);
+            background-color: var(--hu-dark-blue);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.5s ease;
+            border-radius: 6px;
         }
 
         .progress-text {
-            text-align: center;
+            text-align: right;
             font-size: 14px;
+            font-weight: 500;
+            color: var(--concrete-white);
         }
 
         .dict-expansion {
             padding: 30px;
-            background-color: var(--concrete-dark);
-            color: var(--concrete-white);
+            background-color: var(--hu-blue);
             margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .dict-expansion h3 {
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            font-weight: normal;
+            font-weight: 500;
             text-align: center;
+            color: var(--concrete-white);
         }
 
         .word-prompt {
             font-size: 18px;
             margin-bottom: 25px;
             padding: 20px;
-            background-color: var(--concrete-medium);
+            background-color: var(--hu-dark-blue);
             text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.6;
+            color: var(--concrete-white);
+        }
+
+        .word-prompt strong {
+            color: var(--concrete-white);
         }
 
         .decision-buttons {
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .decision-button {
-            padding: 15px 25px;
+            padding: 12px 20px;
             border: none;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
             font-size: 14px;
-            transition: background-color 0.2s;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+
+        .decision-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .decision-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .whitelist-button {
             background-color: var(--concrete-white);
-            color: var(--concrete-dark);
+            color: var(--text-color);
         }
 
         .whitelist-button:hover {
-            background-color: var(--concrete-pale);
+            background-color: var(--hu-light-gray);
         }
 
         .skip-button {
-            background-color: var(--concrete-light);
-            color: var(--concrete-white);
+            background-color: var(--hu-gray);
+            color: var(--text-color);
         }
 
         .skip-button:hover {
@@ -281,9 +386,8 @@
         }
 
         .blacklist-button {
-            background-color: var(--concrete-dark);
+            background-color: var(--hu-dark-gray);
             color: var(--concrete-white);
-            border: 1px solid var(--concrete-white);
         }
 
         .blacklist-button:hover {
@@ -301,62 +405,127 @@
 
         .preview-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-bottom: 40px;
             background-color: var(--concrete-white);
-            border: 3px solid var(--concrete-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
         
         .preview-table th {
-            background-color: var(--concrete-dark);
+            background-color: var(--hu-blue);
             color: var(--concrete-white);
-            font-weight: normal;
+            font-weight: 500;
             padding: 15px;
             text-align: left;
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: sticky;
+            top: 0;
         }
         
         .preview-table td {
             padding: 15px;
-            border-bottom: 1px solid var(--concrete-medium);
+            border-bottom: 1px solid var(--hu-light-gray);
+            color: var(--text-color);
         }
         
         .preview-table tr:nth-child(even) {
-            background-color: var(--concrete-pale);
+            background-color: var(--hu-light-gray);
         }
         
         .preview-table tr:hover {
-            background-color: var(--concrete-light);
-            color: var(--concrete-white);
+            background-color: rgba(0, 161, 225, 0.05);
+        }
+
+        .preview-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        #preview h3 {
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--text-color);
         }
 
         .seaa-link {
-            background-color: var(--concrete-dark);
+            background-color: var(--hu-dark-blue);
             color: var(--concrete-white);
             padding: 10px 20px;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: background-color 0.2s;
+            transition: all 0.3s;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
         }
         
         .seaa-link:hover {
             background-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .processing-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "main";
+            }
+
+            .left-banner, .main-content {
+                overflow-y: initial;
+            }
+
+            .decision-buttons {
+                flex-direction: column;
+            }
+
+            .decision-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Semi-automatic Anonymization Algorithm</h1>
-        <div>
+        <div class="header-left">
+            <img src="/static/images/hogeschool-utrecht-logo.jpg" alt="Hogeschool Utrecht Logo" class="logo">
+            <h1>Semi-automatic Anonymization Algorithm</h1>
+        </div>
+        <div class="header-right">
             <div class="info-icon">
                 i
                 <div class="tooltip">
-                    This tool helps process and anonymize open-ended survey responses. 
+                    <p>This tool helps process and anonymize open-ended survey responses. 
                     Upload your CSV file containing the responses, and the algorithm will 
                     identify potential privacy-sensitive information. You can then help improve 
-                    the tool by categorizing unknown words into whitelist or blacklist.
+                    the tool by categorizing unknown words into whitelist or blacklist.</p>
                 </div>
             </div>
             <a href="/seaa" class="seaa-link">Documentation</a>
@@ -502,6 +671,7 @@
             try {
                 processButton.disabled = true;
                 processButton.textContent = 'Processing...';
+                processButton.classList.add('processing-animation');
                 
                 // Show progress section
                 document.getElementById('progressSection').classList.remove('hidden');
@@ -561,6 +731,7 @@
             } finally {
                 processButton.disabled = false;
                 processButton.textContent = 'Process File';
+                processButton.classList.remove('processing-animation');
             }
         });
 

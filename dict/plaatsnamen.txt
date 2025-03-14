@@ -222,7 +222,6 @@ Berkhout
 Berlicum
 Berltsum
 Bern
-Best
 Beugen
 Beuningen
 Beuningen Gld
@@ -864,7 +863,6 @@ Hellouw
 Hellum
 Helmond
 Helvoirt
-Hem
 Hemelum
 Hemmen
 Hempens
