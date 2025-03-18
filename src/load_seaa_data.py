@@ -3,7 +3,8 @@ import os
 from typing import Union, Literal
 from src.translator_ import translate_large_text
 from langdetect import detect
-
+import time
+import re
 
 def translate_non_dutch_responses(input_df, progress_callback=None):
     """
@@ -30,6 +31,11 @@ def translate_non_dutch_responses(input_df, progress_callback=None):
     
     if progress_callback:
         progress_callback(25, "preparation")
+        time.sleep(1)
+    
+    if progress_callback:
+        progress_callback(50, "preparation")
+        time.sleep(1)
 
     # Count how many translations are needed
     non_dutch_count = len(df_copy[(pd.notna(df_copy['language'])) & 
@@ -65,6 +71,18 @@ def translate_non_dutch_responses(input_df, progress_callback=None):
                     progress = (translation_counter / non_dutch_count) * 100
                     progress_callback(progress, "translation")
     
+    if progress_callback:
+        progress_callback(100, "translation")
+        time.sleep(1)
+
+    if progress_callback:
+        progress_callback(75, "preparation")
+        time.sleep(1)
+
+    if progress_callback:
+        progress_callback(100, "preparation")
+        time.sleep(1)
+
     return df_copy
 
 def load_data(path: str, file_name: str, progress_callback=None) -> pd.DataFrame:
@@ -82,6 +100,21 @@ def load_data(path: str, file_name: str, progress_callback=None) -> pd.DataFrame
     df = pd.read_csv(os.path.join(path, file_name), sep =';', encoding='utf-8-sig')
     df = translate_non_dutch_responses(df, progress_callback)
     
+        # Detect and censor email addresses
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    for index, row in df.iterrows():
+        if pd.notna(row['answer_clean']):
+            emails_found = re.findall(email_pattern, row['answer_clean'])
+            if emails_found:
+                censored_text = row['answer_clean']
+                for email in emails_found:
+                    censored_text = re.sub(re.escape(email), 'emailadressreplacer', censored_text)
+                df.loc[index, 'answer_clean'] = censored_text
+                print(f"Email found in row {index}: {emails_found}")
+
+    # Remove numbers longer than 2 digits
+    df['answer_clean'] = df['answer_clean'].str.replace(r'\b\d{3,}\b', '', regex=True)
+
     # Clean data
     df['answer_clean'] = df['answer_clean'].str.lower()
     

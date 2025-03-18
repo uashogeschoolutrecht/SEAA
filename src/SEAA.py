@@ -121,8 +121,8 @@ def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
                 for unknown_word in unknown_words_not_flagged:
                     # Convert unknown_word to string in case it's a number
                     unknown_word_str = str(unknown_word)
-                    if unknown_word_str == 'EMAIL':
-                        answer_censored = re.sub(unknown_word_str, f'EMAIL', answer_censored)
+                    if unknown_word_str == 'emailadressreplacer':
+                        answer_censored = re.sub(unknown_word_str, f'[EMAIL]', answer_censored)
                     else:       
                         answer_censored = re.sub(unknown_word_str, f'[UNKNOWN]', answer_censored)
                                             

@@ -40,32 +40,12 @@ def main(
     if input_file is None:
         raise ValueError("Please provide an input_file name")
 
-    
-    df = load_data(path, input_file,progress_callback)
-    input_df = df.head(limit)
-
-    # Report progress if callback is provided
+      # Report progress if callback is provided
     if progress_callback:
         progress_callback(0, "preparation")
 
-    
-    if progress_callback:
-        progress_callback(50, "preparation")
-
-    # Detect and censor email addresses
-    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    for index, row in input_df.iterrows():
-        if pd.notna(row['answer_clean']):
-            emails_found = re.findall(email_pattern, row['answer_clean'])
-            if emails_found:
-                censored_text = row['answer_clean']
-                for email in emails_found:
-                    censored_text = re.sub(re.escape(email), '[EMAIL]', censored_text)
-                input_df.loc[index, 'answer_clean'] = censored_text
-                print(f"Email found in row {index}: {emails_found}")
-
-    # Remove numbers longer than 2 digits
-    input_df['answer_clean'] = input_df['answer_clean'].str.replace(r'\b\d{3,}\b', '', regex=True)
+    df = load_data(path, input_file,progress_callback)
+    input_df = df.head(limit)
     
     # Import dictionaries
     word_list_df = load_dictionary(file_name="wordlist.txt", dict_type='known')
@@ -87,11 +67,7 @@ def main(
         flag_df = pd.concat([flag_df, temp_df], ignore_index=True)
     del temp_df
     
-    if progress_callback:
-        progress_callback(75, "preparation")
 
-    if progress_callback:
-        progress_callback(100, "preparation")
 
     result_df = SEAA(input_df, word_list_df, flag_df, limit=limit, progress_callback=progress_callback)
 

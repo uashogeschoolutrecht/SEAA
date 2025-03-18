@@ -101,7 +101,7 @@ def process_file():
             
             # Get preview of results (first 10 rows)
             preview = results_df[results_df['contains_privacy']==1]
-            preview = preview.head(10).fillna('').to_dict('records')
+            preview = preview.head(100).fillna('').to_dict('records')
             
             # Get the output filename from the request form
             output_filename = request.form.get('output_filename', 'SEAA_output.csv')
