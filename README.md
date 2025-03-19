@@ -11,6 +11,8 @@ SEAA helps identify and anonymize potentially privacy-sensitive information in t
 
 > NOTE: this tool is primarily designed for Dutch text, but includes translation capabilities for non-Dutch responses.
 
+`Disclaimer: SEAA is a tool for anonimisation of text data, but does not replace a manual check of results nor can SEAA or it's creators be held responsible for misdetection of privacy-related data.`
+
 ##  Flow chart
 
 ##  Flow chart
@@ -58,10 +60,7 @@ Before installing SEAA, ensure you have:
 ```bash
 git clone https://github.com/uashogeschoolutrecht/SEAA.git
 cd SEAA
-git checkout AL_local_flask
 ```
-
-> **Important**: The web interface is only available on the `AL_local_flask` branch. Make sure you switch to this branch before proceeding.
 
 2. Install required dependencies:
 ```bash
