@@ -8,65 +8,90 @@ SEAA helps identify and anonymize potentially privacy-sensitive information in t
 - Replace sensitive information with category markers (e.g., [NAME], [ILLNESS])
 - Allow users to expand the whitelist/blacklist of words through interactive review
 - User input is expanded in the dictionaries and used for future analyses
-- Originally developed for the National Student Survey (NSE) data but expaned to other csv files with open answers.
 
-> NOTE: this tool can only be used for Dutch text.
+> NOTE: this tool is primarily designed for Dutch text, but includes translation capabilities for non-Dutch responses.
 
+##  Flow chart
 
 ##  Flow chart
 ```mermaid
 %%{init: {'sequence': {'theme': 'hand'}}}%%
 sequenceDiagram
     participant Input as Input Files
-    participant Trans as NSE Transform
     participant SEAA as SEAA Process
     participant Dict as Dictionaries
     participant User as User Review
     participant Out as Output Files
-
-    alt NSE Data
-        Input->>Trans: Raw NSE CSV
-        Trans->>Trans: Transform wide to long format
-        Note over Trans: Convert:<br/>Q1 Q2 Q3<br/>to<br/>Answer Question_id
-        Trans->>SEAA: nse_transformed.csv
-    else Regular Data
-        Input->>SEAA: Standard CSV
-    end
-
+    Input->>SEAA: Standard CSV
     activate SEAA
     SEAA->>SEAA: Load & Clean Text
-    
-    loop Word Check
-        SEAA->>Dict: Check against dictionaries
-        Dict-->>SEAA: Return matches
+    SEAA->>SEAA: Detect Language
+    alt Non-Dutch Text
+    SEAA->>SEAA: Translate to Dutch
     end
-    
+    loop Word Check
+    SEAA->>Dict: Check against dictionaries
+    Dict-->>SEAA: Return matches
+    end
     SEAA->>Out: Write SEAA_output.csv
     SEAA->>Out: Write unknown_words.csv
     deactivate SEAA
-    
     loop For each unknown word
-        Out->>User: Present word
-        User->>Dict: Add to whitelist/blacklist
+    Out->>User: Present word
+    User->>Dict: Add to whitelist/blacklist
     end
     
     Dict->>Dict: Update dictionaries
 ```
 
+## Prerequisites
+
+Before installing SEAA, ensure you have:
+1. Python 3.7 or higher installed
+2. Git installed
+3. Basic understanding of command line operations
+4. A modern web browser (Chrome, Firefox, Safari, or Edge)
+
 ## Installation
 
-1. Clone the repository:
-
+1. Clone the repository and switch to the AL_local_flask branch:
 ```bash
 git clone https://github.com/uashogeschoolutrecht/SEAA.git
-cd seaa
+cd SEAA
+git checkout AL_local_flask
 ```
 
-2. Install required dependencies:
+> **Important**: The web interface is only available on the `AL_local_flask` branch. Make sure you switch to this branch before proceeding.
 
+2. Install required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+
+## Running the Application
+
+SEAA provides a web interface for processing and anonymizing your data. There are two ways to run the application:
+
+### Using Flask Development Server
+1. Open a terminal in the project directory
+2. Run the Flask application:
+```bash
+python app.py
+```
+3. Open your web browser and navigate to:
+```
+http://localhost:5000
+```
+
+
+> **Note**: The development server is not suitable for production use. 
+
+Once the application is running, you can:
+1. Access the main interface at `http://localhost:5000` for file processing
+2. View the documentation at `Documentation`
+3. Upload your CSV files through the web interface
+4. Process and download anonymized results
+5. Help improve the dictionaries through the interactive review process (optional)
 
 ## Input Requirements
 
@@ -82,31 +107,6 @@ Example input CSV format:
 respondent_id;Answer;question_id
 1001;"Mijn docent Peter heeft mij enorm geholpen";Q1
 1002;"Ik had moeite met concentratie tijdens de lessen";Q1
-```
-
-## Basic Usage
-
-1. Place your input CSV file in your working directory
-2. Update the path and filename in your script:
-
-```python
-# Set your file path and name
-path = r'C:\Your\Path\Here'
-input_file = 'your_input_file.csv'
-
-# Run the main function
-main(path, input_file=input_file)
-```
-
-### For NSE (National Student Survey) Data
-If you're processing NSE data, use:
-
-```python
-path = r'C:\Your\Path\Here'
-transform_nse = "nse2023.csv"  # Your NSE file
-input_file = None
-
-main(path, transform_nse=transform_nse, input_file=input_file)
 ```
 
 ## Output Files
@@ -174,17 +174,26 @@ The tool uses several dictionary files in the `dict/` folder:
 - `wordlist.txt`: Base dictionary of common words
 - `whitelist.txt`: User-approved safe words
 - `blacklist.txt`: Known privacy-sensitive words
-- `illness.txt`: Medical conditions
+- `illness.txt`: Medical conditions and health-related terms
 - `studiebeperking.txt`: Study limitations
 - `names.txt`: Common first names plus some last names
+- `familie.txt`: Family relationship terms
+- `plaatsnamen.txt`: All locations in the Netherlands from the Dutch census
+- `persoonlijke_omstandigheden.txt`: Personal circumstances
 
-## Language Detection
+## Language Detection and Translation
 
-The tool automatically detects the language of responses and processes Dutch text. Non-Dutch responses are flagged in the output.
+The tool automatically detects the language of responses. For non-Dutch text, it uses a translation service to convert the text to Dutch before processing. This allows SEAA to handle multilingual datasets while maintaining consistent anonymization rules.
+
+The translation system:
+- Detects the source language using language detection
+- Translates non-Dutch text to Dutch using multiple translation services
+- Falls back to alternative translators if one fails
+- Handles large texts by breaking them into manageable chunks
 
 ## Limitations
 
-- The tool is optimized for Dutch language text
 - Dictionary-based approach may miss complex or context-dependent privacy information
+- Translation quality may affect anonymization accuracy for non-Dutch responses
 - Regular maintenance of dictionaries is recommended for optimal performance
 

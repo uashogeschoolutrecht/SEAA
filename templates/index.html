@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semi-automatic Anonymization Algorithm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Updated Color Palette */
+        :root {
+            --hu-blue: #00a1e1;
+            --hu-dark-blue: #0077b3;
+            --hu-light-blue: #e6f7fd;
+            --hu-lighter-blue: #f0faff;
+            --hu-light-gray: #f5f5f5;
+            --hu-gray: #e0e0e0;
+            --hu-dark-gray: #333333;
+            --text-color: #333333;
+            
+            /* Keep existing color variables for reference */
+            --concrete-white: #ffffff;
+            --concrete-pale: #f5f5f5;
+            --concrete-light: #e0e0e0;
+            --concrete-medium: #cccccc;
+            --concrete-dark: #333333;
+            --accent-color: #e63900;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--text-color);
+        }
+
+        body {
+            background-color: var(--concrete-white);
+            color: var(--text-color);
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: 80px 1fr;
+            grid-template-areas:
+                "header header"
+                "sidebar main";
+            height: 100vh;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        .header {
+            grid-area: header;
+            background-color: var(--hu-lighter-blue);
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--hu-blue);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+            border-radius: 4px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--hu-dark-blue);
+        }
+
+        .left-banner {
+            grid-area: sidebar;
+            background-color: var(--hu-lighter-blue);
+            padding: 30px;
+            overflow-y: auto;
+            border-right: 1px solid var(--hu-gray);
+            box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 5;
+        }
+
+        .left-banner p, .left-banner li {
+            color: var(--text-color);
+        }
+
+        .left-banner h4 {
+            color: var(--hu-dark-blue);
+        }
+
+        .main-content {
+            grid-area: main;
+            padding: 30px;
+            overflow-y: auto;
+            background-color: var(--concrete-white);
+        }
+
+        .info-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background-color: var(--concrete-white);
+            color: var(--hu-dark-blue);
+            text-align: center;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .tooltip {
+            visibility: hidden;
+            width: 300px;
+            background-color: var(--hu-dark-gray);
+            text-align: left;
+            padding: 15px;
+            position: absolute;
+            z-index: 100;
+            top: 40px;
+            left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 14px;
+            line-height: 1.5;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .tooltip p {
+            color: var(--concrete-white);
+        }
+
+        .info-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .csv-info {
+            background-color: var(--hu-light-blue);
+            padding: 25px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 119, 179, 0.2);
+        }
+
+        .csv-info h4 {
+            margin: 0 0 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            border-bottom: 2px solid rgba(0, 119, 179, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .csv-info ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .csv-info code {
+            background-color: rgba(0, 119, 179, 0.1);
+            padding: 3px 6px;
+            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--hu-dark-blue);
+        }
+
+        .drag-drop-area {
+            border: 2px dashed var(--hu-gray);
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 10px;
+            background-color: var(--concrete-white);
+        }
+
+        .drag-drop-area p {
+            color: var(--text-color);
+        }
+
+        .drag-over {
+            background-color: var(--hu-light-blue);
+            border-color: var(--hu-blue);
+            transform: scale(1.02);
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: var(--hu-blue);
+            color: var(--concrete-white);
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:disabled {
+            background-color: var(--hu-gray);
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .button:hover:not(:disabled) {
+            background-color: var(--hu-dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-section {
+            margin: 0 0 40px 0;
+            padding: 30px;
+            background-color: var(--hu-light-blue);
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 119, 179, 0.2);
+        }
+
+        .progress-section h3, .progress-section h4 {
+            color: var(--hu-dark-blue);
+        }
+
+        .progress-section h3 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .progress-container {
+            margin-bottom: 25px;
+        }
+
+        .progress-container h4 {
+            margin-bottom: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            position: relative;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--hu-blue);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--hu-dark-blue);
+        }
+
+        .dict-expansion {
+            padding: 30px;
+            background-color: var(--hu-light-blue);
+            margin-bottom: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 119, 179, 0.2);
+        }
+
+        .dict-expansion h3 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            text-align: center;
+            color: var(--hu-dark-blue);
+        }
+
+        .word-prompt {
+            font-size: 18px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: var(--concrete-white);
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            line-height: 1.6;
+            color: var(--text-color);
+            border: 1px solid var(--hu-gray);
+        }
+
+        .word-prompt strong {
+            color: var(--hu-dark-blue);
+            font-weight: 600;
+        }
+
+        .decision-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .decision-button {
+            padding: 12px 20px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+
+        .decision-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .decision-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .whitelist-button {
+            background-color: var(--concrete-white);
+            color: var(--text-color);
+        }
+
+        .whitelist-button:hover {
+            background-color: var(--hu-light-gray);
+        }
+
+        .skip-button {
+            background-color: var(--hu-gray);
+            color: var(--text-color);
+        }
+
+        .skip-button:hover {
+            background-color: var(--concrete-medium);
+        }
+
+        .blacklist-button {
+            background-color: var(--hu-dark-gray);
+            color: var(--concrete-white);
+        }
+
+        .blacklist-button:hover {
+            background-color: #000000;
+        }
+
+        .exit-button {
+            background-color: var(--accent-color);
+            color: var(--concrete-white);
+        }
+
+        .exit-button:hover {
+            background-color: #cc3000;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 40px;
+            background-color: var(--concrete-white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--hu-gray);
+        }
+        
+        .preview-table th {
+            background-color: var(--hu-blue);
+            color: var(--concrete-white);
+            font-weight: 500;
+            padding: 15px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: sticky;
+            top: 0;
+        }
+        
+        .preview-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--hu-light-gray);
+            color: var(--text-color);
+        }
+        
+        .preview-table tr:nth-child(even) {
+            background-color: var(--hu-lighter-blue);
+        }
+        
+        .preview-table tr:hover {
+            background-color: var(--hu-light-blue);
+        }
+
+        .preview-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        #preview h3 {
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .seaa-link {
+            background-color: var(--hu-blue);
+            color: var(--concrete-white);
+            padding: 10px 20px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .seaa-link:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .processing-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                grid-template-areas:
+                    "header"
+                    "sidebar"
+                    "main";
+            }
+
+            .left-banner, .main-content {
+                overflow-y: initial;
+            }
+
+            .decision-buttons {
+                flex-direction: column;
+            }
+
+            .decision-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <img src="/static/images/hogeschool-utrecht-logo.jpg" alt="Hogeschool Utrecht Logo" class="logo">
+            <h1>Semi-automatic Anonymization Algorithm</h1>
+        </div>
+        <div class="header-right">
+            <div class="info-icon">
+                i
+                <div class="tooltip">
+                    <p>This tool helps process and anonymize open-ended survey responses. 
+                    Upload your CSV file containing the responses, and the algorithm will 
+                    identify potential privacy-sensitive information. You can then help improve 
+                    the tool by categorizing unknown words into whitelist or blacklist.</p>
+                </div>
+            </div>
+            <a href="/seaa" class="seaa-link">Documentation</a>
+        </div>
+    </div>
+    <div class="left-banner">
+        <div class="csv-info">
+            <h4>Required CSV Format</h4>
+            <p>Your CSV file should contain:</p>
+            <ul>
+                <li>One response per row</li>
+                <li>UTF-8 encoding</li>
+                <li>Semicolon (;) seperator</li>
+                <li>Required columns:
+                    <ul>
+                        <li><code>ID</code> - Unique identifier</li>
+                        <li><code>Response</code> - The text to be processed</li>
+                    </ul>
+                </li>
+            </ul>
+            <p>Example:<br>
+            <code>ID;Response<br>
+            1;"This is a sample response"<br>
+            2;"Another response here"</code></p>
+        </div>
+
+        <div class="drag-drop-area" id="dropZone">
+            <p>Drag and drop your CSV file here or click to select</p>
+            <input type="file" id="fileInput" accept=".csv" style="display: none;">
+        </div>
+        <button id="processButton" class="button" disabled>Process File</button>
+        <button id="downloadButton" class="button hidden">Download Results</button>
+    </div>
+
+    <div class="main-content">
+        <div class="progress-section hidden" id="progressSection">
+            <h3>Processing Status</h3>
+            <div class="progress-container" id="preparationProgressContainer">
+                <h4>Preparing Data</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="preparationProgressFill"></div>
+                </div>
+                <div class="progress-text" id="preparationProgressText">0%</div>
+            </div>
+
+            <div class="progress-container" id="translationProgressContainer">
+                <h4>Translating Non-Dutch Responses</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="translationProgressFill"></div>
+                </div>
+                <div class="progress-text" id="translationProgressText">0%</div>
+            </div>
+
+            <div class="progress-container" id="processingProgressContainer">
+                <h4>Processing Data</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="processingProgressFill"></div>
+                </div>
+                <div class="progress-text" id="processingProgressText">0%</div>
+            </div>
+        </div>
+
+        <div id="dictExpansion" class="dict-expansion hidden">
+            <h3>Dictionary Expansion</h3>
+            <div class="word-prompt" id="wordPrompt"></div>
+            <div class="decision-buttons">
+                <button class="decision-button whitelist-button" onclick="makeDecision('whitelist')">
+                    Whitelist
+                </button>
+                <button class="decision-button skip-button" onclick="makeDecision('skip')">
+                    Skip
+                </button>
+                <button class="decision-button blacklist-button" onclick="makeDecision('blacklist')">
+                    Blacklist
+                </button>
+                <button class="decision-button exit-button" onclick="makeDecision('exit')">
+                    Exit
+                </button>
+            </div>
+        </div>
+
+        <div id="preview" class="hidden">
+            <h3>Preview AVG related answers</h3>
+            <div style="overflow-x: auto;">
+                <table id="previewTable" class="preview-table">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const processButton = document.getElementById('processButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const preview = document.getElementById('preview');
+        const previewTable = document.getElementById('previewTable');
+        let currentFile = null;
+        let currentWord = null;
+        let currentCount = null;
+
+        // Handle drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            handleFile(files[0]);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (file && file.name.endsWith('.csv')) {
+                currentFile = file;
+                dropZone.innerHTML = `Selected file: ${file.name}`;
+                processButton.disabled = false;
+            } else {
+                alert('Please select a CSV file');
+            }
+        }
+
+        processButton.addEventListener('click', async () => {
+            if (!currentFile) return;
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            try {
+                processButton.disabled = true;
+                processButton.textContent = 'Processing...';
+                processButton.classList.add('processing-animation');
+                
+                // Show progress section
+                document.getElementById('progressSection').classList.remove('hidden');
+                
+                // Set up SSE for progress updates
+                const eventSource = new EventSource('/progress');
+                eventSource.onmessage = function(event) {
+                    const progress = JSON.parse(event.data);
+                    
+                    // Update the appropriate progress bar based on the current phase
+                    if (progress.current_phase === "preparation") {
+                        updateProgressBar('preparationProgressFill', 'preparationProgressText', progress.preparation);
+                    } 
+                    else if (progress.current_phase === "translation") {
+                        updateProgressBar('translationProgressFill', 'translationProgressText', progress.translation);
+                    }
+                    else if (progress.current_phase === "processing") {
+                        updateProgressBar('processingProgressFill', 'processingProgressText', progress.processing);
+                        
+                        if (progress.processing >= 100) {
+                            eventSource.close();
+                        }
+                    }
+                };
+
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                // Hide progress section when complete
+                document.getElementById('progressSection').classList.add('hidden');
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Show preview
+                displayPreview(data.preview);
+                
+                // Show download button and set its action
+                downloadButton.classList.remove('hidden');
+                downloadButton.onclick = () => {
+                    window.location.href = `/download/${data.output_filename}`;
+                };
+                
+                // Show dictionary expansion section
+                document.getElementById('dictExpansion').classList.remove('hidden');
+                
+                // Start dictionary expansion
+                await startDictExpansion();
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                processButton.disabled = false;
+                processButton.textContent = 'Process File';
+                processButton.classList.remove('processing-animation');
+            }
+        });
+
+        function updateProgressBar(fillId, textId, percentage) {
+            const progressFill = document.getElementById(fillId);
+            const progressText = document.getElementById(textId);
+            
+            progressFill.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.round(percentage)}%`;
+        }
+
+        function displayPreview(previewData) {
+            if (!previewData || previewData.length === 0) return;
+
+            // Create table header
+            const headers = Object.keys(previewData[0]);
+            let headerRow = '<tr>';
+            headers.forEach(header => {
+                headerRow += `<th>${header}</th>`;
+            });
+            headerRow += '</tr>';
+
+            // Create table rows (limit to 10 rows)
+            let rows = '';
+            const maxRows = Math.min(10, previewData.length);
+            for (let i = 0; i < maxRows; i++) {
+                rows += '<tr>';
+                headers.forEach(header => {
+                    rows += `<td>${previewData[i][header] || ''}</td>`;
+                });
+                rows += '</tr>';
+            }
+
+            previewTable.innerHTML = headerRow + rows;
+            preview.classList.remove('hidden');
+        }
+
+        async function startDictExpansion() {
+            await getNextWord();
+        }
+        
+        async function makeDecision(decision) {
+            if (decision === 'exit') {
+                document.getElementById('dictExpansion').classList.add('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/expand-dicts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        word: currentWord,
+                        decision: decision
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Get next word
+                await getNextWord();
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function getNextWord() {
+            try {
+                const response = await fetch('/get-next-word');
+                const data = await response.json();
+                
+                if (data.complete) {
+                    document.getElementById('dictExpansion').classList.add('hidden');
+                    alert('Dictionary expansion complete!');
+                    return;
+                }
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                currentWord = data.word;
+                currentCount = data.count;
+                
+                const prompt = document.getElementById('wordPrompt');
+                prompt.innerHTML = `
+                    <strong>"${currentWord}"</strong> appears ${currentCount} times in the open answers.<br>
+                    Please select one of the options below or use keyboard shortcuts:
+                `;
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Add keyboard shortcuts
+        document.addEventListener('keypress', (event) => {
+            if (!currentWord) return; // Only handle keypresses when a word is being shown
+            
+            const key = event.key.toLowerCase();
+            switch(key) {
+                case 'j':
+                    makeDecision('whitelist');
+                    break;
+                case 'n':
+                    makeDecision('skip');
+                    break;
+                case 'b':
+                    makeDecision('blacklist');
+                    break;
+                case 'e':
+                    makeDecision('exit');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
