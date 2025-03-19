@@ -8,46 +8,37 @@ SEAA helps identify and anonymize potentially privacy-sensitive information in t
 - Replace sensitive information with category markers (e.g., [NAME], [ILLNESS])
 - Allow users to expand the whitelist/blacklist of words through interactive review
 - User input is expanded in the dictionaries and used for future analyses
-- Originally developed for the National Student Survey (NSE) data but expaned to other csv files with open answers.
 
-> NOTE: this tool can only be used for Dutch text.
+> NOTE: this tool is primarily designed for Dutch text, but includes translation capabilities for non-Dutch responses.
 
+##  Flow chart
 
 ##  Flow chart
 ```mermaid
 %%{init: {'sequence': {'theme': 'hand'}}}%%
 sequenceDiagram
     participant Input as Input Files
-    participant Trans as NSE Transform
     participant SEAA as SEAA Process
     participant Dict as Dictionaries
     participant User as User Review
     participant Out as Output Files
-
-    alt NSE Data
-        Input->>Trans: Raw NSE CSV
-        Trans->>Trans: Transform wide to long format
-        Note over Trans: Convert:<br/>Q1 Q2 Q3<br/>to<br/>Answer Question_id
-        Trans->>SEAA: nse_transformed.csv
-    else Regular Data
-        Input->>SEAA: Standard CSV
-    end
-
+    Input->>SEAA: Standard CSV
     activate SEAA
     SEAA->>SEAA: Load & Clean Text
-    
-    loop Word Check
-        SEAA->>Dict: Check against dictionaries
-        Dict-->>SEAA: Return matches
+    SEAA->>SEAA: Detect Language
+    alt Non-Dutch Text
+    SEAA->>SEAA: Translate to Dutch
     end
-    
+    loop Word Check
+    SEAA->>Dict: Check against dictionaries
+    Dict-->>SEAA: Return matches
+    end
     SEAA->>Out: Write SEAA_output.csv
     SEAA->>Out: Write unknown_words.csv
     deactivate SEAA
-    
     loop For each unknown word
-        Out->>User: Present word
-        User->>Dict: Add to whitelist/blacklist
+    Out->>User: Present word
+    User->>Dict: Add to whitelist/blacklist
     end
     
     Dict->>Dict: Update dictionaries
@@ -183,17 +174,24 @@ The tool uses several dictionary files in the `dict/` folder:
 - `wordlist.txt`: Base dictionary of common words
 - `whitelist.txt`: User-approved safe words
 - `blacklist.txt`: Known privacy-sensitive words
-- `illness.txt`: Medical conditions
+- `illness.txt`: Medical conditions and health-related terms
 - `studiebeperking.txt`: Study limitations
 - `names.txt`: Common first names plus some last names
+- `familie.txt`: Family relationship terms
 
-## Language Detection
+## Language Detection and Translation
 
-The tool automatically detects the language of responses and processes Dutch text. Non-Dutch responses are flagged in the output.
+The tool automatically detects the language of responses. For non-Dutch text, it uses a translation service to convert the text to Dutch before processing. This allows SEAA to handle multilingual datasets while maintaining consistent anonymization rules.
+
+The translation system:
+- Detects the source language using language detection
+- Translates non-Dutch text to Dutch using multiple translation services
+- Falls back to alternative translators if one fails
+- Handles large texts by breaking them into manageable chunks
 
 ## Limitations
 
-- The tool is optimized for Dutch language text
 - Dictionary-based approach may miss complex or context-dependent privacy information
+- Translation quality may affect anonymization accuracy for non-Dutch responses
 - Regular maintenance of dictionaries is recommended for optimal performance
 
