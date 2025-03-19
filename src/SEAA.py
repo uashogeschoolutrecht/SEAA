@@ -1,7 +1,8 @@
 import re
 import pandas as pd
+from flask import current_app
 
-def SEAA(df, dictionary_df, flag_df, limit=-1):
+def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
     """Semi-automatic anonymization algorithm
     
     Args:
@@ -32,13 +33,22 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
 
+    # Get total number of rows
+    total_rows = len(dataframe.index)
+
     # Process each answer
-    for idx in dataframe.index:
+    for current_idx, (idx, row) in enumerate(dataframe.iterrows()):
         answer = dataframe["answer_clean"][idx]
         try:
             if pd.isna(answer):
                 dataframe.loc[idx, "contains_privacy"] = 0
                 dataframe.loc[idx, "answer_censored"] = answer
+                
+                # Calculate and emit progress
+                progress = (current_idx + 1) / total_rows * 100
+                if progress_callback:
+                    progress_callback(progress, "processing")
+                    
                 continue
             
             # Initialize unknown words not flagged
@@ -99,16 +109,30 @@ def SEAA(df, dictionary_df, flag_df, limit=-1):
 
             # Censor flagged words
             if len(flagged_words_list) > 0:
-                for flagged_word,flag_type in zip(flagged_words_list,flag_type):
-                    answer_censored = re.sub(flagged_word,f'[{flag_type.upper()}]',answer_censored)
+                for flagged_word, flag_type in zip(flagged_words_list, flag_type):
+                    # Convert flagged_word to string in case it's a number
+                    flagged_word_str = str(flagged_word)
+                    # Ensure flag_type is a string
+                    flag_type_str = str(flag_type)
+                    answer_censored = re.sub(flagged_word_str, f'[{flag_type_str.upper()}]', answer_censored)
                     
             # Censor unknown words not flagged
             if len(unknown_words_not_flagged) > 0:
-                for unknown_words_not_flagged in unknown_words_not_flagged:
-                    answer_censored = re.sub(unknown_words_not_flagged,f'[UNKNOWN]',answer_censored)
+                for unknown_word in unknown_words_not_flagged:
+                    # Convert unknown_word to string in case it's a number
+                    unknown_word_str = str(unknown_word)
+                    if unknown_word_str == 'emailadressreplacer':
+                        answer_censored = re.sub(unknown_word_str, f'[EMAIL]', answer_censored)
+                    else:       
+                        answer_censored = re.sub(unknown_word_str, f'[UNKNOWN]', answer_censored)
                                             
             # Add to dataframe
             dataframe.loc[idx, "answer_censored"] = answer_censored
+
+            # Add progress update at the end of each iteration
+            progress = (current_idx + 1) / total_rows * 100
+            if progress_callback:
+                progress_callback(progress, "processing")
 
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")  
