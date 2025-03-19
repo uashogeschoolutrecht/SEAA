@@ -178,6 +178,8 @@ The tool uses several dictionary files in the `dict/` folder:
 - `studiebeperking.txt`: Study limitations
 - `names.txt`: Common first names plus some last names
 - `familie.txt`: Family relationship terms
+- `plaatsnamen.txt`: All locations in the Netherlands from the Dutch census
+- `persoonlijke_omstandigheden.txt`: Personal circumstances
 
 ## Language Detection and Translation
 
