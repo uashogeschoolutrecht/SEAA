@@ -179,7 +179,7 @@ for index, row in tqdm(topic_words_df.iterrows(), total=len(topic_words_df), des
     if row['top_words'] and isinstance(row['top_words'], str) and len(row['top_words'].split()) >= 7:
         try:
             # Generate a summary for answers with 7+ words
-            summary = generate_code(f"Ik heb de volgende woorden uit een topic model gekregen, ik wil deze topics omzetten naar een onderwerp in maximaal twee woorden:\n\n{row['top_words']}. Ik wil graag alleen het onderwerp terug krijgen als antwoord. Dus geen uitleg og zinnen. 'Niet van toepassing' is geen goed topic, zoek hier een alternatief voor")
+            summary = generate_code(f"Ik heb de volgende woorden uit een topic model gekregen, ik wil deze topics omzetten naar een onderwerp in maximaal twee woorden:\n\n{row['top_words']}. Ik wil graag alleen het onderwerp terug krijgen als antwoord. Dus geen uitleg of zinnen. 'Niet van toepassing' is geen goed topic, zoek hier een alternatief voor")
             # Store the summary in the DataFrame
             topic_words_df.at[index, 'summary'] = summary
             # Add a small delay to avoid rate limiting
