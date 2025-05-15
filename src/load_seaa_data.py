@@ -29,59 +29,59 @@ def translate_non_dutch_responses(input_df, progress_callback=None):
 
     df_copy['language'] = df_copy['answer_clean'].apply(detect_language)
     
-    if progress_callback:
-        progress_callback(25, "preparation")
-        time.sleep(1)
+    # if progress_callback:
+    #     progress_callback(25, "preparation")
+    #     time.sleep(1)
     
-    if progress_callback:
-        progress_callback(50, "preparation")
-        time.sleep(1)
+    # if progress_callback:
+    #     progress_callback(50, "preparation")
+    #     time.sleep(1)
 
-    # Count how many translations are needed
-    non_dutch_count = len(df_copy[(pd.notna(df_copy['language'])) & 
-                                  (df_copy['language'] != 'nl') & 
-                                  (df_copy['language'] != 'af') & 
-                                  (pd.notna(df_copy['answer_clean']))])
+    # # Count how many translations are needed
+    # non_dutch_count = len(df_copy[(pd.notna(df_copy['language'])) & 
+    #                               (df_copy['language'] != 'nl') & 
+    #                               (df_copy['language'] != 'af') & 
+    #                               (pd.notna(df_copy['answer_clean']))])
     
-    # Create a copy of the DataFrame to avoid modifying during iteration
+    # # Create a copy of the DataFrame to avoid modifying during iteration
    
 
-    if non_dutch_count > 0:
-        if progress_callback:
-            progress_callback(0, "translation")
+    # if non_dutch_count > 0:
+    #     if progress_callback:
+    #         progress_callback(0, "translation")
             
-        # Create a counter for translations
-        translation_counter = 0
+    #     # Create a counter for translations
+    #     translation_counter = 0
 
-        for index, row in df_copy.iterrows(): 
-            if pd.notna(row['language']) and row['language'] != 'nl' and row['language'] != 'af' and pd.notna(row['answer_clean']):
-                # Translate the text
-                translated = translate_large_text(
-                    row['answer_clean'], 
-                    source_lang=row['language'], 
-                    target_lang='nl'
-                )
+    #     for index, row in df_copy.iterrows(): 
+    #         if pd.notna(row['language']) and row['language'] != 'nl' and row['language'] != 'af' and pd.notna(row['answer_clean']):
+    #             # Translate the text
+    #             translated = translate_large_text(
+    #                 row['answer_clean'], 
+    #                 source_lang=row['language'], 
+    #                 target_lang='nl'
+    #             )
                 
-                # Update the original DataFrame with the translated text
-                df_copy.at[index, 'answer_clean'] = translated
+    #             # Update the original DataFrame with the translated text
+    #             df_copy.at[index, 'answer_clean'] = translated
                 
-                # Update progress
-                translation_counter += 1
-                if progress_callback:
-                    progress = (translation_counter / non_dutch_count) * 100
-                    progress_callback(progress, "translation")
+    #             # Update progress
+    #             translation_counter += 1
+    #             if progress_callback:
+    #                 progress = (translation_counter / non_dutch_count) * 100
+    #                 progress_callback(progress, "translation")
     
-    if progress_callback:
-        progress_callback(100, "translation")
-        time.sleep(1)
+    # if progress_callback:
+    #     progress_callback(100, "translation")
+    #     time.sleep(1)
 
-    if progress_callback:
-        progress_callback(75, "preparation")
-        time.sleep(1)
+    # if progress_callback:
+    #     progress_callback(75, "preparation")
+    #     time.sleep(1)
 
-    if progress_callback:
-        progress_callback(100, "preparation")
-        time.sleep(1)
+    # if progress_callback:
+    #     progress_callback(100, "preparation")
+    #     time.sleep(1)
 
     return df_copy
 
