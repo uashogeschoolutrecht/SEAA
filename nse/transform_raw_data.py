@@ -23,8 +23,8 @@ import os
 import pandas as pd
 
 
-input_path = r'C:\Users\anne.leemans\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\NSE'
-year = 2024
+input_path = r'C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\NSE'
+year = 2025
 input_file_name = f'nse{year}.csv'
 
 
@@ -54,7 +54,12 @@ def transform_nse_data(input_path, input_file_name, year):
         # Get the ID
         idea_id = row['Id']
         # Iterate over each question column
-        for col in df.columns[[12, 13, 15, 17, 19, 21, 23, 25]]:
+        if year == 2025:
+            col_list = [12,13,15,17,19,21,23,25,26,27,28,29,33,35,37,38,41,43,45,47,49,51,53,55,57,59,61,63,65,67]
+        else:
+            col_list = [12, 13, 15, 17, 19, 21, 23, 25]
+
+        for col in df.columns[col_list]:
             # Get the answer and question number
             answer = row[col]
             q_number = col
