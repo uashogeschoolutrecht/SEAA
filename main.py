@@ -5,6 +5,7 @@ from src.SEAA import SEAA
 from src.AVG_list import AVG_list
 import re  # Add this import at the top since it's used for email pattern matching
 import os
+
 """
 Process and analyze open-ended survey responses.
 
@@ -29,8 +30,9 @@ Output:
 - Updated whitelist.txt and blacklist.txt in the dict/ folder
 """
 
-input_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data"
-input_file = "HSUtrecht_2020_2024_definitief.csv"
+year = 2025
+input_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data\NSE"
+input_file = f"nse_transformed_{year}.csv"
 
 df = load_data(input_path, input_file)
 
@@ -64,6 +66,6 @@ avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(), flag_df
 avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
 avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 
-output_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\output\HBO-Monitor"
-result_df.to_csv(os.path.join(output_path, "SEAA_output.csv"), sep=';', encoding='utf-8-sig')
-avg_words_df.to_csv(os.path.join(output_path, "avg_words_count.csv"), sep=';', encoding='utf-8-sig')
+output_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\output\NSE"
+result_df.to_csv(os.path.join(output_path, f"SEAA_output_NSE_{year}_16062025.csv"), sep=';', encoding='utf-8-sig')
+avg_words_df.to_csv(os.path.join(output_path, f"avg_words_count_{year}_16062025.csv"), sep=';', encoding='utf-8-sig')
