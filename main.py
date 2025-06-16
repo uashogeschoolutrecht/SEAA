@@ -30,7 +30,7 @@ Output:
 - Updated whitelist.txt and blacklist.txt in the dict/ folder
 """
 
-year = 2025
+year = 2024
 input_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data\NSE"
 input_file = f"nse_transformed_{year}.csv"
 
