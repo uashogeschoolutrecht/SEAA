@@ -42,7 +42,6 @@ Abbenes
 Abcoude
 Achlum
 Achterveld
-Achterveld
 Achthuizen
 Achtmaal
 Acquoy
@@ -70,10 +69,7 @@ Almen
 Almere
 Almkerk
 Alphen
-Alphen
 Alphen aan den Rijn
-Alteveer
-Alteveer
 Alteveer
 Alteveer gem Hoogeveen
 Altforst
@@ -90,6 +86,7 @@ Amstelveen
 Amstenrade
 Amsterdam
 Amsterdam-Duivendrecht
+amsterdamse
 Andel
 Andelst
 Anderen
@@ -104,7 +101,6 @@ Anloo
 Anna Paulowna
 Annen
 Annerveenschekanaal
-Ansen
 Ansen
 Apeldoorn
 Appelscha
@@ -134,7 +130,6 @@ Baambrugge
 Baard
 Baarland
 Baarle-Nassau
-Baarlo
 Baarlo
 Baarn
 Baars
@@ -172,8 +167,6 @@ Bears
 Bedum
 Beegden
 Beek
-Beek
-Beek
 Beek en Donk
 Beekbergen
 Beemte Broekland
@@ -207,8 +200,8 @@ Berg en Terblijt
 Bergambacht
 Bergeijk
 Bergen (NH)
-Bergen L
 Bergen aan Zee
+Bergen L
 Bergen op Zoom
 Bergentheim
 Bergharen
@@ -230,7 +223,6 @@ Beutenaken
 Beverwijk
 Biddinghuizen
 Bierum
-Biervliet
 Biervliet
 Biest-Houtakker
 Biezenmortel
@@ -272,7 +264,6 @@ Boornzwaag
 Borculo
 Borger
 Borgercompagnie
-Borgercompagnie
 Borgsweer
 Born
 Borne
@@ -309,7 +300,6 @@ Broek
 Broek in Waterland
 Broek op Langedijk
 Broekhuizen
-Broekhuizen
 Broekhuizenvorst
 Broekland
 Broeksterwâld
@@ -340,7 +330,6 @@ Bunnik
 Bunschoten-Spakenburg
 Burdaard
 Buren
-Buren
 Burgerbrug
 Burgerveen
 Burgh-Haamstede
@@ -348,7 +337,6 @@ Burgum
 Burgwerd
 Burum
 Bussum
-Buurmalsen
 Buurmalsen
 Cadier en Keer
 Cadzand
@@ -370,6 +358,7 @@ Creil
 Cromvoirt
 Cruquius
 Cuijk
+culemborg
 Culemborg
 Daarle
 Daarlerveen
@@ -391,6 +380,7 @@ De Goorn
 De Groeve
 De Heen
 De Heurne
+de Hoef
 De Hoeve
 De Kiel
 De Klomp
@@ -399,6 +389,7 @@ De Koog
 De Krim
 De Kwakel
 De Lier
+de Lutte
 De Meern
 De Moer
 De Mortel
@@ -414,8 +405,10 @@ De Veenhoop
 De Waal
 De Weere
 De Westereen
+de Wijk
 De Wilgen
 De Wilp
+de Woude
 De Zilk
 Dearsum
 Dedemsvaart
@@ -437,9 +430,7 @@ Den Burg
 Den Dolder
 Den Dungen
 Den Ham
-Den Ham
 Den Helder
-Den Hoorn
 Den Hoorn
 Den Horn
 Den Hout
@@ -449,9 +440,9 @@ Den Velde
 Denekamp
 Deurne
 Deurningen
-Deurningen
 Deursen-Dennenburg
 Deurze
+deventer
 Deventer
 Didam
 Dieden
@@ -495,6 +486,7 @@ Drachtstercompagnie
 Dreischor
 Drempt
 Dreumel
+driebergen
 Driebergen-Rijsenburg
 Drieborg
 Driebruggen
@@ -531,7 +523,6 @@ Easterwierrum
 Eastrum
 Echteld
 Echten
-Echten
 Echtenerbrug
 Eck en Wiel
 Eckelrade
@@ -561,8 +552,8 @@ Eexterveen
 Eexterveenschekanaal
 Eexterzandvoort
 Egchel
-Egmond aan Zee
 Egmond aan den Hoef
+Egmond aan Zee
 Egmond-Binnen
 Eibergen
 Eijsden
@@ -583,7 +574,6 @@ Ellewoutsdijk
 Elp
 Elsendorp
 Elshout
-Elsloo
 Elsloo
 Elspeet
 Elst
@@ -617,7 +607,6 @@ Est
 Etten
 Etten-Leur
 Europoort Rotterdam
-Eursinge
 Eursinge
 Everdingen
 Evertsoord
@@ -679,7 +668,6 @@ Geertruidenberg
 Geervliet
 Gees
 Geesbrug
-Geesteren
 Geesteren
 Geeuwenbrug
 Geffen
@@ -747,6 +735,7 @@ Groesbeek
 Groessen
 Grolloo
 Groningen
+groningen
 Gronsveld
 Groot-Ammers
 Grootebroek
@@ -761,7 +750,6 @@ Haaften
 Haaksbergen
 Haalderen
 Haaren
-Haarle
 Haarle
 Haarlem
 Haarlemmerliede
@@ -889,7 +877,6 @@ Heukelom
 Heukelum
 Heumen
 Heusden
-Heusden
 Heveadorp
 Heythuysen
 Hezingen
@@ -903,6 +890,7 @@ Hijum
 Hilaard
 Hillegom
 Hilvarenbeek
+hilversum
 Hilversum
 Hindeloopen
 Hinnaard
@@ -912,7 +900,6 @@ Hobrede
 Hoedekenskerke
 Hoef en Haag
 Hoek van Holland
-Hoenderloo
 Hoenderloo
 Hoensbroek
 Hoenzadriel
@@ -943,7 +930,6 @@ Hoogeloon
 Hoogenweg
 Hoogerheide
 Hoogersmilde
-Hoogersmilde
 Hoogeveen
 Hoogezand
 Hooghalen
@@ -953,7 +939,6 @@ Hooglanderveen
 Hoogmade
 Hoogvliet Rotterdam
 Hoogwoud
-Hoorn
 Hoorn
 Hoornaar
 Hoornsterzwaag
@@ -965,7 +950,6 @@ Houten
 Houtigehage
 Houwerzijl
 Huijbergen
-Huis ter Heide
 Huis ter Heide
 Huisduinen
 Huisseling
@@ -982,6 +966,11 @@ Hunsel
 Hurdegaryp
 Hurwenen
 Húns
+Idaerd
+Idsegahuizum
+Idskenhuizen
+Idzega
+Iens
 IJhorst
 IJlst
 IJmuiden
@@ -990,11 +979,6 @@ IJsselmuiden
 IJsselstein
 IJzendijke
 IJzendoorn
-Idaerd
-Idsegahuizum
-Idskenhuizen
-Idzega
-Iens
 Ilpendam
 Indijk
 Ingber
@@ -1063,24 +1047,20 @@ Kinderdijk
 Kinnum
 Klaaswaal
 Klarenbeek
-Klarenbeek
 Klazienaveen
 Klazienaveen-Noord
 Klein Zundert
 Klijndijk
 Klimmen
 Kloetinge
-Kloetinge
 Klooster Lidlum
 Kloosterburen
-Kloosterhaar
 Kloosterhaar
 Kloosterzande
 Klundert
 Knegsel
 Koarnjum
 Kockengen
-Koedijk
 Koedijk
 Koekange
 Koewacht
@@ -1108,6 +1088,7 @@ Koudum
 Koufurderrige
 Krabbendijke
 Kraggenburg
+kralingen
 Kreileroord
 Krewerd
 Krimpen aan de Lek
@@ -1150,7 +1131,6 @@ Langeweg
 Langezwaag
 Langweer
 Laren
-Laren
 Lathum
 Lattrop-Breklenkamp
 Lauwersoog
@@ -1163,6 +1143,7 @@ Leerbroek
 Leerdam
 Leermens
 Leersum
+leeuwarden
 Leeuwarden
 Legemeer
 Leiden
@@ -1227,7 +1208,6 @@ Loerbeek
 Lollum
 Lomm
 Longerhouw
-Loo Gld
 Loo Gld
 Loon
 Loon op Zand
@@ -1298,7 +1278,6 @@ Marsum
 Marum
 Marwijksoord
 Mastenbroek
-Mastenbroek
 Matsloot
 Maurik
 Mechelen
@@ -1307,6 +1286,7 @@ Meeden
 Meedhuizen
 Meerkerk
 Meerlo
+meern
 Meerssen
 Meerstad
 Meeuwen
@@ -1395,14 +1375,11 @@ Neerkant
 Neerlangel
 Neerloon
 Nes
-Nes
-Nes
 Netersel
 Netterden
 Nibbixwoud
 Niebert
 Niehove
-Niekerk
 Niekerk
 Nietap
 Nieuw Annerveen
@@ -1437,7 +1414,6 @@ Nieuwer Ter Aa
 Nieuwerbrug aan den Rijn
 Nieuwerkerk
 Nieuwerkerk aan den IJssel
-Nieuweroord
 Nieuweroord
 Nieuwersluis
 Nieuweschoot
@@ -1497,9 +1473,7 @@ Noordlaren
 Noordscheschut
 Noordwelle
 Noordwijk
-Noordwijk
 Noordwijkerhout
-Noordwolde
 Noordwolde
 Nootdorp
 Norg
@@ -1565,9 +1539,7 @@ Oosterbeek
 Oosterbierum
 Oosterblokker
 Oosterend
-Oosterend
 Oosterhesselen
-Oosterhout
 Oosterhout
 Oosterland
 Oosterleek
@@ -1583,8 +1555,8 @@ Oosthuizen
 Oostkapelle
 Oostknollendam
 Oostrum
+oostveen
 Oostvoorne
-Oostwold
 Oostwold
 Oostwoud
 Oostzaan
@@ -1628,13 +1600,10 @@ Oude Willem
 Oude-Tonge
 Oudebildtzijl
 Oudega
-Oudega
-Oudega
 Oudehaske
 Oudehorne
 Oudelande
 Oudemirdum
-Oudemolen
 Oudemolen
 Oudenbosch
 Oudendijk
@@ -1649,7 +1618,6 @@ Oudesluis
 Oudewater
 Oudezijl
 Oudheusden
-Oudkarspel
 Oudkarspel
 Oudorp
 Ouwerkerk
@@ -1681,7 +1649,6 @@ Peperga
 Pernis Rotterdam
 Persingen
 Pesse
-Pesse
 Petten
 Philippine
 Piaam
@@ -1703,7 +1670,7 @@ Prinsenbeek
 Puiflijk
 Punthorst
 Purmer
-Purmer
+purmerend
 Purmerend
 Purmerland
 Puth
@@ -1785,7 +1752,6 @@ Roosendaal
 Roosteren
 Rosmalen
 Rossum
-Rossum
 Roswinkel
 Rotstergaast
 Rotsterhaule
@@ -1793,14 +1759,11 @@ Rotterdam
 Rotterdam-Albrandswaard
 Rottevalle
 Rottum
-Rottum
 Rouveen
-Rozenburg
 Rozenburg
 Rozendaal
 Rucphen
 Ruigahuizen
-Ruinen
 Ruinen
 Ruinerwold
 Rumpt
@@ -1837,7 +1800,6 @@ Schelluinen
 Schermerhorn
 Scherpenisse
 Scherpenzeel
-Scherpenzeel
 Schettens
 Scheulder
 Schiedam
@@ -1868,10 +1830,8 @@ Schuinesloot
 Sebaldeburen
 Sellingen
 Serooskerke
-Serooskerke
 Sevenum
 Sexbierum
-Sibculo
 Sibculo
 Sibrandabuorren
 Sibrandahûs
@@ -1944,13 +1904,9 @@ Spankeren
 Spannum
 Spaubeek
 Spier
-Spier
 Spierdijk
 Spijk
-Spijk
-Spijk
 Spijkenisse
-Spijkerboor
 Spijkerboor
 Sprang-Capelle
 Sprundel
@@ -1965,11 +1921,9 @@ Standdaarbuiten
 Staphorst
 Starnmeer
 Startenhuizen
-Startenhuizen
 Stavenisse
 Stavoren
 Stedum
-Steenbergen
 Steenbergen
 Steendam
 Steenderen
@@ -2001,7 +1955,6 @@ Strijen
 Strijensas
 Stroe
 Stroobos
-Stuifzand
 Stuifzand
 Sumar
 Surhuisterveen
@@ -2047,7 +2000,7 @@ Thesinge
 Tholen
 Thorn
 Tiel
-Tiendeveen
+tiel
 Tiendeveen
 Tienhoven
 Tienhoven aan de Lek
@@ -2108,13 +2061,11 @@ Ureterp
 Urk
 Urmond
 Ursem
-Ursem
 Usquert
 Utrecht
 Vaals
 Vaassen
 Valburg
-Valkenburg
 Valkenburg
 Valkenswaard
 Valthe
@@ -2137,7 +2088,6 @@ Veghel
 Velddriel
 Velden
 Veldhoven
-Velp
 Velp
 Velsen-Noord
 Velsen-Zuid
@@ -2163,14 +2113,12 @@ Vijlen
 Vilsteren
 Vinkega
 Vinkel
-Vinkel
 Vinkenbuurt
 Vinkeveen
 Visvliet
 Vlaardingen
 Vlagtwedde
 Vledder
-Vledderveen
 Vledderveen
 Vleuten
 Vlieland
@@ -2189,7 +2137,6 @@ Vondelingenplaat Rotterdam
 Voorburg
 Voorhout
 Voorschoten
-Voorst
 Voorst
 Voorthuizen
 Vorchten
@@ -2347,7 +2294,6 @@ Winneweer
 Winschoten
 Winssen
 Winsum
-Winsum
 Wintelre
 Winterswijk
 Winterswijk Brinkheurne
@@ -2359,7 +2305,6 @@ Winterswijk Meddo
 Winterswijk Miste
 Winterswijk Ratum
 Winterswijk Woold
-Wirdum
 Wirdum
 Wissenkerke
 Witharen
@@ -2425,14 +2370,11 @@ Zeist
 Zelhem
 Zenderen
 Zennewijnen
-Zennewijnen
 Zetten
 Zevenaar
 Zevenbergen
 Zevenbergschen Hoek
-Zevenbergschen Hoek
 Zevenhoven
-Zevenhuizen
 Zevenhuizen
 Zierikzee
 Zieuwent
@@ -2463,7 +2405,6 @@ Zuidveen
 Zuidveld
 Zuidvelde
 Zuidwolde
-Zuidwolde
 Zuidzande
 Zuilichem
 Zuna
@@ -2487,7 +2428,3 @@ Zwiggelte
 Zwijndrecht
 Zwinderen
 Zwolle
-de Hoef
-de Lutte
-de Wijk
-de Woude
