@@ -6,7 +6,7 @@ from langdetect import detect
 import time
 import re
 
-def translate_non_dutch_responses(input_df, progress_callback=None):
+def translate_non_dutch_responses(input_df):
     """
     Translates non-Dutch responses to Dutch.
     
@@ -29,13 +29,6 @@ def translate_non_dutch_responses(input_df, progress_callback=None):
 
     df_copy['language'] = df_copy['answer_clean'].apply(detect_language)
     
-    if progress_callback:
-        progress_callback(25, "preparation")
-        time.sleep(1)
-    
-    if progress_callback:
-        progress_callback(50, "preparation")
-        time.sleep(1)
 
     # Count how many translations are needed
     # non_dutch_count = len(df_copy[(pd.notna(df_copy['language'])) & 
@@ -85,7 +78,7 @@ def translate_non_dutch_responses(input_df, progress_callback=None):
 
     return df_copy
 
-def load_data(path: str, file_name: str, progress_callback=None) -> pd.DataFrame:
+def load_data(path: str, file_name: str) -> pd.DataFrame:
     """
     Load and clean CSV file containing open-ended answers.
     
@@ -98,7 +91,7 @@ def load_data(path: str, file_name: str, progress_callback=None) -> pd.DataFrame
     """
     # Import NSE open answers
     df = pd.read_csv(os.path.join(path, file_name), sep =';', encoding='utf-8-sig')
-    df = translate_non_dutch_responses(df, progress_callback)
+    df = translate_non_dutch_responses(df)
     
         # Detect and censor email addresses
     email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'

@@ -2,7 +2,7 @@ import re
 import pandas as pd
 from flask import current_app
 
-def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
+def SEAA(df, dictionary_df, flag_df, limit=-1):
     """Semi-automatic anonymization algorithm
     
     Args:
@@ -32,23 +32,15 @@ def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
     dataframe["unknown_words_not_flagged"] = ""
     # Use consistent column name for merging
     word_column = dictionary_df.columns[0]
-
-    # Get total number of rows
-    total_rows = len(dataframe.index)
-
+ 
     # Process each answer
     for current_idx, (idx, row) in enumerate(dataframe.iterrows()):
         answer = dataframe["answer_clean"][idx]
         try:
             if pd.isna(answer):
                 dataframe.loc[idx, "contains_privacy"] = 0
-                dataframe.loc[idx, "answer_censored"] = answer
-                
-                # Calculate and emit progress
-                progress = (current_idx + 1) / total_rows * 100
-                if progress_callback:
-                    progress_callback(progress, "processing")
-                    
+                dataframe.loc[idx, "answer_censored"] = answer               
+
                 continue
             
             # Initialize unknown words not flagged
@@ -60,7 +52,7 @@ def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
             
             # Create DataFrame of words from answer
             words_df = pd.DataFrame({word_column: re.findall(r"(\w+)", answer)})
-            
+
             # Check against dictionary
             unknown_check = pd.merge(words_df, dictionary_df, "left")
             total_words = len(unknown_check[word_column])
@@ -129,16 +121,9 @@ def SEAA(df, dictionary_df, flag_df, limit=-1, progress_callback=None):
             # Add to dataframe
             dataframe.loc[idx, "answer_censored"] = answer_censored
 
-            # Add progress update at the end of each iteration
-            progress = (current_idx + 1) / total_rows * 100
-            if progress_callback:
-                progress_callback(progress, "processing")
-
+  
         except Exception as e:
             print(f"Error processing row {idx}: {str(e)}")  
-         
-
-            
 
     return dataframe
 
