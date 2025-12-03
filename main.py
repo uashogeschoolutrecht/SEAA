@@ -31,8 +31,9 @@ Output:
 """
 
 year = 2025
-input_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data"
-input_file = f"HSUtrecht_2020_2024_definitief.csv"
+input_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data\exit\input"
+output_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\data\exit\input"
+input_file = f"exit_open_antwoorden_2025.csv"
 
 df = load_data(input_path, input_file)
 
@@ -66,6 +67,8 @@ avg_words_df = AVG_list(result_df[result_df["language"] == 'nl'].copy(), flag_df
 avg_words_df = avg_words_df.merge(flag_df, 'left', left_on='AVG_woord', right_on='words')
 avg_words_df = avg_words_df[avg_words_df['words'].isna()].drop(columns='words')
 
-output_path = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Analytics\Open antwoorden\output\HBO-Monitor"
-result_df.to_csv(os.path.join(output_path, f"SEAA_output_16062025.csv"), sep=';', encoding='utf-8-sig')
-avg_words_df.to_csv(os.path.join(output_path, f"avg_words_count_16062025.csv"), sep=';', encoding='utf-8-sig')
+from datetime import datetime
+datum = datetime.today().strftime("%d%m%Y")
+
+result_df.to_csv(os.path.join(output_path, f"SEAA_output_{datum}.csv"), sep=';', encoding='utf-8-sig')
+avg_words_df.to_csv(os.path.join(output_path, f"avg_words_count_{datum}.csv"), sep=';', encoding='utf-8-sig')
