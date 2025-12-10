@@ -1,8 +1,8 @@
 import re
 import pandas as pd
-from flask import current_app
 
-def SEAA(df, dictionary_df, flag_df, limit=-1):
+
+def SEAA(df: pd.DataFrame, dictionary_df: pd.DataFrame, flag_df: pd.DataFrame, limit: int = -1) -> pd.DataFrame:
     """Semi-automatic anonymization algorithm
     
     Args:

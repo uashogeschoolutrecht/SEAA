@@ -49,14 +49,12 @@ sequenceDiagram
 ## Prerequisites
 
 Before installing SEAA, ensure you have:
-1. Python 3.7 or higher installed
+1. Python 3.9 or higher installed
 2. Git installed
-3. Basic understanding of command line operations
-4. A modern web browser (Chrome, Firefox, Safari, or Edge)
 
 ## Installation
 
-1. Clone the repository and switch to the AL_local_flask branch:
+1. Clone the repository:
 ```bash
 git clone https://github.com/uashogeschoolutrecht/SEAA.git
 cd SEAA
@@ -67,132 +65,110 @@ cd SEAA
 pip install -r requirements.txt
 ```
 
-## Running the Application
+## Usage
 
-SEAA provides a web interface for processing and anonymizing your data. There are two ways to run the application:
+SEAA can be run from the command line. You only need to specify an input folder and output folder:
 
-### Using Flask Development Server
-1. Open a terminal in the project directory
-2. Run the Flask application:
+### Basic Usage
 ```bash
-python app.py
-```
-3. Open your web browser and navigate to:
-```
-http://localhost:5000
+python cli.py <input_folder> <output_folder>
 ```
 
+### Examples
+```bash
+# Process all CSV files in the data folder
+python cli.py ./data ./output
 
-> **Note**: The development server is not suitable for production use. 
+# Process a specific file only
+python cli.py ./data ./output --file input.csv
 
-Once the application is running, you can:
-1. Access the main interface at `http://localhost:5000` for file processing
-2. View the documentation at `Documentation`
-3. Upload your CSV files through the web interface
-4. Process and download anonymized results
-5. Help improve the dictionaries through the interactive review process (optional)
+# Process only the first 1000 rows (useful for testing)
+python cli.py ./data ./output --limit 1000
+```
+
+### Using as a Python Module
+```python
+from main import process_answers
+
+# Process all CSV files in input folder
+results_df, avg_words_df = process_answers(
+    input_folder="./data",
+    output_folder="./output"
+)
+
+# Process a specific file
+results_df, avg_words_df = process_answers(
+    input_folder="./data",
+    output_folder="./output",
+    input_file="my_survey.csv"
+)
+```
 
 ## Input Requirements
 
 Your input CSV file must:
-- Use semicolon as the separator
-- Contain these columns in order: 
-  1. `respondent_id` - Unique identifier for each respondent
-  2. `Answer` - The text responses to analyze
-  3. `question_id` - Identifier for the question being answered
+- Use semicolon (;) as the separator
+- Contain these columns:
+  - `Answer` - The text responses to analyze
+  - `respondent_id` - Unique identifier for each respondent
+  - `question_id` - Identifier for the question being answered
 
 Example input CSV format:
 ```csv
 respondent_id;Answer;question_id
-1001;"Mijn docent Peter heeft mij enorm geholpen";Q1
-1002;"Ik had moeite met concentratie tijdens de lessen";Q1
+1001;Mijn docent Peter heeft mij enorm geholpen;Q1
+1002;Ik had moeite met concentratie tijdens de lessen;Q1
 ```
 
 ## Output Files
 
-The tool generates several output files:
+The tool generates two output files in the output folder:
 
-1. `SEAA_output.csv`: Main analysis results containing:
+1. `SEAA_output_{date}.csv`: Main analysis results containing:
    - Original text
    - Censored text
    - Privacy flags
    - Detected sensitive words
 
-2. `avg_words_count.csv`: List of unknown words for review
-
-3. Updated dictionary files in `dict/` folder:
-   - `whitelist.txt`: Safe words
-   - `blacklist.txt`: Privacy-sensitive words
+2. `avg_words_count_{date}.csv`: List of unknown words for review
 
 ## Output File Columns
 
-The `SEAA_output.csv` contains the following columns:
+The `SEAA_output_{date}.csv` contains the following columns:
 
-- `respondent_id`: Original respondent identifier
-- `Answer`: Original text response
-- `question_id`: Original question identifier
-- `answer_clean`: Cleaned version of the text (lowercase, normalized)
-- `contains_privacy`: Binary flag (1/0) indicating if privacy-sensitive content was detected
-- `unknown_words`: List of words not found in the dictionary or whitelist
-- `flagged_words`: List of words matched against the privacy-sensitive dictionaries
-- `answer_censored`: Text with privacy-sensitive words replaced by category markers (e.g., [NAME], [ILLNESS]) and unknown words replaced by [UNKOWN]
-- `total_word_count`: Total number of words in the response
-- `unknown_word_count`: Number of words not found in dictionaries (still need to be reviewed)
-- `flagged_word_count`: Number of privacy-sensitive words detected
-- `unknown_words_not_flagged`: Unknown words that are not in the dictionaries
-- `flagged_word_type`: Categories of privacy-sensitive content found (e.g., "name, illness")
-- `language`: Detected language of the response (e.g., 'nl' for Dutch, 'en' for English)
-
-Example row:
-```csv
-respondent_id;Answer;question_id;answer_clean;contains_privacy;unknown_words;flagged_words;answer_censored;total_word_count;unknown_word_count;flagged_word_count;unknown_words_not_flagged;flagged_word_type;language
-1;"Mijn docent Peter heeft mij geholpen met mijn loopbaanbegleidingstraject";"Q1";"mijn docent peter heeft mij geholpen met mijn loopbaanbegleidingstraject";1;"";peter;"Mijn docent [NAME] heeft mij geholpen met mijn [UNKOWN]";10;0;1;;"name";"nl"
-```
-
-## Interactive Word Review
-
-The tool will present unknown words for review, allowing you to:
-- Add words to the whitelist (safe words)
-- Add words to the blacklist (privacy-sensitive words)
-- Skip words for later review
-
-Example interaction:
-```
-"docent" kwam 45 keer voor in de open antwoorden.
-Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): j
-Woord "docent" is toegevoegd aan de whitelist
-
-"janssen" kwam 12 keer voor in de open antwoorden.
-Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): blacklist
-Woord "janssen" is toegevoegd aan de blacklist
-```
+| Column | Description |
+|--------|-------------|
+| `respondent_id` | Original respondent identifier |
+| `Answer` | Original text response |
+| `question_id` | Original question identifier |
+| `answer_clean` | Cleaned version of the text (lowercase, normalized) |
+| `contains_privacy` | Binary flag (1/0) indicating privacy-sensitive content |
+| `unknown_words` | Words not found in dictionary or whitelist |
+| `flagged_words` | Words matched against privacy-sensitive dictionaries |
+| `answer_censored` | Text with sensitive words replaced (e.g., [NAME], [ILLNESS]) |
+| `language` | Detected language (e.g., 'nl' for Dutch) |
 
 ## Dictionary Management
 
 The tool uses several dictionary files in the `dict/` folder:
-- `wordlist.txt`: Base dictionary of common words
-- `whitelist.txt`: User-approved safe words
-- `blacklist.txt`: Known privacy-sensitive words
-- `illness.txt`: Medical conditions and health-related terms
-- `studiebeperking.txt`: Study limitations
-- `names.txt`: Common first names plus some last names
-- `familie.txt`: Family relationship terms
-- `plaatsnamen.txt`: All locations in the Netherlands from the Dutch census
-- `persoonlijke_omstandigheden.txt`: Personal circumstances
 
-## Language Detection and Translation
+| File | Purpose |
+|------|---------|
+| `wordlist.txt` | Base dictionary of common Dutch words |
+| `whitelist.txt` | User-approved safe words |
+| `blacklist.txt` | Known privacy-sensitive words |
+| `illness.txt` | Medical conditions and health-related terms |
+| `studiebeperking.txt` | Study limitations |
+| `names.txt` | Common first and last names |
+| `familie.txt` | Family relationship terms |
+| `plaatsnamen.txt` | Dutch place names |
+| `persoonlijke_omstandigheden.txt` | Personal circumstances |
 
-The tool automatically detects the language of responses. For non-Dutch text, it uses a translation service to convert the text to Dutch before processing. This allows SEAA to handle multilingual datasets while maintaining consistent anonymization rules.
-
-The translation system:
-- Detects the source language using language detection
-- Translates non-Dutch text to Dutch using multiple translation services
-- Falls back to alternative translators if one fails
-- Handles large texts by breaking them into manageable chunks
+To improve anonymization over time, review the `avg_words_count_{date}.csv` output and add words to either `whitelist.txt` (safe words) or `blacklist.txt` (privacy-sensitive words).
 
 ## Limitations
 
 - Dictionary-based approach may miss complex or context-dependent privacy information
-- Translation quality may affect anonymization accuracy for non-Dutch responses
+- Primarily designed for Dutch text
 - Regular maintenance of dictionaries is recommended for optimal performance
 
