@@ -22,7 +22,7 @@ from src.load_seaa_data import load_data, load_dictionary
 from src.SEAA import SEAA
 from src.AVG_list import AVG_list
 
-def process_answers(input_folder: str, output_folder: str, input_file: Optional[str] = None, limit: int = -1) -> tuple[pd.DataFrame, pd.DataFrame]:
+def process_answers(input_folder: str, output_folder: str, input_file: Optional[str] = None, limit: int = -1, answer_column: str = 'Answer') -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Process open-ended survey responses and anonymize privacy-sensitive information.
     
@@ -58,7 +58,7 @@ def process_answers(input_folder: str, output_folder: str, input_file: Optional[
         print(f"\nProcessing: {file}")
         
         # Load and prepare data
-        df = load_data(input_folder, file)
+        df = load_data(input_folder, file, answer_column)
         
         # Apply limit if specified
         if limit > 0:
@@ -134,12 +134,14 @@ def _load_flag_words() -> pd.DataFrame:
 
 if __name__ == "__main__":
     # Example usage - modify these paths as needed
-    INPUT_FILE = r'welzijnsmonitor_openantwoord  test.csv'
-    INPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\Welzijnsmonitor\input"
-    OUTPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\Welzijnsmonitor\output"
-    
+    INPUT_FILE = r'Open Antwoorden 100D 2025-2026.csv'
+    INPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\100 dagen monitor\Input"
+    OUTPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\100 dagen monitor\Output"
+    ANSWER_COLUMN = 'Antwoord'
+
     process_answers(
         input_file=INPUT_FILE,
         input_folder=INPUT_FOLDER,
-        output_folder=OUTPUT_FOLDER
+        output_folder=OUTPUT_FOLDER,
+        answer_column=ANSWER_COLUMN
     )

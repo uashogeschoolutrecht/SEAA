@@ -17,7 +17,7 @@ def _detect_language(text: str) -> str | None:
         return None
 
 
-def _prepare_text(df: pd.DataFrame) -> pd.DataFrame:
+def _prepare_text(df: pd.DataFrame, answer_column: str) -> pd.DataFrame:
     """
     Prepare text data by detecting language and creating lowercase clean version.
     
@@ -28,12 +28,12 @@ def _prepare_text(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with added 'answer_clean' and 'language' columns
     """
     df_copy = df.copy()
-    df_copy['answer_clean'] = df_copy['Answer'].str.lower()
+    df_copy['answer_clean'] = df_copy[answer_column].str.lower()
     df_copy['language'] = df_copy['answer_clean'].apply(_detect_language)
     return df_copy
 
 
-def load_data(path: str, file_name: str) -> pd.DataFrame:
+def load_data(path: str, file_name: str, answer_column: str) -> pd.DataFrame:
     """
     Load and clean CSV file containing open-ended answers.
     
@@ -48,7 +48,7 @@ def load_data(path: str, file_name: str) -> pd.DataFrame:
     df = pd.read_csv(os.path.join(path, file_name), sep=';', encoding='utf-8-sig')
     
     # Detect language and prepare clean text
-    df = _prepare_text(df)
+    df = _prepare_text(df, answer_column)
     
     # Detect and censor email addresses
     email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
