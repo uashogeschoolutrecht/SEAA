@@ -134,9 +134,9 @@ def _load_flag_words() -> pd.DataFrame:
 
 if __name__ == "__main__":
     # Example usage - modify these paths as needed
-    INPUT_FILE = r'Open Antwoorden 100D 2025-2026.csv'
-    INPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\100 dagen monitor\input"
-    OUTPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\100 dagen monitor\output"
+    INPUT_FILE = r'nse_2024.csv'
+    INPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\NSE\input"
+    OUTPUT_FOLDER = r"C:\Users\AnneL\Stichting Hogeschool Utrecht\FCA-DA-P - Inleesbestanden\Domein Education Analytics\SEAA\NSE\output"
     ANSWER_COLUMN = 'Antwoord'
 
     process_answers(
