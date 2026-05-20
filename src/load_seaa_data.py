@@ -4,6 +4,7 @@ Data loading and preprocessing functions for SEAA.
 
 import os
 import re
+import unicodedata
 import pandas as pd
 from typing import Literal
 from langdetect import detect
@@ -28,7 +29,11 @@ def _prepare_text(df: pd.DataFrame, answer_column: str) -> pd.DataFrame:
         DataFrame with added 'answer_clean' and 'language' columns
     """
     df_copy = df.copy()
-    df_copy['answer_clean'] = df_copy[answer_column].str.lower()
+    # Normalize to NFC so composed characters (e.g. "ë") stay a single code point.
+    df_copy['answer_clean'] = df_copy[answer_column].map(
+        lambda text: unicodedata.normalize('NFC', text) if isinstance(text, str) else text
+    )
+    df_copy['answer_clean'] = df_copy['answer_clean'].str.lower()
     df_copy['language'] = df_copy['answer_clean'].apply(_detect_language)
     return df_copy
 

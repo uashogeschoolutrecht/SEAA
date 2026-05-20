@@ -1,4 +1,5 @@
 import re
+import unicodedata
 import pandas as pd
 
 
@@ -34,8 +35,10 @@ def SEAA(df: pd.DataFrame, dictionary_df: pd.DataFrame, flag_df: pd.DataFrame, l
     word_column = dictionary_df.columns[0]
  
     # Process each answer
-    for current_idx, (idx, row) in enumerate(dataframe.iterrows()):
-        answer = dataframe["answer_clean"][idx]
+    for idx, _ in dataframe.iterrows():
+        answer = dataframe.at[idx, "answer_clean"]
+        if isinstance(answer, str):
+            answer = unicodedata.normalize("NFC", answer)
         try:
             if pd.isna(answer):
                 dataframe.loc[idx, "contains_privacy"] = 0
@@ -127,8 +130,8 @@ def SEAA(df: pd.DataFrame, dictionary_df: pd.DataFrame, flag_df: pd.DataFrame, l
 
     return dataframe
 
-        
-        
-        
-                
-                
+
+
+
+
+
