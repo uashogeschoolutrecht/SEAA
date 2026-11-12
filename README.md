@@ -1,198 +1,99 @@
 # SEAA: Semi-automatic Anonymization Algorithm
-A Python tool for detecting and anonymizing privacy-sensitive information in open-ended Dutch survey responses or other open answers.
+
+SEAA detects and anonymizes potentially privacy-sensitive words in open-ended survey responses. It is designed primarily for Dutch text; responses in other languages are detected but not translated.
+
+> **Important:** SEAA can miss sensitive information. Review all results manually; it does not replace human review.
 
 ## Overview
-SEAA helps identify and anonymize potentially privacy-sensitive information in text responses, particularly useful for processing survey data. Any csv file with open answers can be processed. It uses dictionary-based matching that is updated by user interaction to:
-- Detect unknown words that might contain private information
-- Flag known privacy-sensitive terms (names, medical conditions, etc.)
-- Replace sensitive information with category markers (e.g., [NAME], [ILLNESS])
-- Allow users to expand the whitelist/blacklist of words through interactive review
-- User input is expanded in the dictionaries and used for future analyses
 
-> NOTE: this tool is primarily designed for Dutch text, but includes translation capabilities for non-Dutch responses.
+SEAA reads semicolon-separated CSV files, detects the language of each answer, then compares words with safe-word and privacy-term dictionaries. It flags known sensitive terms and words not in the safe-word list, replaces them with category markers in a censored-answer column, and writes analysis and Dutch unknown-word review files. Users can update the dictionaries between runs based on their review.
 
-`Disclaimer: SEAA is a tool for anonimisation of text data, but does not replace a manual check of results nor can SEAA or it's creators be held responsible for misdetection of privacy-related data.`
+## Flowchart
 
-##  Flow chart
-
-##  Flow chart
 ```mermaid
-%%{init: {'sequence': {'theme': 'hand'}}}%%
-sequenceDiagram
-    participant Input as Input Files
-    participant SEAA as SEAA Process
-    participant Dict as Dictionaries
-    participant User as User Review
-    participant Out as Output Files
-    Input->>SEAA: Standard CSV
-    activate SEAA
-    SEAA->>SEAA: Load & Clean Text
-    SEAA->>SEAA: Detect Language
-    alt Non-Dutch Text
-    SEAA->>SEAA: Translate to Dutch
-    end
-    loop Word Check
-    SEAA->>Dict: Check against dictionaries
-    Dict-->>SEAA: Return matches
-    end
-    SEAA->>Out: Write SEAA_output.csv
-    SEAA->>Out: Write unknown_words.csv
-    deactivate SEAA
-    loop For each unknown word
-    Out->>User: Present word
-    User->>Dict: Add to whitelist/blacklist
-    end
-    
-    Dict->>Dict: Update dictionaries
+flowchart TD
+    A[Input CSV files] --> B[Load answers and detect language]
+    B --> C[Clean text]
+    C --> D[Compare words with dictionaries]
+    D --> E[Flag sensitive and unknown words]
+    E --> F[Write results and Dutch unknown-word review CSVs]
+    F --> G[User reviews unknown words]
+    G --> H[Update safe-word or sensitive-word dictionaries]
+    H -. next run .-> D
 ```
 
 ## Prerequisites
 
-Before installing SEAA, ensure you have:
-1. Python 3.7 or higher installed
-2. Git installed
-3. Basic understanding of command line operations
-4. A modern web browser (Chrome, Firefox, Safari, or Edge)
+- Python 3.15.2 or later
+- Git, to clone the repository
+- pip, included with Python, to install dependencies
 
 ## Installation
 
-1. Clone the repository and switch to the AL_local_flask branch:
 ```bash
 git clone https://github.com/uashogeschoolutrecht/SEAA.git
 cd SEAA
+python -m pip install -r requirements.txt
 ```
 
-2. Install required dependencies:
+Run commands from the repository root; SEAA loads its dictionaries from the `dict/` folder.
+
+## Usage
+
+Process every CSV file in an input folder:
+
 ```bash
-pip install -r requirements.txt
+python cli.py <input_folder> <output_folder>
 ```
 
-## Running the Application
+Options:
 
-SEAA provides a web interface for processing and anonymizing your data. There are two ways to run the application:
-
-### Using Flask Development Server
-1. Open a terminal in the project directory
-2. Run the Flask application:
 ```bash
-python app.py
-```
-3. Open your web browser and navigate to:
-```
-http://localhost:5000
+python cli.py ./data ./output --file input.csv
+python cli.py ./data ./output --limit 1000
 ```
 
+`--file` selects one file within the input folder; `--limit` processes only the first N responses in each selected file. Omit both to process all CSV files and rows.
 
-> **Note**: The development server is not suitable for production use. 
+SEAA can also be called from Python:
 
-Once the application is running, you can:
-1. Access the main interface at `http://localhost:5000` for file processing
-2. View the documentation at `Documentation`
-3. Upload your CSV files through the web interface
-4. Process and download anonymized results
-5. Help improve the dictionaries through the interactive review process (optional)
+```python
+from main import process_answers
 
-## Input Requirements
+results_df, avg_words_df = process_answers("./data", "./output")
+```
 
-Your input CSV file must:
-- Use semicolon as the separator
-- Contain these columns in order: 
-  1. `respondent_id` - Unique identifier for each respondent
-  2. `Answer` - The text responses to analyze
-  3. `question_id` - Identifier for the question being answered
+## Input CSV
 
-Example input CSV format:
+Input files must be semicolon-separated and contain an `Answer` column. UTF-8 files with or without a BOM are supported. Other columns, such as `respondent_id` and `question_id`, are preserved in the main output but are not required.
+
 ```csv
 respondent_id;Answer;question_id
-1001;"Mijn docent Peter heeft mij enorm geholpen";Q1
-1002;"Ik had moeite met concentratie tijdens de lessen";Q1
+1001;Mijn docent Peter heeft mij enorm geholpen;Q1
+1002;Ik had moeite met concentratie tijdens de lessen;Q1
 ```
 
-## Output Files
+## Output
 
-The tool generates several output files:
+Two semicolon-separated files are written to the output folder, with the current date in `YYYYMMDD` format:
 
-1. `SEAA_output.csv`: Main analysis results containing:
-   - Original text
-   - Censored text
-   - Privacy flags
-   - Detected sensitive words
+- `SEAA_output_<date>.csv` — original input columns plus cleaned text, detected language, privacy flag, unknown and flagged words, and censored answer.
+- `avg_words_count_<date>.csv` — Dutch unknown words not already flagged, with their frequency (`AVG_woord`, `Count`). Review these words and update dictionaries as appropriate.
 
-2. `avg_words_count.csv`: List of unknown words for review
+Flagged words are replaced with category markers such as `[NAME]`; other unknown words are marked `[UNKNOWN]`.
 
-3. Updated dictionary files in `dict/` folder:
-   - `whitelist.txt`: Safe words
-   - `blacklist.txt`: Privacy-sensitive words
+## Dictionaries
 
-## Output File Columns
+SEAA loads safe words from `wordlist.txt` and `whitelist.txt`. It flags terms from `illness.txt`, `studiebeperking.txt`, `names.txt`, `blacklist.txt`, `plaatsnamen.txt`, `familie.txt`, and `persoonlijke_omstandigheden.txt`, all in `dict/`.
 
-The `SEAA_output.csv` contains the following columns:
+`dict/wordlist.txt` is based on [OpenTaal's Dutch wordlist](https://github.com/OpenTaal/opentaal-wordlist), version 2.20.23 (2023-03-10). The file has a `words` header and its `NA` entry was removed; OpenTaal's license is retained in `dict/LICENSE-opentaal.txt`.
 
-- `respondent_id`: Original respondent identifier
-- `Answer`: Original text response
-- `question_id`: Original question identifier
-- `answer_clean`: Cleaned version of the text (lowercase, normalized)
-- `contains_privacy`: Binary flag (1/0) indicating if privacy-sensitive content was detected
-- `unknown_words`: List of words not found in the dictionary or whitelist
-- `flagged_words`: List of words matched against the privacy-sensitive dictionaries
-- `answer_censored`: Text with privacy-sensitive words replaced by category markers (e.g., [NAME], [ILLNESS]) and unknown words replaced by [UNKOWN]
-- `total_word_count`: Total number of words in the response
-- `unknown_word_count`: Number of words not found in dictionaries (still need to be reviewed)
-- `flagged_word_count`: Number of privacy-sensitive words detected
-- `unknown_words_not_flagged`: Unknown words that are not in the dictionaries
-- `flagged_word_type`: Categories of privacy-sensitive content found (e.g., "name, illness")
-- `language`: Detected language of the response (e.g., 'nl' for Dutch, 'en' for English)
-
-Example row:
-```csv
-respondent_id;Answer;question_id;answer_clean;contains_privacy;unknown_words;flagged_words;answer_censored;total_word_count;unknown_word_count;flagged_word_count;unknown_words_not_flagged;flagged_word_type;language
-1;"Mijn docent Peter heeft mij geholpen met mijn loopbaanbegleidingstraject";"Q1";"mijn docent peter heeft mij geholpen met mijn loopbaanbegleidingstraject";1;"";peter;"Mijn docent [NAME] heeft mij geholpen met mijn [UNKOWN]";10;0;1;;"name";"nl"
-```
-
-## Interactive Word Review
-
-The tool will present unknown words for review, allowing you to:
-- Add words to the whitelist (safe words)
-- Add words to the blacklist (privacy-sensitive words)
-- Skip words for later review
-
-Example interaction:
-```
-"docent" kwam 45 keer voor in de open antwoorden.
-Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): j
-Woord "docent" is toegevoegd aan de whitelist
-
-"janssen" kwam 12 keer voor in de open antwoorden.
-Wil je dit woord toevoegenaan de whitelist? (j/n/blacklist): blacklist
-Woord "janssen" is toegevoegd aan de blacklist
-```
-
-## Dictionary Management
-
-The tool uses several dictionary files in the `dict/` folder:
-- `wordlist.txt`: Base dictionary of common words
-- `whitelist.txt`: User-approved safe words
-- `blacklist.txt`: Known privacy-sensitive words
-- `illness.txt`: Medical conditions and health-related terms
-- `studiebeperking.txt`: Study limitations
-- `names.txt`: Common first names plus some last names
-- `familie.txt`: Family relationship terms
-- `plaatsnamen.txt`: All locations in the Netherlands from the Dutch census
-- `persoonlijke_omstandigheden.txt`: Personal circumstances
-
-## Language Detection and Translation
-
-The tool automatically detects the language of responses. For non-Dutch text, it uses a translation service to convert the text to Dutch before processing. This allows SEAA to handle multilingual datasets while maintaining consistent anonymization rules.
-
-The translation system:
-- Detects the source language using language detection
-- Translates non-Dutch text to Dutch using multiple translation services
-- Falls back to alternative translators if one fails
-- Handles large texts by breaking them into manageable chunks
+Add reviewed safe words to `whitelist.txt` and sensitive words to `blacklist.txt` to improve future results.
 
 ## Limitations
 
-- Dictionary-based approach may miss complex or context-dependent privacy information
-- Translation quality may affect anonymization accuracy for non-Dutch responses
-- Regular maintenance of dictionaries is recommended for optimal performance
+SEAA uses dictionary matching and may miss context-dependent or unlisted sensitive information. It is intended primarily for Dutch; other languages are not translated, and the unknown-word review list is generated only for Dutch responses.
 
+## License
+
+SEAA's original code is licensed under the MIT License; see [LICENSE](LICENSE). Third-party resources, including the OpenTaal wordlist, remain subject to their own licenses.
