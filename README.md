@@ -93,3 +93,7 @@ Add reviewed safe words to `whitelist.txt` and sensitive words to `blacklist.txt
 ## Limitations
 
 SEAA uses dictionary matching and may miss context-dependent or unlisted sensitive information. It is intended primarily for Dutch; other languages are not translated, and the unknown-word review list is generated only for Dutch responses.
+
+## License
+
+SEAA's original code is licensed under the MIT License; see [LICENSE](LICENSE). Third-party resources, including the OpenTaal wordlist, remain subject to their own licenses.
