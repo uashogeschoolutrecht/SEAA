@@ -42,7 +42,7 @@ def process_answers(input_folder: str, output_folder: str, input_file: Optional[
     if input_file:
         files_to_process = [input_file]
     else:
-        files_to_process = [f for f in os.listdir(input_folder) if f.endswith('.csv')]
+        files_to_process = [f for f in os.listdir(input_folder) if f.lower().endswith('.csv')]
     
     if not files_to_process:
         raise ValueError(f"No CSV files found in {input_folder}")
