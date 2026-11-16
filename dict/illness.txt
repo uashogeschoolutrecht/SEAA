@@ -733,7 +733,6 @@ vermoeidheidsziekte
 verouderingsziekte
 verslavingsziekte
 verstandelijke handicap
-vertigo
 verziekte
 verziendheid
 veteranenziekte
@@ -806,3 +805,4 @@ zwartekoppenziekte
 zweetziekte
 zwemmerseczeem
 zwoegerziekte
+vertigo

@@ -8,7 +8,7 @@ def AVG_list(dataframe,flagged_df):
         df = dataframe.copy()
         
         avg_list = []
-        for words in df['unknown_words']:
+        for words in df['unknown_words_not_flagged']:
             avg_list.extend(words.split(', '))           
             
         # Clean wordlist from empty values
